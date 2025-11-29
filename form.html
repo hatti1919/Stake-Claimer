@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- 共通デザイン --- */
+        body { background-color: #000000; color: white; font-family: 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; overflow-x: hidden; }
+        .back-btn { display: inline-block; margin: 20px 0; color: #aaa; text-decoration: none; border: 1px solid #aaa; padding: 8px 20px; border-radius: 20px; transition: 0.3s; }
+        .back-btn:hover { border-color: #00E701; color: #00E701; }
+        
+        /* --- 手順セクション --- */
+        .flow-section { width: 90%; max-width: 800px; margin: 20px auto 80px auto; }
+        .flow-title { font-size: 2rem; font-weight: bold; margin-bottom: 60px; text-align: center; color: #00E701; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .flow-step { display: flex; flex-direction: column; align-items: center; margin-bottom: 70px; position: relative; opacity: 0; transform: translateY(30px); transition: 0.8s; }
+        .flow-step.visible { opacity: 1; transform: translateY(0); }
+        
+        /* 矢印 */
+        .flow-step:not(:last-child)::after { content: '▼'; font-size: 2rem; color: #333; position: absolute; bottom: -50px; }
+        
+        .step-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .step-number { background-color: #00E701; color: #000; font-weight: bold; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 15px; font-size: 1.3rem; box-shadow: 0 0 15px rgba(0, 231, 1, 0.4); }
+        .step-title { font-size: 1.6rem; font-weight: bold; }
+        .step-desc { text-align: center; margin-bottom: 30px; line-height: 1.8; color: #ccc; max-width: 600px; }
+        
+        .step-image { width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s; }
+        .step-image:hover { transform: scale(1.03); border-color: #00E701; }
+        
+        .step-no-image { background-color: #1a1a1a; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 100%; max-width: 500px; }
+        .step-no-image i { font-size: 3rem; color: #00E701; margin-bottom: 15px; }
+
+        /* --- 最後のDiscordボタンエリア --- */
+        .final-action-area { text-align: center; margin-bottom: 100px; padding: 40px; background: linear-gradient(145deg, #111, #000); border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 600px; box-shadow: 0 0 30px rgba(0, 231, 1, 0.1); }
+        .final-text { font-size: 1.2rem; margin-bottom: 30px; line-height: 1.8; }
+        
+        .discord-btn { display: block; width: 100%; max-width: 350px; margin: 0 auto; background-color: #5865F2; color: white; text-align: center; padding: 18px 0; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 1.3rem; transition: 0.3s; box-shadow: 0 5px 20px rgba(88, 101, 242, 0.4); }
+        .discord-btn:hover { background-color: #4752c4; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(88, 101, 242, 0.6); }
+        .discord-btn i { margin-right: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">← TOPに戻る</a>
+
+    <div class="flow-section">
+        <div class="flow-title">HOW TO BUY</div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">1</div><div class="step-title">購入ボタンを押す</div></div>
+            <div class="step-desc">Discordサーバーの「ライセンス販売」チャンネルにあるパネルから、「購入」ボタンをクリックします。</div>
+            <img src="image/flow_01.png" alt="Step 1" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">2</div><div class="step-title">プランを選択する</div></div>
+            <div class="step-desc">メニューが表示されるので、ご希望のライセンス期間を選択してください。</div>
+            <img src="image/flow_02.png" alt="Step 2" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">3</div><div class="step-title">通貨を選択する</div></div>
+            <div class="step-desc">お支払いに使用する仮想通貨を選択してください。</div>
+            <img src="image/flow_03.png" alt="Step 3" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">4</div><div class="step-title">情報を入力して送信</div></div>
+            <div class="step-desc">必要に応じてクーポンコードやメールアドレスを入力し、「送信」をクリックします。</div>
+            <img src="image/flow_04.png" alt="Step 4" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">5</div><div class="step-title">送金情報を確認</div></div>
+            <div class="step-desc">BotからDMで送金先アドレスと金額が届きます。内容を正確に確認してください。</div>
+            <img src="image/flow_05.png" alt="Step 5" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">6</div><div class="step-title">お支払い</div></div>
+            <div class="step-desc">指定されたアドレスへ、期限内に正確な金額でお支払いしてください。</div>
+            <div class="step-no-image"><i class="fa-solid fa-paper-plane"></i><br>トランザクション完了まで暫しお待ちください</div>
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">7</div><div class="step-title">ライセンスキーを受け取る</div></div>
+            <div class="step-desc">送金がシステムで確認されると、DMでライセンスキーが発行されます。</div>
+            <div class="step-no-image"><i class="fa-solid fa-key"></i><br>キーをコピーしてください</div>
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">8</div><div class="step-title">コードを有効化する</div></div>
+            <div class="step-desc">サーバーに戻り、パネルの「コードを有効化」をクリックしてキーを入力します。</div>
+            <img src="image/flow_06.png" alt="Step 8" class="step-image">
+        </div>
+
+        <div class="flow-step">
+            <div class="step-header"><div class="step-number">9</div><div class="step-title">API Keyを入力する</div></div>
+            <div class="step-desc">最後に「API Keyを入力」をクリックし、StakeのAPIキーを設定すれば完了です！</div>
+            <img src="image/flow_07.png" alt="Step 9" class="step-image">
+        </div>
+    </div>
+
+    <div class="final-action-area flow-step">
+        <p class="final-text">
+            手順は以上です。<br>
+            準備ができたら、以下のボタンからサーバーに参加してください！<br>
+        </p>
+        <a href="#" class="discord-btn link-discord">
+            <i class="fa-brands fa-discord"></i> Discordに参加して購入
+        </a>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        // ヌルっと出るアニメーション
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.flow-step').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
