@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake Bonus Claimer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- 全体の設定 --- */
+        body {
+            background-color: #000000; /* 全体背景は黒 */
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- 左上のSNSアイコン --- */
+        .social-links {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+        .social-links a {
+            color: #ffffff;
+            font-size: 24px;
+            text-decoration: none;
+            transition: color 0.3s, transform 0.3s;
+        }
+        .social-links a:hover {
+            color: #00E701;
+            transform: scale(1.1);
+        }
+
+        /* --- ヒーローセクション（ロゴ・タイトル） --- */
+        .hero-section {
+            margin-top: 80px;
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+        }
+        .logo-img {
+            width: 200px;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* --- タイピングアニメーション --- */
+        .typing-container {
+            height: 30px;
+            margin-bottom: 50px;
+            font-size: 1.2rem;
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+        }
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            background-color: #00E701;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* --- 横スクロール（スワイプ）用 --- */
+        .plans-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            padding: 20px 0 40px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* スクロールバー装飾 */
+        .plans-scroll-wrapper::-webkit-scrollbar { height: 8px; }
+        .plans-scroll-wrapper::-webkit-scrollbar-track { background: #1a1b26; }
+        .plans-scroll-wrapper::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .plans-container {
+            display: flex;
+            gap: 25px;
+            padding: 0 40px;
+            width: max-content;
+            margin: 0 auto;
+        }
+
+        /* --- プランカード共通 --- */
+        .plan-card {
+            background-color: #000000;
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 260px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid #333; 
+            box-shadow: 0 4px 20px rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+        }
+        .plan-card:hover { transform: translateY(-5px); }
+
+        /* 色別設定 */
+        .plan-cyan { border-color: #00ffff; }
+        .plan-cyan:hover { box-shadow: 0 0 20px rgba(0, 255, 255, 0.4); }
+        .plan-cyan .plan-title, .plan-cyan .plan-price { color: #00ffff; }
+
+        .plan-green { border-color: #00ff00; }
+        .plan-green:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.4); }
+        .plan-green .plan-title, .plan-green .plan-price { color: #00ff00; }
+
+        .plan-blue { border-color: #2979ff; }
+        .plan-blue:hover { box-shadow: 0 0 20px rgba(41, 121, 255, 0.4); }
+        .plan-blue .plan-title, .plan-blue .plan-price { color: #2979ff; }
+
+        .plan-red { border-color: #ff0055; }
+        .plan-red:hover { box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); }
+        .plan-red .plan-title, .plan-red .plan-price { color: #ff0055; }
+
+        /* カード内テキスト */
+        .plan-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .plan-price { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; font-family: 'Courier New', monospace; }
+        .plan-features { font-size: 0.9rem; line-height: 1.8; color: #ccc; margin-bottom: 25px; border-top: 1px solid #333; padding-top: 15px; }
+
+        /* 購入ボタン風ラベル */
+        .buy-label {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .plan-cyan:hover .buy-label { background-color: #00ffff; color: #000; }
+        .plan-green:hover .buy-label { background-color: #00ff00; color: #000; }
+        .plan-blue:hover .buy-label { background-color: #2979ff; color: #fff; }
+        .plan-red:hover .buy-label { background-color: #ff0055; color: #fff; }
+
+        /* --- FAQセクション --- */
+        .faq-section { width: 90%; max-width: 800px; margin: 80px auto; padding-bottom: 50px; }
+        .faq-title { font-size: 2rem; font-weight: bold; margin-bottom: 40px; border-left: 5px solid #00E701; padding-left: 15px; text-align: left; }
+        .faq-item { border-bottom: 1px solid #333; margin-bottom: 10px; }
+        .faq-question { padding: 20px 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: color 0.3s; }
+        .faq-question:hover { color: #00E701; }
+        .faq-icon { font-size: 1.2rem; color: #00E701; transition: transform 0.3s ease; }
+        
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 10px; color: #ccc; line-height: 1.8; font-size: 0.95rem; }
+        .faq-answer p { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="social-links">
+        <a href="#" class="link-discord" target="_blank"><i class="fa-brands fa-discord"></i></a>
+        <a href="#" class="link-twitter" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+    </div>
+
+    <div class="hero-section">
+        <img src="image/logo.jpg" alt="Stake Bonus Claimer Logo" class="logo-img">
+        <h1>Stake Bonus Claimer</h1>
+        <div class="typing-container">
+            <span class="text"></span><span class="cursor">|</span>
+        </div>
+    </div>
+
+    <div class="plans-scroll-wrapper">
+        <div class="plans-container">
+            
+            <a href="#" class="plan-card plan-cyan link-plan">
+                <div>
+                    <div class="plan-title">1 Day</div>
+                    <div class="plan-price">¥500</div>
+                    <div class="plan-features">
+                        24時間 自動取得<br>
+                        即時セットアップ<br>
+                        24Hサポート
+                    </div>
+                </div>
+                <span class="buy-label">購入する</span>
+            </a>
+
+            <a href="#" class="plan-card plan-green link-plan">
+                <div>
+                    <div class="plan-title">1 Week</div>
+                    <div class="plan-price">¥2,500</div>
+                    <div class="plan-features">
+                        7日間 自動取得<br>
+                        即時セットアップ<br>
+                        24Hサポート
+                    </div>
+                </div>
+                <span class="buy-label">購入する</span>
+            </a>
+
+            <a href="#" class="plan-card plan-blue link-plan">
+                <div>
+                    <div class="plan-title">2 Weeks</div>
+                    <div class="plan-price">¥4,500</div>
+                    <div class="plan-features">
+                        14日間 自動取得<br>
+                        即時セットアップ<br>
+                        24Hサポート
+                    </div>
+                </div>
+                <span class="buy-label">購入する</span>
+            </a>
+
+            <a href="#" class="plan-card plan-red link-plan">
+                <div>
+                    <div class="plan-title">1 Month</div>
+                    <div class="plan-price">¥8,000</div>
+                    <div class="plan-features">
+                        30日間 自動取得<br>
+                        即時セットアップ<br>
+                        VIPサポート
+                    </div>
+                </div>
+                <span class="buy-label">購入する</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-title">よくある質問</div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                支払い方法は何がありますか？
+                <i class="fa-solid fa-plus faq-icon"></i>
+            </div>
+            <div class="faq-answer"><p>多種多様な仮想通貨に対応しております！</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                サポートはどの時間でも対応していますか？
+                <i class="fa-solid fa-plus faq-icon"></i>
+            </div>
+            <div class="faq-answer"><p>ほぼ、即答できると思います。</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                プランの延長などはどうすればいいですか？
+                <i class="fa-solid fa-plus faq-icon"></i>
+            </div>
+            <div class="faq-answer"><p>ライセンスを追加購入してもらう形になります。<br>現在の残り時間＋ライセンスの時間で追加されます。</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                アカウントの凍結リスクはありますか？
+                <i class="fa-solid fa-plus faq-icon"></i>
+            </div>
+            <div class="faq-answer"><p>基本的にないです。</p></div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                ボーナスコードは全て取れますか？
+                <i class="fa-solid fa-plus faq-icon"></i>
+            </div>
+            <div class="faq-answer"><p>ほとんど取れますが、リミットの低いものだと取れない時があります。</p></div>
+        </div>
+    </div>
+
+    <script src="setting.js"></script>
+
+    <script>
+        // --- タイピングアニメーション ---
+        const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
+        let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
+
+        (function type() {
+            if (count === texts.length) count = 0;
+            currentText = texts[count];
+            letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index);
+            document.querySelector(".typing-container .text").textContent = letter;
+
+            let typeSpeed = isDeleting ? 50 : 100;
+            if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; }
+            else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; }
+            setTimeout(type, typeSpeed);
+        })();
+
+        // --- FAQアニメーション ---
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const answer = item.querySelector('.faq-answer');
+                const icon = item.querySelector('.faq-icon');
+
+                item.classList.toggle('active');
+                if (item.classList.contains('active')) {
+                    answer.style.maxHeight = answer.scrollHeight + "px";
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                } else {
+                    answer.style.maxHeight = null;
+                    icon.classList.remove('fa-minus');
+                    icon.classList.add('fa-plus');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
