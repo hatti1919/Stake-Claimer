@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase - Stake Bonus Claimer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #00E701;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ccc;
+            border-left: 4px solid #00E701;
+            padding-left: 10px;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+
+        .select-card {
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .select-card:hover {
+            transform: translateY(-3px);
+            border-color: #666;
+        }
+
+        /* 選択時 */
+        .select-card.selected {
+            border-color: #00E701;
+            background: rgba(0, 231, 1, 0.05);
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+        }
+
+        .select-card.selected::after {
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #00E701;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        /* ▼▼▼ 無効化デザイン ▼▼▼ */
+        .select-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #333;
+            background: #0a0a0a;
+            pointer-events: none;
+            /* クリック無効 */
+        }
+
+        .coming-soon {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .p-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .p-price {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .pay-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .pay-name {
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #00E701;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .checkout-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
+        }
+
+        .checkout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="page-title">購入手続き</h1>
+
+        <div class="section-title">プランを選択</div>
+        <div class="selection-grid" id="plan-grid">
+            <div class="select-card" onclick="selectPlan(this, '1day')">
+                <div class="p-name">1 Day</div>
+                <div class="p-price">¥1,200</div>
+            </div>
+            <div class="select-card" onclick="selectPlan(this, '1week')">
+                <div class="p-name">1 Week</div>
+                <div class="p-price">¥3,000</div>
+            </div>
+            <div class="select-card" onclick="selectPlan(this, '2weeks')">
+                <div class="p-name">2 Weeks</div>
+                <div class="p-price">¥5,000</div>
+            </div>
+            <div class="select-card" onclick="selectPlan(this, '1month')">
+                <div class="p-name">1 Month</div>
+                <div class="p-price">¥6,800</div>
+            </div>
+        </div>
+
+        <div class="section-title">支払い方法を選択</div>
+        <div class="selection-grid" id="payment-grid">
+
+            <div class="select-card disabled">
+                <span class="pay-icon" style="color: #ff0033; font-weight:900;">P</span>
+                <div class="pay-name">PayPay</div>
+                <div class="coming-soon">Coming Soon</div>
+            </div>
+
+            <div class="select-card disabled">
+                <i class="fa-brands fa-stripe pay-icon" style="color: #635bff;"></i>
+                <div class="pay-name">クレジットカード</div>
+                <div class="coming-soon">Coming Soon</div>
+            </div>
+
+            <div class="select-card" onclick="selectPayment(this, 'crypto')">
+                <i class="fa-brands fa-bitcoin pay-icon" style="color: #f7931a;"></i>
+                <div class="pay-name">仮想通貨</div>
+            </div>
+
+        </div>
+
+        <button id="checkout-btn" class="checkout-btn">決済へ進む</button>
+        <a href="index.html" class="back-link">キャンセルして戻る</a>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        let selectedPlan = null;
+        let selectedPayment = null;
+        const checkoutBtn = document.getElementById('checkout-btn');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan');
+            if (plan) {
+                const cards = document.querySelectorAll('#plan-grid .select-card');
+                const planMap = {'1day': 0, '1week': 1, '2weeks': 2, '1month': 3};
+                if (planMap[plan] !== undefined) selectPlan(cards[planMap[plan]], plan);
+            }
+        });
+
+        function selectPlan(card, planId) {
+            document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedPlan = planId;
+            checkForm();
+        }
+
+        function selectPayment(card, paymentId) {
+            document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedPayment = paymentId;
+            checkForm();
+        }
+
+        function checkForm() {
+            if (selectedPlan && selectedPayment) {
+                checkoutBtn.classList.add('active');
+                checkoutBtn.innerText = "決済へ進む";
+            } else {
+                checkoutBtn.classList.remove('active');
+            }
+        }
+
+        checkoutBtn.addEventListener('click', () => {
+            if (!selectedPlan || !selectedPayment) return;
+            // 仮想通貨決済ページへ飛ばす処理などをここに書く
+            alert(`プラン: ${selectedPlan}\n支払い: ${selectedPayment}\n\n決済画面へ移動します（実装予定）`);
+        });
+
+        window.onload = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { alert("ログインしてください"); window.location.href = "index.html"; }
+        };
+    </script>
+</body>
+
+</html>
