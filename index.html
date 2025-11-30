@@ -664,7 +664,30 @@
             let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
             (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
             
-            document.querySelectorAll('.faq-question').forEach(q => q.addEventListener('click', () => { q.parentElement.classList.toggle('active'); }));
+            // ▼▼▼ 修正箇所: FAQのアニメーションとアイコン切り替え ▼▼▼
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', () => {
+                    const item = question.parentElement;
+                    const answer = item.querySelector('.faq-answer');
+                    const icon = question.querySelector('.faq-icon');
+
+                    // 開閉の切り替え
+                    item.classList.toggle('active');
+
+                    if (item.classList.contains('active')) {
+                        // 開くとき：高さを出して、アイコンをマイナスにする
+                        answer.style.maxHeight = answer.scrollHeight + "px";
+                        icon.classList.remove('fa-plus');   // プラスを消す
+                        icon.classList.add('fa-minus');     // マイナスを追加
+                    } else {
+                        // 閉じるとき：高さを0にして、アイコンをプラスに戻す
+                        answer.style.maxHeight = null;
+                        icon.classList.remove('fa-minus');  // マイナスを消す
+                        icon.classList.add('fa-plus');      // プラスを追加
+                    }
+                });
+            });
+            // ▲▲▲ 修正箇所ここまで ▲▲▲
             
             // ヌルっと出るスクロールアニメーション
             const observer = new IntersectionObserver((entries, observer) => {
