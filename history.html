@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>購入履歴 - Stake Bonus Claimer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding-top: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ヘッダーCSS (indexと同じ) */
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #000000;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .nav-left a {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 20px;
+            transition: 0.3s;
+        }
+
+        .nav-left a:hover {
+            color: #00E701;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: #fff;
+            font-size: 0.7rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            color: #00E701;
+        }
+
+        /* 履歴カード */
+        .history-card {
+            background: #111;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-card:hover {
+            transform: translateX(5px);
+            background: #1a1a1a;
+        }
+
+        .status-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+        }
+
+        .status-pending {
+            background-color: #ffd700;
+        }
+
+        .status-paid {
+            background-color: #00E701;
+        }
+
+        .status-expired {
+            background-color: #ff4444;
+        }
+
+        .h-details {
+            margin-left: 15px;
+        }
+
+        .h-id {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .h-plan {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .h-date {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .h-status {
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+
+        .text-pending {
+            color: #ffd700;
+        }
+
+        .text-paid {
+            color: #00E701;
+        }
+
+        .text-expired {
+            color: #ff4444;
+        }
+
+        /* モーダル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: #111;
+            border: 1px solid #00E701;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 231, 1, 0.2);
+        }
+
+        .key-display {
+            font-family: monospace;
+            font-size: 1.4rem;
+            color: #00ffff;
+            border: 1px dashed #444;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            background: #000;
+        }
+
+        .close-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer-links {
+            margin-top: auto;
+            padding: 40px 0;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #333;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sticky-nav">
+        <div class="nav-left">
+            <a href="index.html">Home</a>
+            <a href="terms.html">利用規約</a>
+            <a href="usage.html">使用方法</a>
+        </div>
+        <div class="nav-right">
+            <div class="notification-icon">
+                <i class="fa-solid fa-bell"></i>
+                <span class="badge" id="notif-badge">0</span>
+            </div>
+            <div id="auth-area">
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title">購入履歴 / 通知</h1>
+        <div id="history-list">
+            <p style="text-align:center; color:#666;">読み込み中...</p>
+        </div>
+    </div>
+
+    <div id="key-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="color:#00E701; margin-top:0;">ライセンスキー</h3>
+            <p>以下のキーをコピーしてご使用ください。</p>
+            <div id="modal-key-text" class="key-display">Loading...</div>
+            <button class="close-btn" onclick="document.getElementById('key-modal').style.display='none'">閉じる</button>
+        </div>
+    </div>
+
+    <div class="footer-links">
+        <a href="terms.html">利用規約</a>
+        <a href="usage.html">使用方法</a>
+        <a href="index.html">ホームに戻る</a>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                alert("ログインしてください");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // ヘッダーアバター
+            const user = session.user;
+            document.getElementById('auth-area').innerHTML = `<img src="${user.user_metadata.avatar_url}" class="user-avatar-nav">`;
+
+            // 履歴取得
+            loadHistory(user.id);
+        });
+
+        async function loadHistory(userId) {
+            try {
+                const res = await fetch('/api/history', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const orders = await res.json();
+                
+                const list = document.getElementById('history-list');
+                list.innerHTML = "";
+
+                // バッジ更新
+                const activeCount = orders.filter(o => o.status === 'pending' || o.status === 'paid').length;
+                if(activeCount > 0) {
+                    const b = document.getElementById('notif-badge');
+                    b.style.display = 'flex';
+                    b.innerText = activeCount;
+                }
+
+                if (orders.length === 0) {
+                    list.innerHTML = "<p style='text-align:center; color:#666;'>履歴はありません</p>";
+                    return;
+                }
+
+                orders.forEach(order => {
+                    let statusHtml, barClass, onclick;
+                    const date = new Date(order.created_at).toLocaleString('ja-JP');
+
+                    if (order.status === 'pending') {
+                        barClass = 'status-pending';
+                        statusHtml = '<span class="text-pending">🟡 支払い待機中</span>';
+                        onclick = `window.open('${order.pay_url}', '_blank')`;
+                    } else if (order.status === 'paid') {
+                        barClass = 'status-paid';
+                        statusHtml = '<span class="text-paid">🟢 完了</span>';
+                        onclick = `showKey('${order.license_key}')`;
+                    } else {
+                        barClass = 'status-expired';
+                        statusHtml = '<span class="text-expired">🔴 期限切れ/失敗</span>';
+                        onclick = `alert('この注文は期限切れです。再度購入してください。'); window.location.href='purchase.html'`;
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = 'history-card';
+                    div.setAttribute('onclick', onclick);
+                    div.innerHTML = `
+                        <div class="status-bar ${barClass}"></div>
+                        <div class="h-details">
+                            <div class="h-id">Order ID: ${order.order_id}</div>
+                            <div class="h-plan">${order.plan_type.toUpperCase()} PLAN</div>
+                            <div class="h-date">${date}</div>
+                        </div>
+                        <div class="h-status">
+                            ${statusHtml}<br>
+                            <span style="font-size:0.8rem; color:#666; font-weight:normal;">タップして詳細</span>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function showKey(key) {
+            document.getElementById('modal-key-text').innerText = key;
+            document.getElementById('key-modal').style.display = 'flex';
+        }
+    </script>
+</body>
+
+</html>

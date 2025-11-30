@@ -14,189 +14,151 @@
             color: #ffffff;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding-top: 60px;
+            /* ヘッダーの分だけ下げる */
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* --- ヘッダー・メニュー --- */
-        .header-actions {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            z-index: 200;
-        }
-
-        .icon-twitter {
-            color: #fff;
-            font-size: 24px;
-            transition: 0.3s;
-        }
-
-        .icon-twitter:hover {
-            color: #00E701;
-            transform: scale(1.1);
-        }
-
-        .login-btn {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-        }
-
-        .login-btn:hover {
-            background-color: #4752c4;
-            transform: translateY(-2px);
-        }
-
-        /* ユーザープロフィール */
-        .user-profile {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #00E701;
-            transition: 0.3s;
-        }
-
-        .user-profile:hover .user-avatar {
-            box-shadow: 0 0 10px #00E701;
-        }
-
-        /* ドロップダウンメニュー */
-        .dropdown-menu {
-            position: absolute;
-            top: 55px;
-            right: 0;
-            background-color: #1a1b26;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 220px;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-
-        .dropdown-menu.show {
-            display: flex;
-        }
-
-        .menu-user-info {
-            padding: 15px;
-            border-bottom: 1px solid #333;
-            text-align: center;
-            background: #111;
-        }
-
-        .menu-user-name {
-            font-size: 0.8rem;
-            color: #aaa;
-            font-weight: bold;
-            word-break: break-all;
-        }
-
-        .menu-item {
-            padding: 12px 15px;
-            color: #fff;
-            text-decoration: none;
-            transition: 0.2s;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #222;
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-item:hover {
-            background-color: #333;
-            color: #00E701;
-        }
-
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        /* --- ログイン警告モーダル --- */
-        .modal-overlay {
+        /* --- 追従型ヘッダー --- */
+        .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            height: 60px;
+            background-color: #000000;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
             z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-left a {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 20px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-left a:hover {
+            color: #00E701;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* 通知ベル */
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.2rem;
+            transition: 0.3s;
+        }
+
+        .notification-icon:hover {
+            color: #00E701;
+            transform: scale(1.1);
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff4444;
+            color: white;
+            font-size: 0.7rem;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 50%;
             display: none;
+            /* JSで表示制御 */
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-box {
-            background: #111;
-            border: 1px solid #00E701;
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 0 30px rgba(0, 231, 1, 0.2);
-            animation: popIn 0.3s ease;
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            color: #00E701;
-            margin-bottom: 15px;
             font-weight: bold;
+            border: 1px solid #000;
         }
 
-        .modal-desc {
-            color: #ccc;
-            margin-bottom: 30px;
-            line-height: 1.6;
+        /* ログインボタン / プロフィール */
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
         }
 
-        /* --- その他デザイン --- */
+        .login-btn-nav:hover {
+            background-color: #4752c4;
+        }
+
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+        }
+
+        /* ユーザーメニュー */
+        .nav-user-menu {
+            position: relative;
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            width: 150px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .nav-dropdown.show {
+            display: flex;
+        }
+
+        .nav-item {
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px solid #222;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        /* --- コンテンツ --- */
         .hero-section {
-            margin-top: 100px;
+            margin-top: 50px;
             text-align: center;
             width: 90%;
             max-width: 800px;
@@ -277,37 +239,12 @@
             border-bottom: 1px solid #00E701;
         }
 
-        /* アニメーション */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         /* プラン */
         .plans-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
             padding: 20px 0 40px 0;
             -webkit-overflow-scrolling: touch;
-        }
-
-        .plans-scroll-wrapper::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .plans-scroll-wrapper::-webkit-scrollbar-track {
-            background: #1a1b26;
-        }
-
-        .plans-scroll-wrapper::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
         }
 
         .plans-container {
@@ -325,15 +262,11 @@
             padding: 30px 25px;
             width: 260px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             border: 2px solid #333;
             box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
-            position: relative;
-            text-decoration: none;
             cursor: pointer;
+            position: relative;
         }
 
         .plan-card:hover {
@@ -431,7 +364,7 @@
         .faq-section {
             width: 90%;
             max-width: 800px;
-            margin: 20px auto 80px auto;
+            margin: 20px auto 50px auto;
             padding-bottom: 50px;
         }
 
@@ -480,38 +413,63 @@
             font-size: 0.95rem;
         }
 
-        .faq-answer p {
-            margin-bottom: 20px;
+        /* フッター */
+        .footer-links {
+            margin-top: auto;
+            padding: 40px 0;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #333;
+            background-color: #050505;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        /* アニメーション */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 
 <body>
 
-    <div id="login-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-title"><i class="fa-solid fa-triangle-exclamation"></i> ログインが必要です</div>
-            <p class="modal-desc">
-                購入に進むには、まずはログインしてください！<br>
-                以下のボタンを押すとDiscordに飛ぶので、<br>そちらからログインしてください。
-            </p>
-            <button onclick="loginWithDiscord()" class="login-btn"
-                style="margin: 0 auto; width: 100%; justify-content: center;">
-                <i class="fa-brands fa-discord"></i> Discordでログイン
-            </button>
-            <button onclick="closeModal()"
-                style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">キャンセル</button>
+    <nav class="sticky-nav">
+        <div class="nav-left">
+            <a href="index.html">Home</a>
+            <a href="terms.html">利用規約</a>
+            <a href="usage.html">使用方法</a>
         </div>
-    </div>
-
-    <div class="header-actions">
-        <a href="#" class="link-twitter icon-twitter" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
-        <div id="auth-container">
-            <button onclick="loginWithDiscord()" class="login-btn">
-                <i class="fa-brands fa-discord"></i> Login
-            </button>
+        <div class="nav-right">
+            <div class="notification-icon" onclick="window.location.href='history.html'" title="購入履歴 / 通知">
+                <i class="fa-solid fa-bell"></i>
+                <span class="badge" id="notif-badge">0</span>
+            </div>
+            <div id="auth-container">
+                <button onclick="loginWithDiscord()" class="login-btn-nav">
+                    <i class="fa-brands fa-discord"></i> Login
+                </button>
+            </div>
         </div>
-    </div>
+    </nav>
 
     <div class="hero-section fade-up">
         <img src="image/logo.jpg" alt="Logo" class="logo-img">
@@ -525,8 +483,7 @@
             ボーナスコードを請求する時に「あ、もう上限」「寝落ちしてた😭」なんてことありませんか？<br>
             私たちはボーナスコードを請求する動作を全て自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>あなたのコードを請求致します<br><br>
             また、システム導入の手順は<span class="highlight-text">難しい動作が不要の超簡単使用です🔥</span>。<br>
-            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。<br>
-            最先端のスピードと信頼を、あなたの手に。
+            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。
         </div>
     </div>
 
@@ -572,18 +529,6 @@
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
-            <div class="faq-answer">
-                <p>ほぼ、即答できると思います。</p>
-            </div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
-            <div class="faq-answer">
-                <p>ライセンスを追加購入してもらう形になります。<br>現在の残り時間＋ライセンスの時間で追加されます。</p>
-            </div>
-        </div>
-        <div class="faq-item">
             <div class="faq-question">アカウントの凍結リスクはありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
                 <p>基本的にないです。</p>
@@ -597,126 +542,117 @@
         </div>
     </div>
 
-    <script src="setting.js"></script>
+    <div class="footer-links">
+        <a href="terms.html">利用規約</a>
+        <a href="usage.html">使用方法</a>
+        <a href="index.html">ホームに戻る</a>
+    </div>
 
+    <script src="setting.js"></script>
     <script>
         const authContainer = document.getElementById('auth-container');
         let currentUser = null;
 
-        // --- ログイン処理 ---
         async function loginWithDiscord() {
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            await supabase.auth.signInWithOAuth({
                 provider: 'discord',
                 options: { redirectTo: window.location.origin, scopes: 'identify guilds.join' }
             });
         }
 
-        // --- ログアウト ---
         async function logout() {
             await supabase.auth.signOut();
             window.location.reload();
         }
 
-        // --- 画面読み込み ---
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-
-            if (session) {
-                currentUser = session.user;
-                const avatar = currentUser.user_metadata.avatar_url;
-                const name = currentUser.user_metadata.full_name || currentUser.user_metadata.name;
-                const discordInvite = CONFIG.discordInviteUrl;
-
-                authContainer.innerHTML = `
-                    <div class="user-profile" onclick="toggleMenu()">
-                        <img src="${avatar}" class="user-avatar">
-                        <div id="user-menu" class="dropdown-menu">
-                            <div class="menu-user-info">
-                                <div class="menu-user-name">${name}</div>
-                            </div>
-                            <div class="menu-item" onclick="alert('購入履歴ページ（準備中）')">
-                                <i class="fa-solid fa-clock-rotate-left"></i> 購入履歴を確認
-                            </div>
-                            <a href="${discordInvite}" target="_blank" class="menu-item">
-                                <i class="fa-brands fa-discord"></i> Discordに参加
-                            </a>
-                            <div class="menu-item" onclick="logout()" style="color: #ff4444;">
-                                <i class="fa-solid fa-right-from-bracket"></i> ログアウト
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // 自動参加処理の呼び出し
-                const providerToken = session.provider_token;
-                const userId = currentUser.user_metadata.provider_id;
-                if (providerToken) {
-                    fetch('/api/join', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: userId, provider_token: providerToken })
-                    });
-                }
-            }
-            
-            // アニメーション
-            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
-            let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
-            (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
-            
-            // ▼▼▼ 修正箇所: FAQのアニメーションとアイコン切り替え ▼▼▼
-            document.querySelectorAll('.faq-question').forEach(question => {
-                question.addEventListener('click', () => {
-                    const item = question.parentElement;
-                    const answer = item.querySelector('.faq-answer');
-                    const icon = question.querySelector('.faq-icon');
-
-                    // 開閉の切り替え
-                    item.classList.toggle('active');
-
-                    if (item.classList.contains('active')) {
-                        // 開くとき：高さを出して、アイコンをマイナスにする
-                        answer.style.maxHeight = answer.scrollHeight + "px";
-                        icon.classList.remove('fa-plus');   // プラスを消す
-                        icon.classList.add('fa-minus');     // マイナスを追加
-                    } else {
-                        // 閉じるとき：高さを0にして、アイコンをプラスに戻す
-                        answer.style.maxHeight = null;
-                        icon.classList.remove('fa-minus');  // マイナスを消す
-                        icon.classList.add('fa-plus');      // プラスを追加
-                    }
-                });
-            });
-            // ▲▲▲ 修正箇所ここまで ▲▲▲
-            
-            // ヌルっと出るスクロールアニメーション
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { root: null, rootMargin: "0px", threshold: 0.1 });
-            document.querySelectorAll('.fade-up').forEach(el => { observer.observe(el); });
-        });
-
-        function toggleMenu() {
-            const menu = document.getElementById('user-menu');
-            if (menu) menu.classList.toggle('show');
+        function toggleNavMenu() {
+            const el = document.getElementById('nav-dropdown');
+            if(el) el.classList.toggle('show');
         }
 
         function goToPurchase(plan) {
             if (currentUser) {
                 window.location.href = `purchase.html?plan=${plan}`;
             } else {
-                document.getElementById('login-modal').style.display = 'flex';
+                alert("購入するにはまず右上のボタンからログインしてください。");
             }
         }
 
-        function closeModal() {
-            document.getElementById('login-modal').style.display = 'none';
+        // 通知チェック
+        async function checkNotifications(userId) {
+            try {
+                // history APIを叩いて最新状況を取得
+                const res = await fetch('/api/history', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const orders = await res.json();
+                
+                // Pending状態や最近の注文があるか確認
+                // ここでは単純に「完了していない注文」or「直近の注文」を通知対象とする
+                const activeCount = orders.filter(o => o.status === 'pending' || o.status === 'paid').length;
+                
+                const badge = document.getElementById('notif-badge');
+                if (activeCount > 0) {
+                    badge.style.display = 'flex';
+                    badge.innerText = activeCount;
+                }
+            } catch(e) {
+                console.error("Notif check failed", e);
+            }
         }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session) {
+                currentUser = session.user;
+                const avatar = currentUser.user_metadata.avatar_url;
+                
+                // ヘッダーの表示切り替え
+                authContainer.innerHTML = `
+                    <div class="nav-user-menu" onclick="toggleNavMenu()">
+                        <img src="${avatar}" class="user-avatar-nav">
+                        <div id="nav-dropdown" class="nav-dropdown">
+                            <a class="nav-item" href="history.html">購入履歴</a>
+                            <div class="nav-item" onclick="logout()" style="color:#ff4444;">ログアウト</div>
+                        </div>
+                    </div>
+                `;
+                
+                // 通知チェック開始
+                checkNotifications(currentUser.id);
+            }
+
+            // タイピングアニメーション
+            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
+            let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
+            (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
+
+            // FAQ動作
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', () => {
+                    const item = question.parentElement;
+                    const answer = item.querySelector('.faq-answer');
+                    const icon = question.querySelector('.faq-icon');
+                    item.classList.toggle('active');
+                    if (item.classList.contains('active')) {
+                        answer.style.maxHeight = answer.scrollHeight + "px";
+                        icon.classList.remove('fa-plus'); icon.classList.add('fa-minus');
+                    } else {
+                        answer.style.maxHeight = null;
+                        icon.classList.remove('fa-minus'); icon.classList.add('fa-plus');
+                    }
+                });
+            });
+
+            // スクロールアニメ
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        });
     </script>
 </body>
 
