@@ -82,7 +82,7 @@
             box-shadow: 0 0 10px #00E701;
         }
 
-        /* ドロップダウンメニュー（更新） */
+        /* ドロップダウンメニュー */
         .dropdown-menu {
             position: absolute;
             top: 55px;
@@ -114,8 +114,6 @@
             font-weight: bold;
             word-break: break-all;
         }
-
-        /* 名前を小さく */
 
         .menu-item {
             padding: 12px 15px;
@@ -246,6 +244,52 @@
             }
         }
 
+        /* 理念セクション */
+        .philosophy-section {
+            width: 85%;
+            max-width: 700px;
+            text-align: center;
+            margin: 40px auto 80px auto;
+            padding: 40px;
+            border: 1px solid #333;
+            border-radius: 20px;
+            background: linear-gradient(145deg, #111, #000);
+            box-shadow: 0 10px 30px rgba(0, 231, 1, 0.05);
+        }
+
+        .philosophy-title {
+            font-size: 1.8rem;
+            color: #00E701;
+            margin-bottom: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .philosophy-text {
+            font-size: 1rem;
+            line-height: 2;
+            color: #ddd;
+        }
+
+        .highlight-text {
+            color: #fff;
+            font-weight: bold;
+            border-bottom: 1px solid #00E701;
+        }
+
+        /* アニメーション */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* プラン */
         .plans-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -383,6 +427,7 @@
             transition: 0.3s;
         }
 
+        /* FAQ */
         .faq-section {
             width: 90%;
             max-width: 800px;
@@ -468,46 +513,57 @@
         </div>
     </div>
 
-    <div class="hero-section">
+    <div class="hero-section fade-up">
         <img src="image/logo.jpg" alt="Logo" class="logo-img">
         <h1>Stake Bonus Claimer</h1>
         <div class="typing-container"><span class="text"></span><span class="cursor">|</span></div>
     </div>
 
-    <div class="plans-scroll-wrapper">
+    <div class="philosophy-section fade-up">
+        <div class="philosophy-title">私たちの行動理念</div>
+        <div class="philosophy-text">
+            ボーナスコードを請求する時に「あ、もう上限」「寝落ちしてた😭」なんてことありませんか？<br>
+            私たちはボーナスコードを請求する動作を全て自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>あなたのコードを請求致します<br><br>
+            また、システム導入の手順は<span class="highlight-text">難しい動作が不要の超簡単使用です🔥</span>。<br>
+            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。<br>
+            最先端のスピードと信頼を、あなたの手に。
+        </div>
+    </div>
+
+    <div class="plans-scroll-wrapper fade-up">
         <div class="plans-container">
             <div class="plan-card plan-cyan" onclick="goToPurchase('1day')">
                 <div>
                     <div class="plan-title">1 Day</div>
                     <div class="plan-price">¥1,200</div>
-                    <div class="plan-features">24時間 自動取得<br>即時セットアップ<br>24Hサポート</div>
+                    <div class="plan-features">24時間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-green" onclick="goToPurchase('1week')">
                 <div>
                     <div class="plan-title">1 Week</div>
                     <div class="plan-price">¥3,000</div>
-                    <div class="plan-features">7日間 自動取得<br>即時セットアップ<br>24Hサポート</div>
+                    <div class="plan-features">7日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-blue" onclick="goToPurchase('2weeks')">
                 <div>
                     <div class="plan-title">2 Weeks</div>
                     <div class="plan-price">¥5,000</div>
-                    <div class="plan-features">14日間 自動取得<br>即時セットアップ<br>24Hサポート</div>
+                    <div class="plan-features">14日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-red" onclick="goToPurchase('1month')">
                 <div>
                     <div class="plan-title">1 Month</div>
                     <div class="plan-price">¥6,800</div>
-                    <div class="plan-features">30日間 自動取得<br>即時セットアップ<br>VIPサポート</div>
+                    <div class="plan-features">30日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
         </div>
     </div>
 
-    <div class="faq-section">
+    <div class="faq-section fade-up">
         <div class="faq-title">よくある質問</div>
         <div class="faq-item">
             <div class="faq-question">支払い方法は何がありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
@@ -519,6 +575,24 @@
             <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
                 <p>ほぼ、即答できると思います。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ライセンスを追加購入してもらう形になります。<br>現在の残り時間＋ライセンスの時間で追加されます。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">アカウントの凍結リスクはありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>基本的にないです。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">ボーナスコードは全て取れますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ほとんど取れますが、リミットの低いものだと取れない時があります。</p>
             </div>
         </div>
     </div>
@@ -553,7 +627,6 @@
                 const name = currentUser.user_metadata.full_name || currentUser.user_metadata.name;
                 const discordInvite = CONFIG.discordInviteUrl;
 
-                // ▼▼▼ 更新されたメニュー構成 ▼▼▼
                 authContainer.innerHTML = `
                     <div class="user-profile" onclick="toggleMenu()">
                         <img src="${avatar}" class="user-avatar">
@@ -592,6 +665,17 @@
             (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
             
             document.querySelectorAll('.faq-question').forEach(q => q.addEventListener('click', () => { q.parentElement.classList.toggle('active'); }));
+            
+            // ヌルっと出るスクロールアニメーション
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { root: null, rootMargin: "0px", threshold: 0.1 });
+            document.querySelectorAll('.fade-up').forEach(el => { observer.observe(el); });
         });
 
         function toggleMenu() {
