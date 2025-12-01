@@ -1,387 +1,82 @@
-<!DOCTYPE html>
-<html lang="ja">
+from http.server import BaseHTTPRequestHandler
+import json
+import os
+import requests
+from supabase import create_client
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>購入履歴</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: sans-serif;
-            margin: 0;
-            padding-top: 70px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+class handler(BaseHTTPRequestHandler):
+def do_POST(self):
+try:
+content_len = int(self.headers.get('Content-Length'))
+data = json.loads(self.rfile.read(content_len))
+user_id = data.get('user_id')
 
-        .sticky-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #000;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            box-sizing: border-box;
-            z-index: 1000;
-        }
+MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
+# 1. 注文履歴を取得
+orders = supabase.table('orders').select('*').eq('user_id', user_id).order('created_at', desc=True).execute().data
 
-        .nav-link {
-            color: #ccc;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: 0.3s;
-        }
+updated_orders = []
 
-        .nav-link:hover {
-            color: #00E701;
-        }
+for order in orders:
+# 2. 「待機中」なら、強制的にOxapayに最新状況を聞きに行く
+if order['status'] == 'pending':
+try:
+# Oxapay APIへ問い合わせ
+url = "https://api.oxapay.com/merchants/inquiry"
+payload = {"merchant": MERCHANT_KEY, "orderId": order['order_id']}
+res = requests.post(url, json=payload).json()
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+payment_status = res.get('status') # Paid, Waiting, Confirming...
 
-        .notification-btn {
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+# ★ 支払い済み (Paid) だった場合
+if payment_status == 'Paid':
+# キーの引き当て（まだ無ければ）
+if not order.get('license_key'):
+key_res = supabase.rpc('claim_license_key', {
+'p_plan_type': order['plan_type'],
+'p_buyer_id': user_id
+}).execute()
 
-        .nav-divider {
-            width: 1px;
-            height: 30px;
-            background-color: #333;
-            margin: 0 5px;
-        }
+license_key = key_res.data
+if not license_key:
+license_key = "在庫切れ (管理者に連絡してください)"
 
-        .user-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+# DB更新
+supabase.table('orders').update({
+'status': 'paid',
+'license_key': license_key
+}).eq('id', order['id']).execute()
 
-        .user-avatar-nav {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 3px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
+# 表示用にデータを書き換える
+order['status'] = 'paid'
+order['license_key'] = license_key
+else:
+# キーはあるけどステータスが古い場合
+supabase.table('orders').update({'status': 'paid'}).eq('id', order['id']).execute()
+order['status'] = 'paid'
 
-        .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 220px;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-        }
+# ★ 期限切れ (Expired) だった場合
+elif payment_status == 'Expired':
+supabase.table('orders').update({'status': 'expired'}).eq('id', order['id']).execute()
+order['status'] = 'expired'
 
-        .dropdown-menu.show {
-            display: flex;
-        }
+except Exception as e:
+print(f"Check Error for {order['order_id']}: {e}")
+# エラーでもリストには含める
 
-        .menu-item {
-            padding: 15px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #222;
-            background: #111;
-            cursor: pointer;
-        }
+updated_orders.append(order)
 
-        .menu-item:hover {
-            background: #222;
-            color: #00E701;
-        }
+# 3. 結果を返す
+self.send_response(200)
+self.send_header('Content-type', 'application/json')
+self.end_headers()
+self.wfile.write(json.dumps(updated_orders).encode())
 
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            color: #888;
-        }
-
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            color: #00E701;
-            font-weight: bold;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .filter-btn {
-            background: #111;
-            border: 1px solid #333;
-            color: #ccc;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            transition: 0.3s;
-        }
-
-        .filter-btn.active {
-            background: #00E701;
-            color: #000;
-            border-color: #00E701;
-            font-weight: bold;
-        }
-
-        .history-card {
-            background: #111;
-            border: 1px solid #333;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .history-card:hover {
-            background: #1a1a1a;
-        }
-
-        .status-bar {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-        }
-
-        .status-pending {
-            background-color: #ffd700;
-        }
-
-        .status-paid {
-            background-color: #00E701;
-        }
-
-        .status-expired {
-            background-color: #ff4444;
-        }
-
-        .h-info {
-            margin-left: 15px;
-        }
-
-        .h-plan {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .h-date {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .h-status {
-            text-align: right;
-            font-weight: bold;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background: #111;
-            border: 1px solid #00E701;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-
-        .key-display {
-            font-family: monospace;
-            font-size: 1.5rem;
-            color: #00ffff;
-            border: 1px dashed #444;
-            padding: 15px;
-            margin: 20px 0;
-            background: #000;
-            word-break: break-all;
-        }
-
-        .close-btn {
-            background: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-
-<body>
-    <nav class="sticky-nav">
-        <div class="nav-left">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="terms.html" class="nav-link">利用規約</a>
-            <a href="usage.html" class="nav-link">使用方法</a>
-        </div>
-        <div class="nav-right">
-            <div class="notification-btn" onclick="location.reload()"><i class="fa-solid fa-bell"></i></div>
-            <div class="nav-divider"></div>
-            <div id="auth-container"></div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <h1 class="page-title">購入履歴</h1>
-        <div class="filter-group">
-            <button class="filter-btn active" onclick="filterHistory('all', this)">すべて</button>
-            <button class="filter-btn" onclick="filterHistory('paid', this)">完了</button>
-            <button class="filter-btn" onclick="filterHistory('pending', this)">待機中</button>
-            <button class="filter-btn" onclick="filterHistory('expired', this)">期限切れ</button>
-        </div>
-        <div id="history-list">
-            <p style="text-align:center;color:#666;">読み込み中...</p>
-        </div>
-    </div>
-
-    <div id="key-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="color:#00E701;">ライセンスキー</h3>
-            <div id="modal-key-text" class="key-display"></div>
-            <button class="close-btn" onclick="document.getElementById('key-modal').style.display='none'">閉じる</button>
-        </div>
-    </div>
-
-    <script src="setting.js"></script>
-    <script>
-        const authContainer = document.getElementById('auth-container');
-        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
-        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
-        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) { 
-                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-                document.getElementById('history-list').innerHTML = "<p style='text-align:center; margin-top:50px;'>履歴を表示するにはログインしてください。</p>";
-                return; 
-            }
-            
-            const user = session.user;
-            authContainer.innerHTML = `
-                <div class="user-menu-container">
-                    <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
-                    <div id="user-menu" class="dropdown-menu">
-                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                        <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
-                        <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
-                        <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
-                    </div>
-                </div>
-            `;
-            loadHistory(user.id);
-        });
-
-        async function loadHistory(userId) {
-            try {
-                const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId}) });
-                const orders = await res.json();
-                const list = document.getElementById('history-list');
-                list.innerHTML = "";
-                if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
-
-                orders.forEach(o => {
-                    let stHtml, cls, act, statType;
-                    const dt = new Date(o.created_at).toLocaleString('ja-JP');
-                    if(o.status==='pending') { cls='status-pending'; stHtml='<span style="color:#ffd700">🟡 待機中</span>'; act=`window.open('${o.pay_url}')`; statType='pending'; }
-                    else if(o.status==='paid') { cls='status-paid'; stHtml='<span style="color:#00E701">🟢 完了</span>'; act=`showKey('${o.license_key}')`; statType='paid'; }
-                    else { cls='status-expired'; stHtml='<span style="color:#ff4444">🔴 期限切れ</span>'; act=`alert('再購入してください')`; statType='expired'; }
-
-                    const d = document.createElement('div'); d.className='history-card'; d.dataset.status=statType; d.onclick=new Function(act);
-                    d.innerHTML = `<div class="status-bar ${cls}"></div><div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()} PLAN</div><div class="h-date">${dt}</div></div><div class="h-status">${stHtml}</div>`;
-                    list.appendChild(d);
-                });
-            } catch(e){}
-        }
-
-        function filterHistory(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            document.querySelectorAll('.history-card').forEach(c => { c.style.display = (type==='all' || c.dataset.status===type) ? 'flex' : 'none'; });
-        }
-        function showKey(k) { document.getElementById('modal-key-text').innerText=k; document.getElementById('key-modal').style.display='flex'; }
-    </script>
-</body>
-
-</html>
+except Exception as e:
+self.send_response(500)
+self.end_headers()
+self.wfile.write(json.dumps({"error": str(e)}).encode())
