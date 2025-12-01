@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お問い合わせ - Stake Bonus Claimer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
+            margin: 0;
+            padding-top: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #000;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .nav-left a {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #00E701;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #00E701;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .submit-btn:hover {
+            background: #00c000;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sticky-nav">
+        <div class="nav-left"><a href="index.html">Home</a></div>
+    </nav>
+
+    <div class="container">
+        <h1>お問い合わせ</h1>
+        <form id="contact-form">
+            <div class="form-group">
+                <label>お問い合わせ内容（カテゴリ）</label>
+                <select id="subject" onchange="toggleOrderSelect()">
+                    <option value="payment">支払いについて</option>
+                    <option value="product">商品について</option>
+                    <option value="error">エラーについて</option>
+                    <option value="other">その他</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="order-group" style="display:none;">
+                <label>関連するオーダーID (任意)</label>
+                <select id="order-id">
+                    <option value="">選択してください</option>
+                </select>
+                <div id="no-history-msg" style="font-size:0.8rem; color:#666; display:none;">購入履歴がありません</div>
+            </div>
+
+            <div class="form-group">
+                <label>詳細内容</label>
+                <textarea id="description" placeholder="詳しい状況を記載してください..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>画像添付 (任意)</label>
+                <input type="file" id="image-file" accept="image/*">
+                <p style="font-size:0.8rem; color:#666;">※画像はURLとしてチケットに添付されます</p>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
+        </form>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        let currentUser = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(!session) { alert("ログインしてください"); window.location.href="index.html"; return; }
+            currentUser = session.user;
+
+            // 購入履歴取得してセレクトボックスへ
+            loadOrders();
+        });
+
+        async function loadOrders() {
+            const res = await fetch('/api/history', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ user_id: currentUser.id })
+            });
+            const orders = await res.json();
+            const select = document.getElementById('order-id');
+            
+            if(orders.length > 0) {
+                orders.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.order_id;
+                    opt.text = `${o.order_id} (${o.status})`;
+                    select.appendChild(opt);
+                });
+            } else {
+                document.getElementById('no-history-msg').style.display = 'block';
+                select.disabled = true;
+            }
+        }
+
+        function toggleOrderSelect() {
+            const val = document.getElementById('subject').value;
+            const group = document.getElementById('order-group');
+            if(val === 'product') group.style.display = 'block';
+            else group.style.display = 'none';
+        }
+
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "送信中..."; btn.disabled = true;
+
+            const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const orderId = document.getElementById('order-id').value;
+            const desc = document.getElementById('description').value;
+
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        user_name: currentUser.user_metadata.full_name || "Unknown",
+                        subject: subject,
+                        order_id: orderId,
+                        description: desc
+                    })
+                });
+                
+                if(res.ok) {
+                    alert("送信しました！Discordにチケットが作成されました。");
+                    window.location.href = "index.html";
+                } else {
+                    alert("送信に失敗しました。");
+                    btn.innerText = "送信する"; btn.disabled = false;
+                }
+            } catch(e) {
+                alert("エラーが発生しました");
+                btn.innerText = "送信する"; btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

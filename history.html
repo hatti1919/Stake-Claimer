@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
             margin: 0;
             padding-top: 80px;
             display: flex;
@@ -20,14 +20,13 @@
             min-height: 100vh;
         }
 
-        /* ヘッダーCSS (indexと同じ) */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 60px;
-            background-color: #000000;
+            background-color: rgba(0, 0, 0, 0.95);
             border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
@@ -42,11 +41,6 @@
             text-decoration: none;
             font-weight: bold;
             margin-right: 20px;
-            transition: 0.3s;
-        }
-
-        .nav-left a:hover {
-            color: #00E701;
         }
 
         .nav-right {
@@ -55,49 +49,102 @@
             gap: 20px;
         }
 
-        .notification-icon {
+        /* ベルアイコン */
+        .notification-btn {
+            color: #fff;
+            font-size: 1.3rem;
             position: relative;
             cursor: pointer;
-            color: #fff;
-            font-size: 1.2rem;
         }
 
         .badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -2px;
+            right: -2px;
             background: #ff4444;
             color: #fff;
-            font-size: 0.7rem;
-            width: 16px;
-            height: 16px;
+            font-size: 0.6rem;
+            min-width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
+            border: 1px solid #000;
+        }
+
+        /* ユーザーメニュー */
+        .user-menu-container {
+            position: relative;
         }
 
         .user-avatar-nav {
-            width: 35px;
-            height: 35px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             border: 2px solid #00E701;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            background: #111;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .menu-item:hover i {
+            color: #00E701;
         }
 
         .container {
             width: 90%;
             max-width: 800px;
+            margin-bottom: 50px;
         }
 
         .page-title {
             font-size: 2rem;
             border-bottom: 2px solid #333;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             margin-bottom: 30px;
             color: #00E701;
+            font-weight: bold;
         }
 
-        /* 履歴カード */
         .history-card {
             background: #111;
             border: 1px solid #333;
@@ -108,13 +155,11 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            transition: 0.2s;
             position: relative;
             overflow: hidden;
         }
 
         .history-card:hover {
-            transform: translateX(5px);
             background: #1a1a1a;
         }
 
@@ -123,7 +168,7 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 6px;
+            width: 5px;
         }
 
         .status-pending {
@@ -138,14 +183,8 @@
             background-color: #ff4444;
         }
 
-        .h-details {
+        .h-info {
             margin-left: 15px;
-        }
-
-        .h-id {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 5px;
         }
 
         .h-plan {
@@ -156,13 +195,11 @@
         .h-date {
             font-size: 0.8rem;
             color: #666;
-            margin-top: 5px;
         }
 
         .h-status {
-            font-weight: bold;
-            font-size: 0.9rem;
             text-align: right;
+            font-weight: bold;
         }
 
         .text-pending {
@@ -177,7 +214,6 @@
             color: #ff4444;
         }
 
-        /* モーダル */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -199,27 +235,27 @@
             text-align: center;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 0 30px rgba(0, 231, 1, 0.2);
         }
 
         .key-display {
             font-family: monospace;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: #00ffff;
             border: 1px dashed #444;
             padding: 15px;
             margin: 20px 0;
-            word-break: break-all;
             background: #000;
+            word-break: break-all;
         }
 
         .close-btn {
             background: #333;
             color: #fff;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .footer-links {
@@ -241,17 +277,24 @@
 
 <body>
     <nav class="sticky-nav">
-        <div class="nav-left">
-            <a href="index.html">Home</a>
-            <a href="terms.html">利用規約</a>
-            <a href="usage.html">使用方法</a>
+        <div class="nav-left"><a href="index.html" style="color:#ccc;text-decoration:none;font-weight:bold;">Home</a>
         </div>
         <div class="nav-right">
-            <div class="notification-icon">
+            <div class="notification-btn" onclick="location.reload()" title="更新">
                 <i class="fa-solid fa-bell"></i>
-                <span class="badge" id="notif-badge">0</span>
+                <span class="badge" id="notif-badge">!</span>
             </div>
-            <div id="auth-area">
+
+            <div class="user-menu-container">
+                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleUserMenu()">
+                <div id="user-menu" class="dropdown-menu">
+                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-discord"></i> 公式Discord</a>
+                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-x-twitter"></i> 公式X</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -259,111 +302,85 @@
     <div class="container">
         <h1 class="page-title">購入履歴 / 通知</h1>
         <div id="history-list">
-            <p style="text-align:center; color:#666;">読み込み中...</p>
+            <p style="text-align:center;color:#666;">読み込み中...</p>
         </div>
     </div>
 
     <div id="key-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="color:#00E701; margin-top:0;">ライセンスキー</h3>
-            <p>以下のキーをコピーしてご使用ください。</p>
-            <div id="modal-key-text" class="key-display">Loading...</div>
+            <h3 style="color:#00E701;">ライセンスキー</h3>
+            <p>コピーして使用してください</p>
+            <div id="modal-key-text" class="key-display"></div>
             <button class="close-btn" onclick="document.getElementById('key-modal').style.display='none'">閉じる</button>
         </div>
     </div>
 
-    <div class="footer-links">
-        <a href="terms.html">利用規約</a>
-        <a href="usage.html">使用方法</a>
-        <a href="index.html">ホームに戻る</a>
-    </div>
-
     <script src="setting.js"></script>
     <script>
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('show');
+            setTimeout(() => { document.addEventListener('click', closeMenu, {once:true}); }, 100);
+        }
+        function closeMenu(e) {
+            const menu = document.getElementById('user-menu');
+            if(menu && !menu.contains(e.target)) menu.classList.remove('show');
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                alert("ログインしてください");
-                window.location.href = "index.html";
-                return;
-            }
-
-            // ヘッダーアバター
-            const user = session.user;
-            document.getElementById('auth-area').innerHTML = `<img src="${user.user_metadata.avatar_url}" class="user-avatar-nav">`;
-
-            // 履歴取得
-            loadHistory(user.id);
+            if(!session) { window.location.href="index.html"; return; }
+            document.getElementById('user-avatar').src = session.user.user_metadata.avatar_url;
+            loadHistory(session.user.id);
         });
 
         async function loadHistory(userId) {
             try {
                 const res = await fetch('/api/history', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
+                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId})
                 });
                 const orders = await res.json();
-                
                 const list = document.getElementById('history-list');
                 list.innerHTML = "";
 
-                // バッジ更新
-                const activeCount = orders.filter(o => o.status === 'pending' || o.status === 'paid').length;
-                if(activeCount > 0) {
-                    const b = document.getElementById('notif-badge');
-                    b.style.display = 'flex';
-                    b.innerText = activeCount;
-                }
+                const activeCount = orders.filter(o => o.status==='pending'||o.status==='paid').length;
+                if(activeCount>0) { const b = document.getElementById('notif-badge'); b.style.display='flex'; b.innerText=activeCount; }
 
-                if (orders.length === 0) {
-                    list.innerHTML = "<p style='text-align:center; color:#666;'>履歴はありません</p>";
-                    return;
-                }
+                if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
 
-                orders.forEach(order => {
-                    let statusHtml, barClass, onclick;
-                    const date = new Date(order.created_at).toLocaleString('ja-JP');
-
-                    if (order.status === 'pending') {
-                        barClass = 'status-pending';
-                        statusHtml = '<span class="text-pending">🟡 支払い待機中</span>';
-                        onclick = `window.open('${order.pay_url}', '_blank')`;
-                    } else if (order.status === 'paid') {
-                        barClass = 'status-paid';
-                        statusHtml = '<span class="text-paid">🟢 完了</span>';
-                        onclick = `showKey('${order.license_key}')`;
-                    } else {
-                        barClass = 'status-expired';
-                        statusHtml = '<span class="text-expired">🔴 期限切れ/失敗</span>';
-                        onclick = `alert('この注文は期限切れです。再度購入してください。'); window.location.href='purchase.html'`;
+                orders.forEach(o => {
+                    let stHtml, cls, act;
+                    const dt = new Date(o.created_at).toLocaleString('ja-JP');
+                    if(o.status==='pending') { 
+                        cls='status-pending'; 
+                        stHtml='<span class="text-pending">🟡 待機中</span>'; 
+                        act=`window.open('${o.pay_url}')`; 
+                    }
+                    else if(o.status==='paid') { 
+                        cls='status-paid'; 
+                        stHtml='<span class="text-paid">🟢 完了</span>'; 
+                        act=`showKey('${o.license_key}')`; 
+                    }
+                    else { 
+                        cls='status-expired'; 
+                        stHtml='<span class="text-expired">🔴 期限切れ</span>'; 
+                        act=`if(confirm('期限切れです。再購入しますか？')) window.location.href='purchase.html'`; 
                     }
 
-                    const div = document.createElement('div');
-                    div.className = 'history-card';
-                    div.setAttribute('onclick', onclick);
-                    div.innerHTML = `
-                        <div class="status-bar ${barClass}"></div>
-                        <div class="h-details">
-                            <div class="h-id">Order ID: ${order.order_id}</div>
-                            <div class="h-plan">${order.plan_type.toUpperCase()} PLAN</div>
-                            <div class="h-date">${date}</div>
-                        </div>
-                        <div class="h-status">
-                            ${statusHtml}<br>
-                            <span style="font-size:0.8rem; color:#666; font-weight:normal;">タップして詳細</span>
-                        </div>
+                    const d = document.createElement('div');
+                    d.className = 'history-card';
+                    d.onclick = new Function(act);
+                    d.innerHTML = `
+                        <div class="status-bar ${cls}"></div>
+                        <div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()}</div><div class="h-date">${dt}</div></div>
+                        <div class="h-status">${stHtml}</div>
                     `;
-                    list.appendChild(div);
+                    list.appendChild(d);
                 });
-
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
-
-        function showKey(key) {
-            document.getElementById('modal-key-text').innerText = key;
+        function showKey(k) {
+            document.getElementById('modal-key-text').innerText = k;
             document.getElementById('key-modal').style.display = 'flex';
         }
     </script>

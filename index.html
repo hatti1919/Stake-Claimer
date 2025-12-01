@@ -15,21 +15,20 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding-top: 60px;
-            /* ヘッダーの分だけ下げる */
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* --- 追従型ヘッダー --- */
+        /* --- ヘッダー --- */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 60px;
-            background-color: #000000;
+            background-color: rgba(0, 0, 0, 0.95);
             border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
@@ -37,7 +36,7 @@
             padding: 0 20px;
             box-sizing: border-box;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
         }
 
         .nav-left a {
@@ -45,8 +44,7 @@
             text-decoration: none;
             font-weight: bold;
             margin-right: 20px;
-            font-size: 0.9rem;
-            transition: color 0.3s;
+            transition: 0.3s;
         }
 
         .nav-left a:hover {
@@ -60,38 +58,109 @@
         }
 
         /* 通知ベル */
-        .notification-icon {
+        .notification-btn {
             position: relative;
             cursor: pointer;
             color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
         }
 
-        .notification-icon:hover {
+        .notification-btn:hover {
             color: #00E701;
-            transform: scale(1.1);
         }
 
         .badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -2px;
+            right: -2px;
             background-color: #ff4444;
             color: white;
-            font-size: 0.7rem;
-            min-width: 16px;
-            height: 16px;
+            font-size: 0.6rem;
+            min-width: 8px;
+            height: 8px;
+            padding: 3px;
             border-radius: 50%;
             display: none;
-            /* JSで表示制御 */
+            /* JSで制御 */
             justify-content: center;
             align-items: center;
             font-weight: bold;
             border: 1px solid #000;
         }
 
-        /* ログインボタン / プロフィール */
+        /* ユーザーメニュー */
+        .user-menu-container {
+            position: relative;
+        }
+
+        .user-avatar-nav {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            transition: 0.3s;
+            object-fit: cover;
+        }
+
+        .user-avatar-nav:hover {
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.5);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            transition: 0.2s;
+            background: #111;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .menu-item:hover i {
+            color: #00E701;
+        }
+
         .login-btn-nav {
             background-color: #5865F2;
             color: white;
@@ -100,63 +169,12 @@
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: 0.2s;
         }
 
-        .login-btn-nav:hover {
-            background-color: #4752c4;
-        }
-
-        .user-avatar-nav {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: 2px solid #00E701;
-            cursor: pointer;
-        }
-
-        /* ユーザーメニュー */
-        .nav-user-menu {
-            position: relative;
-        }
-
-        .nav-dropdown {
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            width: 150px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .nav-dropdown.show {
-            display: flex;
-        }
-
-        .nav-item {
-            padding: 10px;
-            font-size: 0.9rem;
-            color: #fff;
-            text-decoration: none;
-            border-bottom: 1px solid #222;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            background: #222;
-            color: #00E701;
-        }
-
-        /* --- コンテンツ --- */
+        /* コンテンツ */
         .hero-section {
             margin-top: 50px;
             text-align: center;
@@ -187,26 +205,6 @@
             font-family: 'Courier New', monospace;
         }
 
-        .cursor {
-            display: inline-block;
-            width: 2px;
-            background-color: #00E701;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0;
-            }
-        }
-
-        /* 理念セクション */
         .philosophy-section {
             width: 85%;
             max-width: 700px;
@@ -216,7 +214,6 @@
             border: 1px solid #333;
             border-radius: 20px;
             background: linear-gradient(145deg, #111, #000);
-            box-shadow: 0 10px 30px rgba(0, 231, 1, 0.05);
         }
 
         .philosophy-title {
@@ -224,7 +221,6 @@
             color: #00E701;
             margin-bottom: 20px;
             font-weight: bold;
-            letter-spacing: 2px;
         }
 
         .philosophy-text {
@@ -239,12 +235,10 @@
             border-bottom: 1px solid #00E701;
         }
 
-        /* プラン */
         .plans-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
             padding: 20px 0 40px 0;
-            -webkit-overflow-scrolling: touch;
         }
 
         .plans-container {
@@ -256,17 +250,15 @@
         }
 
         .plan-card {
-            background-color: #000000;
-            color: #ffffff;
+            background: #000;
+            color: #fff;
             border-radius: 16px;
             padding: 30px 25px;
             width: 260px;
             text-align: center;
             border: 2px solid #333;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
             cursor: pointer;
-            position: relative;
+            transition: 0.3s;
         }
 
         .plan-card:hover {
@@ -275,10 +267,6 @@
 
         .plan-cyan {
             border-color: #00ffff;
-        }
-
-        .plan-cyan:hover {
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
         }
 
         .plan-cyan .plan-title,
@@ -290,10 +278,6 @@
             border-color: #00ff00;
         }
 
-        .plan-green:hover {
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-        }
-
         .plan-green .plan-title,
         .plan-green .plan-price {
             color: #00ff00;
@@ -303,10 +287,6 @@
             border-color: #2979ff;
         }
 
-        .plan-blue:hover {
-            box-shadow: 0 0 20px rgba(41, 121, 255, 0.4);
-        }
-
         .plan-blue .plan-title,
         .plan-blue .plan-price {
             color: #2979ff;
@@ -314,10 +294,6 @@
 
         .plan-red {
             border-color: #ff0055;
-        }
-
-        .plan-red:hover {
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
         }
 
         .plan-red .plan-title,
@@ -330,23 +306,13 @@
             font-weight: bold;
             margin-bottom: 5px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .plan-price {
             font-size: 1.8rem;
             font-weight: bold;
             margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .plan-features {
-            font-size: 0.9rem;
-            line-height: 1.8;
-            color: #ccc;
-            margin-bottom: 25px;
-            border-top: 1px solid #333;
-            padding-top: 15px;
+            font-family: monospace;
         }
 
         .buy-label {
@@ -354,13 +320,11 @@
             width: 100%;
             padding: 12px 0;
             border-radius: 8px;
-            background-color: #1a1a1a;
+            background: #1a1a1a;
             color: white;
             font-weight: bold;
-            transition: 0.3s;
         }
 
-        /* FAQ */
         .faq-section {
             width: 90%;
             max-width: 800px;
@@ -393,16 +357,6 @@
             transition: color 0.3s;
         }
 
-        .faq-question:hover {
-            color: #00E701;
-        }
-
-        .faq-icon {
-            font-size: 1.2rem;
-            color: #00E701;
-            transition: transform 0.3s ease;
-        }
-
         .faq-answer {
             max-height: 0;
             overflow: hidden;
@@ -410,17 +364,15 @@
             padding: 0 10px;
             color: #ccc;
             line-height: 1.8;
-            font-size: 0.95rem;
         }
 
-        /* フッター */
         .footer-links {
             margin-top: auto;
             padding: 40px 0;
             text-align: center;
             width: 100%;
             border-top: 1px solid #333;
-            background-color: #050505;
+            background: #050505;
         }
 
         .footer-links a {
@@ -428,15 +380,8 @@
             text-decoration: none;
             margin: 0 15px;
             font-size: 0.9rem;
-            transition: 0.3s;
         }
 
-        .footer-links a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-
-        /* アニメーション */
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
@@ -446,6 +391,18 @@
         .fade-up.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -459,10 +416,11 @@
             <a href="usage.html">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notification-icon" onclick="window.location.href='history.html'" title="購入履歴 / 通知">
+            <div class="notification-btn" onclick="window.location.href='history.html'" title="通知を確認">
                 <i class="fa-solid fa-bell"></i>
-                <span class="badge" id="notif-badge">0</span>
+                <span class="badge" id="notif-badge">!</span>
             </div>
+
             <div id="auth-container">
                 <button onclick="loginWithDiscord()" class="login-btn-nav">
                     <i class="fa-brands fa-discord"></i> Login
@@ -480,10 +438,7 @@
     <div class="philosophy-section fade-up">
         <div class="philosophy-title">私たちの行動理念</div>
         <div class="philosophy-text">
-            ボーナスコードを請求する時に「あ、もう上限」「寝落ちしてた😭」なんてことありませんか？<br>
-            私たちはボーナスコードを請求する動作を全て自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>あなたのコードを請求致します<br><br>
-            また、システム導入の手順は<span class="highlight-text">難しい動作が不要の超簡単使用です🔥</span>。<br>
-            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。
+            ボーナスコードを請求する動作を全て自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>あなたのコードを請求致します。
         </div>
     </div>
 
@@ -493,28 +448,24 @@
                 <div>
                     <div class="plan-title">1 Day</div>
                     <div class="plan-price">¥1,200</div>
-                    <div class="plan-features">24時間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-green" onclick="goToPurchase('1week')">
                 <div>
                     <div class="plan-title">1 Week</div>
                     <div class="plan-price">¥3,000</div>
-                    <div class="plan-features">7日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-blue" onclick="goToPurchase('2weeks')">
                 <div>
                     <div class="plan-title">2 Weeks</div>
                     <div class="plan-price">¥5,000</div>
-                    <div class="plan-features">14日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
             <div class="plan-card plan-red" onclick="goToPurchase('1month')">
                 <div>
                     <div class="plan-title">1 Month</div>
                     <div class="plan-price">¥6,800</div>
-                    <div class="plan-features">30日間 自動取得<br>即時セットアップ</div>
                 </div><span class="buy-label">購入する</span>
             </div>
         </div>
@@ -526,6 +477,18 @@
             <div class="faq-question">支払い方法は何がありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
                 <p>PayPay、クレジットカード、仮想通貨に対応しています。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ほぼ、即答できると思います。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ライセンスを追加購入してもらう形になります。</p>
             </div>
         </div>
         <div class="faq-item">
@@ -560,97 +523,88 @@
             });
         }
 
-        async function logout() {
-            await supabase.auth.signOut();
-            window.location.reload();
+        // メニュー開閉
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            if(menu) menu.classList.toggle('show');
+            setTimeout(() => { document.addEventListener('click', closeMenuOutside, {once:true}); }, 100);
         }
-
-        function toggleNavMenu() {
-            const el = document.getElementById('nav-dropdown');
-            if(el) el.classList.toggle('show');
+        function closeMenuOutside(e) {
+             const menu = document.getElementById('user-menu');
+             if(menu && !menu.contains(e.target)) menu.classList.remove('show');
         }
 
         function goToPurchase(plan) {
             if (currentUser) {
                 window.location.href = `purchase.html?plan=${plan}`;
             } else {
-                alert("購入するにはまず右上のボタンからログインしてください。");
+                alert("購入するにはログインが必要です");
+                loginWithDiscord();
             }
         }
 
-        // 通知チェック
+        // 通知チェック（赤バッジ制御）
         async function checkNotifications(userId) {
             try {
-                // history APIを叩いて最新状況を取得
                 const res = await fetch('/api/history', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ user_id: userId })
                 });
                 const orders = await res.json();
-                
-                // Pending状態や最近の注文があるか確認
-                // ここでは単純に「完了していない注文」or「直近の注文」を通知対象とする
+                // pending または paid（未読管理はないため全て）をアクティブとするか、pendingのみとするか
+                // ここでは「処理中(pending) または 完了(paid) のものがある」場合にバッジを表示
                 const activeCount = orders.filter(o => o.status === 'pending' || o.status === 'paid').length;
-                
-                const badge = document.getElementById('notif-badge');
                 if (activeCount > 0) {
+                    const badge = document.getElementById('notif-badge');
                     badge.style.display = 'flex';
-                    badge.innerText = activeCount;
+                    badge.innerText = activeCount > 9 ? '9+' : activeCount;
                 }
-            } catch(e) {
-                console.error("Notif check failed", e);
-            }
+            } catch(e) {}
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-
             if (session) {
                 currentUser = session.user;
-                const avatar = currentUser.user_metadata.avatar_url;
-                
-                // ヘッダーの表示切り替え
+                // アバター + メニュー
                 authContainer.innerHTML = `
-                    <div class="nav-user-menu" onclick="toggleNavMenu()">
-                        <img src="${avatar}" class="user-avatar-nav">
-                        <div id="nav-dropdown" class="nav-dropdown">
-                            <a class="nav-item" href="history.html">購入履歴</a>
-                            <div class="nav-item" onclick="logout()" style="color:#ff4444;">ログアウト</div>
+                    <div class="user-menu-container">
+                        <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleUserMenu()">
+                        <div id="user-menu" class="dropdown-menu">
+                            <a href="contact.html" class="menu-item">
+                                <i class="fa-solid fa-envelope"></i> お問い合わせ
+                            </a>
+                            <a href="history.html" class="menu-item">
+                                <i class="fa-solid fa-clock-rotate-left"></i> 購入履歴
+                            </a>
+                            <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item">
+                                <i class="fa-brands fa-discord"></i> 公式Discord
+                            </a>
+                            <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item">
+                                <i class="fa-brands fa-x-twitter"></i> 公式X
+                            </a>
                         </div>
                     </div>
                 `;
-                
-                // 通知チェック開始
                 checkNotifications(currentUser.id);
             }
 
-            // タイピングアニメーション
+            // アニメーション系
             const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
             let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
             (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
-
-            // FAQ動作
-            document.querySelectorAll('.faq-question').forEach(question => {
-                question.addEventListener('click', () => {
-                    const item = question.parentElement;
-                    const answer = item.querySelector('.faq-answer');
-                    const icon = question.querySelector('.faq-icon');
+            
+            // FAQ制御
+            document.querySelectorAll('.faq-question').forEach(q => {
+                q.addEventListener('click', () => {
+                    const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
                     item.classList.toggle('active');
-                    if (item.classList.contains('active')) {
-                        answer.style.maxHeight = answer.scrollHeight + "px";
-                        icon.classList.remove('fa-plus'); icon.classList.add('fa-minus');
-                    } else {
-                        answer.style.maxHeight = null;
-                        icon.classList.remove('fa-minus'); icon.classList.add('fa-plus');
-                    }
+                    if (item.classList.contains('active')) { a.style.maxHeight = a.scrollHeight+"px"; i.classList.remove('fa-plus'); i.classList.add('fa-minus'); }
+                    else { a.style.maxHeight = null; i.classList.remove('fa-minus'); i.classList.add('fa-plus'); }
                 });
             });
 
-            // スクロールアニメ
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
-            }, { threshold: 0.1 });
+            const observer = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } }), {threshold:0.1});
             document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
         });
     </script>

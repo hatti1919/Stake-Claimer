@@ -13,10 +13,10 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(body)
 
             user_id = data.get('user_id')
+            email = data.get('email') # Discordのメールアドレスを受け取る
             plan_id = data.get('plan_id')
             coupon_code = data.get('coupon_code', '').strip()
-            # TrueならOxapayには投げず、計算結果だけ返す
-            is_dry_run = data.get('dry_run', False) 
+            is_dry_run = data.get('dry_run', False)
 
             # 環境変数
             MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
@@ -24,7 +24,7 @@ class handler(BaseHTTPRequestHandler):
             SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            # 1. プラン定価定義
+            # プラン定義
             plans = {
                 '1day':   {'price': 1200, 'label': '1 Day Plan'},
                 '1week':  {'price': 3000, 'label': '1 Week Plan'},
@@ -39,15 +39,14 @@ class handler(BaseHTTPRequestHandler):
             final_price = original_price
             discount = 0
 
-            # 2. クーポン確認・適用
+            # クーポン確認
             if coupon_code:
-                # DB検索
                 res = supabase.table('coupons').select('*').eq('code', coupon_code).eq('is_active', True).execute()
                 if res.data:
                     discount = res.data[0]['discount_amount']
                     final_price = max(1, original_price - discount)
 
-            # --- ドライラン（計算確認）の場合 ---
+            # ドライラン（計算のみ）
             if is_dry_run:
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
@@ -60,23 +59,21 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
 
-            # --- 本番注文作成 ---
-            
-            # Oxapay用注文ID生成
+            # 本番注文作成
             order_id = f"{int(time.time())}_{user_id[:4]}"
             
             payload = {
                 "merchant": MERCHANT_KEY,
                 "amount": final_price,
                 "currency": "JPY",
-                "lifeTime": 60,       # 60分
-                "feePaidByPayer": 1,  # 購入者負担
+                "lifeTime": 60,
+                "feePaidByPayer": 1,
                 "orderId": order_id,
+                "email": email, # Oxapayにメールアドレスを渡す
                 "description": f"StakeClaimer: {plans[plan_id]['label']} (Coupon: {coupon_code})",
-                "returnUrl": "https://stake-claimer.vercel.app/index.html?action=history" 
+                "returnUrl": "https://stake-claimer.vercel.app/history.html" 
             }
             
-            # Oxapay API Request
             oxa_res = requests.post("https://api.oxapay.com/merchants/request", json=payload, headers={"Content-Type": "application/json"}).json()
 
             if oxa_res.get("result") != 100:
@@ -84,7 +81,7 @@ class handler(BaseHTTPRequestHandler):
 
             pay_link = oxa_res.get("payLink")
 
-            # DB保存 (Pending)
+            # DB保存
             supabase.table('orders').insert({
                 "user_id": user_id,
                 "order_id": order_id,
@@ -100,6 +97,7 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 "payLink": pay_link,
+                "order_id": order_id,
                 "original_price": original_price,
                 "discount": discount,
                 "final_price": final_price
