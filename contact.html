@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* 統一ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -48,7 +47,7 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 1.1rem;
-            transition: color 0.3s;
+            transition: 0.3s;
         }
 
         .nav-link:hover {
@@ -65,7 +64,6 @@
             color: #fff;
             font-size: 1.5rem;
             cursor: pointer;
-            position: relative;
         }
 
         .nav-divider {
@@ -118,6 +116,7 @@
             gap: 12px;
             border-bottom: 1px solid #222;
             background: #111;
+            cursor: pointer;
         }
 
         .menu-item:hover {
@@ -125,7 +124,25 @@
             color: #00E701;
         }
 
-        /* コンテナ */
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .container {
             width: 90%;
             max-width: 600px;
@@ -139,7 +156,6 @@
             padding-bottom: 15px;
             margin-bottom: 30px;
             font-size: 2rem;
-            font-weight: bold;
         }
 
         .form-group {
@@ -185,14 +201,8 @@
             transition: 0.3s;
         }
 
-        .submit-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.4);
-        }
-
         .submit-btn:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
     </style>
 </head>
@@ -208,17 +218,7 @@
             <div class="notification-btn" onclick="window.location.href='history.html'"><i class="fa-solid fa-bell"></i>
             </div>
             <div class="nav-divider"></div>
-            <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
-                <div id="user-menu" class="dropdown-menu">
-                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-discord"></i> 公式Discord</a>
-                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-x-twitter"></i> 公式X</a>
-                </div>
-            </div>
+            <div id="auth-container"></div>
         </div>
     </nav>
 
@@ -234,100 +234,103 @@
                     <option value="other">その他</option>
                 </select>
             </div>
-
             <div class="form-group" id="order-group" style="display:none;">
-                <label>関連するオーダーID (任意)</label>
+                <label>関連オーダーID</label>
                 <select id="order-id">
                     <option value="">選択してください</option>
                 </select>
-                <div id="no-history-msg" style="font-size:0.8rem; color:#666; display:none; margin-top:5px;">購入履歴がありません
-                </div>
             </div>
-
             <div class="form-group">
                 <label>詳細</label>
-                <textarea id="description" required placeholder="詳細を入力してください"></textarea>
+                <textarea id="description" required></textarea>
             </div>
-
             <div class="form-group">
-                <label>画像添付 (任意)</label>
+                <label>画像添付</label>
                 <input type="file" id="image-file" accept="image/*">
-                <p style="font-size:0.8rem; color:#666; margin-top:5px;">※画像はチケットに添付されます</p>
             </div>
-
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
         </form>
     </div>
 
     <script src="setting.js"></script>
     <script>
+        const authContainer = document.getElementById('auth-container');
         let currentUser=null;
+        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
+        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
 
         window.addEventListener('DOMContentLoaded',async()=>{
             const{data:{session}}=await supabase.auth.getSession();
-            if(!session){alert("ログインしてください");window.location.href="index.html";return;}
+            if(!session){
+                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                alert("ログインしてください"); window.location.href="index.html"; return;
+            }
             currentUser=session.user;
-            document.getElementById('user-avatar').src=currentUser.user_metadata.avatar_url;
+            authContainer.innerHTML = `
+                <div class="user-menu-container">
+                    <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                    <div id="user-menu" class="dropdown-menu">
+                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                        <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
+                        <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                        <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
+                    </div>
+                </div>
+            `;
             loadOrders();
         });
 
+        // 注文履歴取得等のロジックは前回と同じ
         async function loadOrders() {
             try {
                 const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: currentUser.id }) });
                 const orders = await res.json();
                 const select = document.getElementById('order-id');
-                if(orders.length > 0) {
-                    orders.forEach(o => {
-                        const opt = document.createElement('option');
-                        opt.value = o.order_id;
-                        opt.text = `${o.order_id} (${o.status})`;
-                        select.appendChild(opt);
-                    });
-                } else {
-                    document.getElementById('no-history-msg').style.display = 'block';
-                    select.disabled = true;
-                }
+                orders.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.order_id;
+                    opt.text = `${o.order_id} (${o.status})`;
+                    select.appendChild(opt);
+                });
             } catch(e){}
         }
-
         function toggleOrderSelect() {
             const val = document.getElementById('subject').value;
             document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
-
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
+        // 画像処理等も前回と同じ
+        const processImage = file => new Promise((resolve) => {
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                    const maxDim = 800; let w = img.width, h = img.height;
+                    if (w > h && w > maxDim) { h *= maxDim/w; w = maxDim; } else if (h > maxDim) { w *= maxDim/h; h = maxDim; }
+                    canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', 0.8));
+                };
+            };
         });
-
         document.getElementById('contact-form').addEventListener('submit',async(e)=>{
-            e.preventDefault();
-            const btn=document.getElementById('submit-btn');
-            btn.innerText="送信中..."; btn.disabled=true;
-
+            e.preventDefault(); const btn=document.getElementById('submit-btn'); btn.innerText="送信中..."; btn.disabled=true;
             const fileInput = document.getElementById('image-file');
             let imageData = null;
-            if(fileInput.files.length > 0) imageData = await toBase64(fileInput.files[0]);
-
+            if(fileInput.files.length > 0) imageData = await processImage(fileInput.files[0]);
             try {
-                const subjectText = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+                const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
                 const res = await fetch('/api/contact', {
                     method: 'POST', headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({
-                        user_id: currentUser.id,
-                        user_name: currentUser.user_metadata.full_name || "Unknown",
-                        subject: subjectText,
-                        order_id: document.getElementById('order-id').value,
-                        description: document.getElementById('description').value,
-                        image_data: imageData
+                        user_id: currentUser.id, user_name: currentUser.user_metadata.full_name || "Unknown",
+                        subject: subject, order_id: document.getElementById('order-id').value,
+                        description: document.getElementById('description').value, image_data: imageData
                     })
                 });
-                if(res.ok) { alert("送信完了しました！\nDiscordにチケットチャンネルが作成されました。"); window.location.href="index.html"; }
-                else { throw new Error("送信失敗"); }
-            } catch(e) { console.error(e); alert("エラーが発生しました。"); btn.innerText="送信する"; btn.disabled=false; }
+                if(res.ok) { alert("送信しました！"); window.location.href="index.html"; } else { throw new Error(); }
+            } catch(e) { alert("送信エラー"); btn.innerText="送信する"; btn.disabled=false; }
         });
     </script>
 </body>

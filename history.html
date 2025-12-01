@@ -11,7 +11,7 @@
         body {
             background-color: #000;
             color: #fff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: sans-serif;
             margin: 0;
             padding-top: 70px;
             display: flex;
@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* 共通ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -48,7 +47,7 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 1.1rem;
-            transition: color 0.3s;
+            transition: 0.3s;
         }
 
         .nav-link:hover {
@@ -111,16 +110,37 @@
             padding: 15px;
             color: #fff;
             text-decoration: none;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 12px;
             border-bottom: 1px solid #222;
             background: #111;
+            cursor: pointer;
         }
 
         .menu-item:hover {
             background: #222;
             color: #00E701;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .container {
@@ -177,6 +197,11 @@
             justify-content: space-between;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+        }
+
+        .history-card:hover {
+            background: #1a1a1a;
         }
 
         .status-bar {
@@ -273,30 +298,18 @@
         <div class="nav-right">
             <div class="notification-btn" onclick="location.reload()"><i class="fa-solid fa-bell"></i></div>
             <div class="nav-divider"></div>
-            <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
-                <div id="user-menu" class="dropdown-menu">
-                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-discord"></i> 公式Discord</a>
-                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-x-twitter"></i> 公式X</a>
-                </div>
-            </div>
+            <div id="auth-container"></div>
         </div>
     </nav>
 
     <div class="container">
         <h1 class="page-title">購入履歴</h1>
-
         <div class="filter-group">
             <button class="filter-btn active" onclick="filterHistory('all', this)">すべて</button>
             <button class="filter-btn" onclick="filterHistory('paid', this)">完了</button>
             <button class="filter-btn" onclick="filterHistory('pending', this)">待機中</button>
             <button class="filter-btn" onclick="filterHistory('expired', this)">期限切れ</button>
         </div>
-
         <div id="history-list">
             <p style="text-align:center;color:#666;">読み込み中...</p>
         </div>
@@ -312,57 +325,62 @@
 
     <script src="setting.js"></script>
     <script>
+        const authContainer = document.getElementById('auth-container');
+        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
+        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if(!session) { window.location.href="index.html"; return; }
-            document.getElementById('user-avatar').src = session.user.user_metadata.avatar_url;
-            loadHistory(session.user.id);
+            if(!session) { 
+                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                document.getElementById('history-list').innerHTML = "<p style='text-align:center; margin-top:50px;'>履歴を表示するにはログインしてください。</p>";
+                return; 
+            }
+            
+            const user = session.user;
+            authContainer.innerHTML = `
+                <div class="user-menu-container">
+                    <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                    <div id="user-menu" class="dropdown-menu">
+                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                        <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
+                        <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                        <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
+                    </div>
+                </div>
+            `;
+            loadHistory(user.id);
         });
 
         async function loadHistory(userId) {
-            const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId}) });
-            const orders = await res.json();
-            const list = document.getElementById('history-list');
-            list.innerHTML = "";
+            try {
+                const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId}) });
+                const orders = await res.json();
+                const list = document.getElementById('history-list');
+                list.innerHTML = "";
+                if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
 
-            if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
+                orders.forEach(o => {
+                    let stHtml, cls, act, statType;
+                    const dt = new Date(o.created_at).toLocaleString('ja-JP');
+                    if(o.status==='pending') { cls='status-pending'; stHtml='<span style="color:#ffd700">🟡 待機中</span>'; act=`window.open('${o.pay_url}')`; statType='pending'; }
+                    else if(o.status==='paid') { cls='status-paid'; stHtml='<span style="color:#00E701">🟢 完了</span>'; act=`showKey('${o.license_key}')`; statType='paid'; }
+                    else { cls='status-expired'; stHtml='<span style="color:#ff4444">🔴 期限切れ</span>'; act=`alert('再購入してください')`; statType='expired'; }
 
-            orders.forEach(o => {
-                let stHtml, cls, act, statType;
-                const dt = new Date(o.created_at).toLocaleString('ja-JP');
-                
-                if(o.status==='pending') { cls='status-pending'; stHtml='<span style="color:#ffd700">🟡 待機中</span>'; act=`window.open('${o.pay_url}')`; statType='pending'; }
-                else if(o.status==='paid') { cls='status-paid'; stHtml='<span style="color:#00E701">🟢 完了</span>'; act=`showKey('${o.license_key}')`; statType='paid'; }
-                else { cls='status-expired'; stHtml='<span style="color:#ff4444">🔴 期限切れ</span>'; act=`alert('再購入してください')`; statType='expired'; }
-
-                const d = document.createElement('div');
-                d.className = 'history-card';
-                d.dataset.status = statType;
-                d.onclick = new Function(act);
-                d.innerHTML = `
-                    <div class="status-bar ${cls}"></div>
-                    <div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()} PLAN</div><div class="h-date">${dt}</div></div>
-                    <div class="h-status">${stHtml}</div>
-                `;
-                list.appendChild(d);
-            });
+                    const d = document.createElement('div'); d.className='history-card'; d.dataset.status=statType; d.onclick=new Function(act);
+                    d.innerHTML = `<div class="status-bar ${cls}"></div><div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()} PLAN</div><div class="h-date">${dt}</div></div><div class="h-status">${stHtml}</div>`;
+                    list.appendChild(d);
+                });
+            } catch(e){}
         }
 
         function filterHistory(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.history-card').forEach(card => {
-                if(type === 'all' || card.dataset.status === type) card.style.display = 'flex';
-                else card.style.display = 'none';
-            });
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            document.querySelectorAll('.history-card').forEach(c => { c.style.display = (type==='all' || c.dataset.status===type) ? 'flex' : 'none'; });
         }
-
-        function showKey(k) {
-            document.getElementById('modal-key-text').innerText = k;
-            document.getElementById('key-modal').style.display = 'flex';
-        }
+        function showKey(k) { document.getElementById('modal-key-text').innerText=k; document.getElementById('key-modal').style.display='flex'; }
     </script>
 </body>
 

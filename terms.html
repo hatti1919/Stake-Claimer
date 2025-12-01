@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>利用規約</title>
+    <title>利用規約 - Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding-top: 70px;
             display: flex;
@@ -20,6 +20,7 @@
             min-height: 100vh;
         }
 
+        /* 統一ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -60,12 +61,6 @@
             gap: 20px;
         }
 
-        .notification-btn {
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
         .nav-divider {
             width: 1px;
             height: 30px;
@@ -73,6 +68,64 @@
             margin: 0 5px;
         }
 
+        /* 通知 */
+        .notification-btn {
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ff4444;
+            color: #fff;
+            font-size: 0.6rem;
+            min-width: 8px;
+            height: 8px;
+            padding: 3px;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+        }
+
+        .notif-popup {
+            position: absolute;
+            top: 50px;
+            right: -10px;
+            width: 280px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .notif-popup.show {
+            display: flex;
+        }
+
+        .notif-item {
+            padding: 12px;
+            border-bottom: 1px solid #222;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        .notif-empty {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* アバター & メニュー */
         .user-menu-container {
             position: relative;
             display: flex;
@@ -99,6 +152,7 @@
             width: 220px;
             display: none;
             flex-direction: column;
+            overflow: hidden;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
         }
 
@@ -115,7 +169,9 @@
             align-items: center;
             gap: 12px;
             border-bottom: 1px solid #222;
+            cursor: pointer;
             background: #111;
+            transition: 0.2s;
         }
 
         .menu-item:hover {
@@ -123,11 +179,42 @@
             color: #00E701;
         }
 
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .menu-item:hover i {
+            color: #00E701;
+        }
+
+        /* ログインボタン */
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .login-btn-nav:hover {
+            background-color: #4752c4;
+        }
+
+        /* コンテンツ */
         .content {
             width: 90%;
             max-width: 800px;
-            margin-top: 30px;
-            margin-bottom: 50px;
+            margin-top: 40px;
+            margin-bottom: 60px;
             line-height: 1.8;
         }
 
@@ -137,16 +224,20 @@
             padding-bottom: 15px;
             margin-bottom: 30px;
             font-size: 2rem;
+            font-weight: bold;
         }
 
         h2 {
             margin-top: 40px;
             font-size: 1.3rem;
             color: #ccc;
+            border-left: 4px solid #00E701;
+            padding-left: 10px;
         }
 
         p {
             color: #aaa;
+            margin-bottom: 20px;
         }
 
         .footer-links {
@@ -155,51 +246,57 @@
             text-align: center;
             width: 100%;
             border-top: 1px solid #333;
+            background: #050505;
         }
 
         .footer-links a {
             color: #888;
             text-decoration: none;
             margin: 0 15px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 
 <body>
+
     <nav class="sticky-nav">
         <div class="nav-left">
             <a href="index.html" class="nav-link">Home</a>
-            <a href="terms.html" class="nav-link" style="color:#00E701;">利用規約</a>
+            <a href="terms.html" class="nav-link" style="color:#fff;">利用規約</a>
             <a href="usage.html" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notification-btn" onclick="window.location.href='history.html'"><i class="fa-solid fa-bell"></i>
-            </div>
-            <div class="nav-divider"></div>
-            <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
-                <div id="user-menu" class="dropdown-menu">
-                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-discord"></i> 公式Discord</a>
-                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-x-twitter"></i> 公式X</a>
+            <div style="position:relative;">
+                <div class="notification-btn" onclick="toggleNotifPopup()">
+                    <i class="fa-solid fa-bell"></i><span class="badge" id="notif-badge"></span>
+                </div>
+                <div id="notif-popup" class="notif-popup">
+                    <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701;">お知らせ</div>
+                    <div id="notif-list">
+                        <div class="notif-empty">通知はありません</div>
+                    </div>
                 </div>
             </div>
+            <div class="nav-divider"></div>
+            <div id="auth-container"></div>
         </div>
     </nav>
 
     <div class="content">
         <h1>利用規約</h1>
         <p>本サービス（Stake Bonus Claimer）を利用するにあたり、以下の規約に同意したものとみなします。</p>
+
         <h2>1. 免責事項</h2>
-        <p>本ツールを利用したことによるアカウントの凍結、損失、その他の不利益について、運営者は一切の責任を負いません。自己責任でご利用ください。</p>
+        <p>本ツールを利用したことによるアカウントの凍結、損失、その他の不利益について、運営者は一切の責任を負いません。すべての利用は自己責任で行ってください。</p>
+
         <h2>2. 返金ポリシー</h2>
-        <p>デジタルコンテンツの性質上、購入後の返金はいかなる理由があっても対応いたしかねます。</p>
+        <p>デジタルコンテンツの性質上、購入後の返金はいかなる理由があっても対応いたしかねます。動作環境などを十分にご確認の上、ご購入ください。</p>
+
         <h2>3. 禁止事項</h2>
-        <p>本サービスの再配布、リバースエンジニアリング、不正利用を固く禁じます。</p>
-        <p style="margin-top:50px;">以上</p>
+        <p>本サービスの再配布、リバースエンジニアリング、ソースコードの解析、および第三者への譲渡を固く禁じます。不正利用が発覚した場合、ライセンスの停止措置を行います。</p>
+
+        <p style="margin-top:50px; text-align:right;">以上</p>
     </div>
 
     <div class="footer-links">
@@ -210,12 +307,52 @@
 
     <script src="setting.js"></script>
     <script>
+        const authContainer = document.getElementById('auth-container');
+        let currentUser = null;
+
+        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
+        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
-        window.onload = async () => {
+        function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
+
+        async function checkNotifications(userId) {
+            try {
+                const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: userId }) });
+                const orders = await res.json();
+                const list = document.getElementById('notif-list');
+                const pending = orders.filter(o => o.status === 'pending');
+                if(pending.length > 0) {
+                    document.getElementById('notif-badge').style.display='flex';
+                    document.getElementById('notif-badge').innerText = pending.length;
+                    list.innerHTML = "";
+                    pending.forEach(o => {
+                        list.innerHTML += `<div class="notif-item"><span style="color:#ffd700">支払い待ち</span>: ${o.plan_type}<br><a href="${o.pay_url}" target="_blank" style="color:#00E701; text-decoration:underline;">支払う</a></div>`;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if(session) document.getElementById('user-avatar').src = session.user.user_metadata.avatar_url;
-            else window.location.href='index.html';
-        };
+            if (session) {
+                currentUser = session.user;
+                authContainer.innerHTML = `
+                    <div class="user-menu-container">
+                        <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                        <div id="user-menu" class="dropdown-menu">
+                            <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                            <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                            <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
+                            <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                            <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
+                        </div>
+                    </div>
+                `;
+                checkNotifications(currentUser.id);
+            } else {
+                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+            }
+        });
     </script>
 </body>
 

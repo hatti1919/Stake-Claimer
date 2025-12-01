@@ -8,10 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- ベース設定 --- */
         body {
-            background-color: #000000;
-            color: #ffffff;
+            background-color: #000;
+            color: #fff;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding-top: 70px;
@@ -21,22 +20,21 @@
             min-height: 100vh;
         }
 
-        /* --- 共通ヘッダー (画像再現) --- */
+        /* 統一ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 70px;
-            background-color: #000000;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 30px;
             box-sizing: border-box;
             z-index: 1000;
-            /* 下線は画像には薄く見えるか見えない程度だが、区切りのため薄く入れる */
-            border-bottom: 1px solid #1a1a1a;
         }
 
         .nav-left {
@@ -50,17 +48,15 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 1.1rem;
-            /* 少し大きめ */
-            transition: color 0.3s;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #00E701;
         }
 
         .nav-link.home {
             color: #fff;
-        }
-
-        /* Homeは白く強調 */
-        .nav-link:hover {
-            color: #00E701;
         }
 
         .nav-right {
@@ -69,26 +65,20 @@
             gap: 20px;
         }
 
-        /* 通知ベル */
+        /* 通知 */
         .notification-btn {
             color: #fff;
             font-size: 1.5rem;
             cursor: pointer;
             position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .notification-btn:hover {
-            color: #00E701;
         }
 
         .badge {
             position: absolute;
             top: -2px;
             right: -2px;
-            background-color: #ff4444;
-            color: white;
+            background: #ff4444;
+            color: #fff;
             font-size: 0.6rem;
             min-width: 8px;
             height: 8px;
@@ -97,84 +87,9 @@
             display: none;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
             border: 1px solid #000;
         }
 
-        /* 区切り線 (|) */
-        .nav-divider {
-            width: 1px;
-            height: 30px;
-            background-color: #333;
-            margin: 0 5px;
-        }
-
-        /* アバター (緑枠付き) */
-        .user-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar-nav {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 3px solid #00E701;
-            /* 太めの緑枠 */
-            cursor: pointer;
-            object-fit: cover;
-            transition: 0.3s;
-            background-color: #111;
-        }
-
-        .user-avatar-nav:hover {
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.4);
-        }
-
-        /* ドロップダウンメニュー */
-        .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 220px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-            animation: fadeIn 0.2s ease;
-        }
-
-        .dropdown-menu.show {
-            display: flex;
-        }
-
-        .menu-item {
-            padding: 15px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #222;
-            transition: 0.2s;
-            background: #111;
-        }
-
-        .menu-item:hover {
-            background: #222;
-            color: #00E701;
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        /* 通知ポップアップ */
         .notif-popup {
             position: absolute;
             top: 50px;
@@ -191,7 +106,6 @@
 
         .notif-popup.show {
             display: flex;
-            animation: fadeIn 0.2s ease;
         }
 
         .notif-item {
@@ -208,22 +122,98 @@
             font-size: 0.85rem;
         }
 
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+            margin: 0 5px;
+        }
+
+        /* アバター & メニュー */
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar-nav {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            cursor: pointer;
+            background: #111;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+            color: #888;
+        }
+
+        .menu-item:hover i {
+            color: #00E701;
+        }
+
         /* ログインボタン */
         .login-btn-nav {
             background-color: #5865F2;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: 0.2s;
         }
 
-        /* --- コンテンツ --- */
+        .login-btn-nav:hover {
+            background-color: #4752c4;
+        }
+
+        /* メインコンテンツ */
         .hero-section {
             margin-top: 60px;
             text-align: center;
@@ -244,7 +234,6 @@
             font-size: 2.8rem;
             margin-bottom: 15px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
 
         .typing-container {
@@ -319,36 +308,16 @@
             border-color: #00ffff;
         }
 
-        .plan-cyan .plan-title,
-        .plan-cyan .plan-price {
-            color: #00ffff;
-        }
-
         .plan-green {
             border-color: #00ff00;
-        }
-
-        .plan-green .plan-title,
-        .plan-green .plan-price {
-            color: #00ff00;
         }
 
         .plan-blue {
             border-color: #2979ff;
         }
 
-        .plan-blue .plan-title,
-        .plan-blue .plan-price {
-            color: #2979ff;
-        }
-
         .plan-red {
             border-color: #ff0055;
-        }
-
-        .plan-red .plan-title,
-        .plan-red .plan-price {
-            color: #ff0055;
         }
 
         .plan-title {
@@ -374,6 +343,7 @@
             font-weight: bold;
         }
 
+        /* FAQ */
         .faq-section {
             width: 90%;
             max-width: 800px;
@@ -460,18 +430,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
     </style>
 </head>
 
@@ -486,8 +444,7 @@
         <div class="nav-right">
             <div style="position:relative;">
                 <div class="notification-btn" onclick="toggleNotifPopup()">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge" id="notif-badge"></span>
+                    <i class="fa-solid fa-bell"></i><span class="badge" id="notif-badge"></span>
                 </div>
                 <div id="notif-popup" class="notif-popup">
                     <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701;">お知らせ</div>
@@ -496,24 +453,8 @@
                     </div>
                 </div>
             </div>
-
             <div class="nav-divider"></div>
-
-            <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" style="display:none;" onclick="toggleMenu()">
-                <button id="login-btn" onclick="loginWithDiscord()" class="login-btn-nav">
-                    <i class="fa-brands fa-discord"></i> Login
-                </button>
-
-                <div id="user-menu" class="dropdown-menu">
-                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-discord"></i> 公式Discord</a>
-                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
-                            class="fa-brands fa-x-twitter"></i> 公式X</a>
-                </div>
-            </div>
+            <div id="auth-container"></div>
         </div>
     </nav>
 
@@ -601,18 +542,14 @@
 
     <script src="setting.js"></script>
     <script>
+        const authContainer = document.getElementById('auth-container');
         let currentUser = null;
 
-        async function loginWithDiscord() {
-            await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } });
-        }
+        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
+        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
         function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
-
-        function goToPurchase(plan) {
-            if(currentUser) window.location.href = `purchase.html?plan=${plan}`;
-            else alert("購入するにはログインが必要です");
-        }
+        function goToPurchase(plan) { if(currentUser) window.location.href = `purchase.html?plan=${plan}`; else alert("購入するにはログインしてください"); }
 
         async function checkNotifications(userId) {
             try {
@@ -620,7 +557,6 @@
                 const orders = await res.json();
                 const list = document.getElementById('notif-list');
                 const pending = orders.filter(o => o.status === 'pending');
-                
                 if(pending.length > 0) {
                     document.getElementById('notif-badge').style.display='flex';
                     document.getElementById('notif-badge').innerText = pending.length;
@@ -634,13 +570,23 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if(session) {
+            if (session) {
                 currentUser = session.user;
-                const avatar = document.getElementById('user-avatar');
-                avatar.src = currentUser.user_metadata.avatar_url;
-                avatar.style.display = 'block';
-                document.getElementById('login-btn').style.display = 'none';
+                authContainer.innerHTML = `
+                    <div class="user-menu-container">
+                        <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                        <div id="user-menu" class="dropdown-menu">
+                            <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                            <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                            <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
+                            <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                            <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
+                        </div>
+                    </div>
+                `;
                 checkNotifications(currentUser.id);
+            } else {
+                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
             }
 
             const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
@@ -649,22 +595,12 @@
             
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.addEventListener('click', () => {
-                    const item = q.parentElement; 
-                    const a = item.querySelector('.faq-answer'); 
-                    const i = q.querySelector('.faq-icon');
-                    
+                    const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
                     q.classList.toggle('active');
-                    
-                    if (q.classList.contains('active')) {
-                        a.style.maxHeight = a.scrollHeight + "px";
-                        i.classList.remove('fa-plus'); i.classList.add('fa-minus');
-                    } else {
-                        a.style.maxHeight = null;
-                        i.classList.remove('fa-minus'); i.classList.add('fa-plus');
-                    }
+                    if (q.classList.contains('active')) { a.style.maxHeight = a.scrollHeight + "px"; i.classList.remove('fa-plus'); i.classList.add('fa-minus'); i.style.transform = "rotate(135deg)"; }
+                    else { a.style.maxHeight = null; i.classList.remove('fa-minus'); i.classList.add('fa-plus'); i.style.transform = "rotate(0deg)"; }
                 });
             });
-
             const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:0.1});
             document.querySelectorAll('.fade-up').forEach(e=>obs.observe(e));
         });
