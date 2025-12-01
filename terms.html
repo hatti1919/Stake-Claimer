@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>利用規約 - Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,9 +18,10 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* 統一ヘッダー */
+        /* --- ヘッダー共通 --- */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -32,7 +33,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 30px;
+            padding: 0 20px;
             box-sizing: border-box;
             z-index: 1000;
         }
@@ -40,38 +41,50 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
+        }
+
+        .desktop-links {
+            display: flex;
+            gap: 20px;
         }
 
         .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: 0.3s;
+            white-space: nowrap;
         }
 
         .nav-link:hover {
             color: #00E701;
         }
 
+        .mobile-menu-btn {
+            display: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         .nav-divider {
             width: 1px;
-            height: 30px;
+            height: 25px;
             background-color: #333;
             margin: 0 5px;
         }
 
-        /* 通知 */
         .notification-btn {
             color: #fff;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
             position: relative;
         }
@@ -93,6 +106,68 @@
             border: 1px solid #000;
         }
 
+        .user-avatar-nav {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            background: #111;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
         .notif-popup {
             position: absolute;
             top: 50px;
@@ -104,7 +179,7 @@
             display: none;
             flex-direction: column;
             z-index: 2000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
         }
 
         .notif-popup.show {
@@ -125,91 +200,53 @@
             font-size: 0.85rem;
         }
 
-        /* アバター & メニュー */
-        .user-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar-nav {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 3px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 220px;
+        /* スマホメニュー */
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #000;
+            z-index: 999;
             display: none;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-top: 1px solid #222;
         }
 
-        .dropdown-menu.show {
+        .mobile-nav-overlay.show {
             display: flex;
         }
 
-        .menu-item {
-            padding: 15px;
-            color: #fff;
+        .mobile-nav-link {
+            font-size: 1.1rem;
+            color: #ccc;
             text-decoration: none;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            padding: 15px 0;
             border-bottom: 1px solid #222;
-            cursor: pointer;
-            background: #111;
-            transition: 0.2s;
-        }
-
-        .menu-item:hover {
-            background: #222;
-            color: #00E701;
-        }
-
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            color: #888;
-        }
-
-        .menu-item:hover i {
-            color: #00E701;
-        }
-
-        /* ログインボタン */
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            cursor: pointer;
             font-weight: bold;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
         }
 
-        .login-btn-nav:hover {
-            background-color: #4752c4;
+        @media (max-width: 768px) {
+            .desktop-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-divider {
+                display: none;
+            }
+
+            .sticky-nav {
+                padding: 0 15px;
+            }
         }
 
-        /* コンテンツ */
+        /* --- 利用規約コンテンツ --- */
         .content {
             width: 90%;
             max-width: 800px;
@@ -262,9 +299,12 @@
 
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="terms.html" class="nav-link" style="color:#fff;">利用規約</a>
-            <a href="usage.html" class="nav-link">使用方法</a>
+            <div class="mobile-menu-btn" onclick="toggleMobileNav()"><i class="fa-solid fa-bars"></i></div>
+            <div class="desktop-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="terms.html" class="nav-link" style="color:#fff;">利用規約</a>
+                <a href="usage.html" class="nav-link">使用方法</a>
+            </div>
         </div>
         <div class="nav-right">
             <div style="position:relative;">
@@ -279,9 +319,18 @@
                 </div>
             </div>
             <div class="nav-divider"></div>
-            <div id="auth-container"></div>
+            <div id="auth-container">
+                <button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i>
+                    Login</button>
+            </div>
         </div>
     </nav>
+
+    <div id="mobile-nav" class="mobile-nav-overlay">
+        <a href="index.html" class="mobile-nav-link">Home</a>
+        <a href="terms.html" class="mobile-nav-link" style="color:#fff;">利用規約</a>
+        <a href="usage.html" class="mobile-nav-link">使用方法</a>
+    </div>
 
     <div class="content">
         <h1>利用規約</h1>
@@ -314,19 +363,37 @@
         async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
         function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
+        function toggleMobileNav() { document.getElementById('mobile-nav').classList.toggle('show'); }
+
+        function updateAuthUI(user) {
+            currentUser = user;
+            authContainer.innerHTML = `
+                <div style="position:relative;">
+                    <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                    <div id="user-menu" class="dropdown-menu">
+                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                        <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
+                        <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                        <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
+                    </div>
+                </div>
+            `;
+            checkNotifications(user.id);
+        }
 
         async function checkNotifications(userId) {
             try {
                 const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: userId }) });
                 const orders = await res.json();
-                const list = document.getElementById('notif-list');
-                const pending = orders.filter(o => o.status === 'pending');
-                if(pending.length > 0) {
+                const count = orders.filter(o => o.status === 'pending').length;
+                if(count > 0) {
                     document.getElementById('notif-badge').style.display='flex';
-                    document.getElementById('notif-badge').innerText = pending.length;
+                    document.getElementById('notif-badge').innerText = count;
+                    const list = document.getElementById('notif-list');
                     list.innerHTML = "";
-                    pending.forEach(o => {
-                        list.innerHTML += `<div class="notif-item"><span style="color:#ffd700">支払い待ち</span>: ${o.plan_type}<br><a href="${o.pay_url}" target="_blank" style="color:#00E701; text-decoration:underline;">支払う</a></div>`;
+                    orders.filter(o => o.status === 'pending').forEach(o => {
+                        list.innerHTML += `<div class="notif-item"><span style="color:#ffd700">未払い</span>: ${o.plan_type}<br><a href="${o.pay_url}" target="_blank" style="color:#00E701; text-decoration:underline;">支払う</a></div>`;
                     });
                 }
             } catch(e) {}
@@ -334,24 +401,15 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                authContainer.innerHTML = `
-                    <div class="user-menu-container">
-                        <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
-                        <div id="user-menu" class="dropdown-menu">
-                            <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                            <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                            <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
-                            <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
-                            <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
-                        </div>
-                    </div>
-                `;
-                checkNotifications(currentUser.id);
-            } else {
-                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-            }
+            if (session) updateAuthUI(session.user);
+            
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN' && session) updateAuthUI(session.user);
+                else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                }
+            });
         });
     </script>
 </body>

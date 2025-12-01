@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>お問い合わせ</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,6 +18,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .sticky-nav {
@@ -31,7 +32,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 30px;
+            padding: 0 20px;
             box-sizing: border-box;
             z-index: 1000;
         }
@@ -39,54 +40,76 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
+        }
+
+        .desktop-links {
+            display: flex;
+            gap: 20px;
         }
 
         .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: 0.3s;
+            white-space: nowrap;
         }
 
         .nav-link:hover {
             color: #00E701;
         }
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .notification-btn {
+        .mobile-menu-btn {
+            display: none;
             color: #fff;
             font-size: 1.5rem;
             cursor: pointer;
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .nav-divider {
             width: 1px;
-            height: 30px;
+            height: 25px;
             background-color: #333;
             margin: 0 5px;
         }
 
-        .user-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
+        .notification-btn {
+            color: #fff;
+            font-size: 1.4rem;
+            cursor: pointer;
         }
 
         .user-avatar-nav {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: 3px solid #00E701;
             cursor: pointer;
             object-fit: cover;
             background: #111;
+        }
+
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .dropdown-menu {
@@ -99,7 +122,9 @@
             width: 220px;
             display: none;
             flex-direction: column;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
+            z-index: 2000;
         }
 
         .dropdown-menu.show {
@@ -124,23 +149,49 @@
             color: #00E701;
         }
 
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            color: #888;
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #000;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            border-top: 1px solid #222;
         }
 
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
+        .mobile-nav-overlay.show {
             display: flex;
-            align-items: center;
-            gap: 8px;
+        }
+
+        .mobile-nav-link {
+            font-size: 1.1rem;
+            color: #ccc;
+            text-decoration: none;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-divider {
+                display: none;
+            }
+
+            .sticky-nav {
+                padding: 0 15px;
+            }
         }
 
         .container {
@@ -210,9 +261,12 @@
 <body>
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="terms.html" class="nav-link">利用規約</a>
-            <a href="usage.html" class="nav-link">使用方法</a>
+            <div class="mobile-menu-btn" onclick="toggleMobileNav()"><i class="fa-solid fa-bars"></i></div>
+            <div class="desktop-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="terms.html" class="nav-link">利用規約</a>
+                <a href="usage.html" class="nav-link">使用方法</a>
+            </div>
         </div>
         <div class="nav-right">
             <div class="notification-btn" onclick="window.location.href='history.html'"><i class="fa-solid fa-bell"></i>
@@ -221,6 +275,12 @@
             <div id="auth-container"></div>
         </div>
     </nav>
+
+    <div id="mobile-nav" class="mobile-nav-overlay">
+        <a href="index.html" class="mobile-nav-link">Home</a>
+        <a href="terms.html" class="mobile-nav-link">利用規約</a>
+        <a href="usage.html" class="mobile-nav-link">使用方法</a>
+    </div>
 
     <div class="container">
         <h1>お問い合わせ</h1>
@@ -245,7 +305,7 @@
                 <textarea id="description" required></textarea>
             </div>
             <div class="form-group">
-                <label>画像添付</label>
+                <label>画像添付 (任意)</label>
                 <input type="file" id="image-file" accept="image/*">
             </div>
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
@@ -256,20 +316,17 @@
     <script>
         const authContainer = document.getElementById('auth-container');
         let currentUser=null;
+        
         async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
         async function logout() { await supabase.auth.signOut(); window.location.reload(); }
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
+        function toggleMobileNav() { document.getElementById('mobile-nav').classList.toggle('show'); }
 
-        window.addEventListener('DOMContentLoaded',async()=>{
-            const{data:{session}}=await supabase.auth.getSession();
-            if(!session){
-                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-                alert("ログインしてください"); window.location.href="index.html"; return;
-            }
-            currentUser=session.user;
+        function updateAuthUI(user) {
+            currentUser = user;
             authContainer.innerHTML = `
-                <div class="user-menu-container">
-                    <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
+                <div style="position:relative;">
+                    <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
                     <div id="user-menu" class="dropdown-menu">
                         <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
                         <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
@@ -280,9 +337,22 @@
                 </div>
             `;
             loadOrders();
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if(session) updateAuthUI(session.user);
+            else {
+                authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                alert("ログインしてください"); window.location.href="index.html";
+            }
+
+            supabase.auth.onAuthStateChange((e, s) => {
+                if(e==='SIGNED_IN'&&s) updateAuthUI(s.user);
+                else if(e==='SIGNED_OUT') { currentUser=null; authContainer.innerHTML=`<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`; }
+            });
         });
 
-        // 注文履歴取得等のロジックは前回と同じ
         async function loadOrders() {
             try {
                 const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: currentUser.id }) });
@@ -296,13 +366,15 @@
                 });
             } catch(e){}
         }
+
         function toggleOrderSelect() {
             const val = document.getElementById('subject').value;
             document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
-        // 画像処理等も前回と同じ
+
         const processImage = file => new Promise((resolve) => {
-            const reader = new FileReader(); reader.readAsDataURL(file);
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
             reader.onload = (e) => {
                 const img = new Image(); img.src = e.target.result;
                 img.onload = () => {
@@ -314,11 +386,13 @@
                 };
             };
         });
+
         document.getElementById('contact-form').addEventListener('submit',async(e)=>{
             e.preventDefault(); const btn=document.getElementById('submit-btn'); btn.innerText="送信中..."; btn.disabled=true;
             const fileInput = document.getElementById('image-file');
             let imageData = null;
             if(fileInput.files.length > 0) imageData = await processImage(fileInput.files[0]);
+
             try {
                 const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
                 const res = await fetch('/api/contact', {
