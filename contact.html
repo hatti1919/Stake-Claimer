@@ -4,55 +4,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お問い合わせ - Stake Bonus Claimer</title>
+    <title>お問い合わせ</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding-top: 80px;
+            padding-top: 70px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
+        /* 統一ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
+            height: 70px;
             background-color: #000;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #1a1a1a;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 30px;
             box-sizing: border-box;
             z-index: 1000;
         }
 
-        .nav-left a {
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            margin-right: 20px;
+            font-size: 1.1rem;
+            transition: color 0.3s;
         }
 
+        .nav-link:hover {
+            color: #00E701;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-btn {
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+            margin: 0 5px;
+        }
+
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar-nav {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            background: #111;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        /* コンテナ */
         .container {
             width: 90%;
             max-width: 600px;
+            margin-top: 30px;
+            margin-bottom: 50px;
         }
 
         h1 {
             color: #00E701;
             border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: bold;
         }
 
         .form-group {
@@ -61,7 +148,7 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: bold;
             color: #ccc;
         }
@@ -70,12 +157,13 @@
         input,
         textarea {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background: #111;
             border: 1px solid #333;
             color: #fff;
-            border-radius: 5px;
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
         textarea {
@@ -90,31 +178,59 @@
             color: #000;
             font-weight: bold;
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            transition: 0.3s;
         }
 
         .submit-btn:hover {
-            background: #00c000;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
 
 <body>
     <nav class="sticky-nav">
-        <div class="nav-left"><a href="index.html">Home</a></div>
+        <div class="nav-left">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="terms.html" class="nav-link">利用規約</a>
+            <a href="usage.html" class="nav-link">使用方法</a>
+        </div>
+        <div class="nav-right">
+            <div class="notification-btn" onclick="window.location.href='history.html'"><i class="fa-solid fa-bell"></i>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="user-menu-container">
+                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
+                <div id="user-menu" class="dropdown-menu">
+                    <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                    <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-discord"></i> 公式Discord</a>
+                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-x-twitter"></i> 公式X</a>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <div class="container">
         <h1>お問い合わせ</h1>
         <form id="contact-form">
             <div class="form-group">
-                <label>お問い合わせ内容（カテゴリ）</label>
+                <label>カテゴリ</label>
                 <select id="subject" onchange="toggleOrderSelect()">
-                    <option value="payment">支払いについて</option>
-                    <option value="product">商品について</option>
-                    <option value="error">エラーについて</option>
+                    <option value="pay">支払いについて</option>
+                    <option value="prod">商品について</option>
+                    <option value="err">エラー・不具合</option>
                     <option value="other">その他</option>
                 </select>
             </div>
@@ -124,18 +240,19 @@
                 <select id="order-id">
                     <option value="">選択してください</option>
                 </select>
-                <div id="no-history-msg" style="font-size:0.8rem; color:#666; display:none;">購入履歴がありません</div>
+                <div id="no-history-msg" style="font-size:0.8rem; color:#666; display:none; margin-top:5px;">購入履歴がありません
+                </div>
             </div>
 
             <div class="form-group">
-                <label>詳細内容</label>
-                <textarea id="description" placeholder="詳しい状況を記載してください..." required></textarea>
+                <label>詳細</label>
+                <textarea id="description" required placeholder="詳細を入力してください"></textarea>
             </div>
 
             <div class="form-group">
                 <label>画像添付 (任意)</label>
                 <input type="file" id="image-file" accept="image/*">
-                <p style="font-size:0.8rem; color:#666;">※画像はURLとしてチケットに添付されます</p>
+                <p style="font-size:0.8rem; color:#666; margin-top:5px;">※画像はチケットに添付されます</p>
             </div>
 
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
@@ -144,77 +261,73 @@
 
     <script src="setting.js"></script>
     <script>
-        let currentUser = null;
+        let currentUser=null;
+        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(!session) { alert("ログインしてください"); window.location.href="index.html"; return; }
-            currentUser = session.user;
-
-            // 購入履歴取得してセレクトボックスへ
+        window.addEventListener('DOMContentLoaded',async()=>{
+            const{data:{session}}=await supabase.auth.getSession();
+            if(!session){alert("ログインしてください");window.location.href="index.html";return;}
+            currentUser=session.user;
+            document.getElementById('user-avatar').src=currentUser.user_metadata.avatar_url;
             loadOrders();
         });
 
         async function loadOrders() {
-            const res = await fetch('/api/history', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ user_id: currentUser.id })
-            });
-            const orders = await res.json();
-            const select = document.getElementById('order-id');
-            
-            if(orders.length > 0) {
-                orders.forEach(o => {
-                    const opt = document.createElement('option');
-                    opt.value = o.order_id;
-                    opt.text = `${o.order_id} (${o.status})`;
-                    select.appendChild(opt);
-                });
-            } else {
-                document.getElementById('no-history-msg').style.display = 'block';
-                select.disabled = true;
-            }
+            try {
+                const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user_id: currentUser.id }) });
+                const orders = await res.json();
+                const select = document.getElementById('order-id');
+                if(orders.length > 0) {
+                    orders.forEach(o => {
+                        const opt = document.createElement('option');
+                        opt.value = o.order_id;
+                        opt.text = `${o.order_id} (${o.status})`;
+                        select.appendChild(opt);
+                    });
+                } else {
+                    document.getElementById('no-history-msg').style.display = 'block';
+                    select.disabled = true;
+                }
+            } catch(e){}
         }
 
         function toggleOrderSelect() {
             const val = document.getElementById('subject').value;
-            const group = document.getElementById('order-group');
-            if(val === 'product') group.style.display = 'block';
-            else group.style.display = 'none';
+            document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
 
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            btn.innerText = "送信中..."; btn.disabled = true;
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
 
-            const subject = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
-            const orderId = document.getElementById('order-id').value;
-            const desc = document.getElementById('description').value;
+        document.getElementById('contact-form').addEventListener('submit',async(e)=>{
+            e.preventDefault();
+            const btn=document.getElementById('submit-btn');
+            btn.innerText="送信中..."; btn.disabled=true;
+
+            const fileInput = document.getElementById('image-file');
+            let imageData = null;
+            if(fileInput.files.length > 0) imageData = await toBase64(fileInput.files[0]);
 
             try {
+                const subjectText = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
                 const res = await fetch('/api/contact', {
                     method: 'POST', headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({
                         user_id: currentUser.id,
                         user_name: currentUser.user_metadata.full_name || "Unknown",
-                        subject: subject,
-                        order_id: orderId,
-                        description: desc
+                        subject: subjectText,
+                        order_id: document.getElementById('order-id').value,
+                        description: document.getElementById('description').value,
+                        image_data: imageData
                     })
                 });
-                
-                if(res.ok) {
-                    alert("送信しました！Discordにチケットが作成されました。");
-                    window.location.href = "index.html";
-                } else {
-                    alert("送信に失敗しました。");
-                    btn.innerText = "送信する"; btn.disabled = false;
-                }
-            } catch(e) {
-                alert("エラーが発生しました");
-                btn.innerText = "送信する"; btn.disabled = false;
-            }
+                if(res.ok) { alert("送信完了しました！\nDiscordにチケットチャンネルが作成されました。"); window.location.href="index.html"; }
+                else { throw new Error("送信失敗"); }
+            } catch(e) { console.error(e); alert("エラーが発生しました。"); btn.innerText="送信する"; btn.disabled=false; }
         });
     </script>
 </body>

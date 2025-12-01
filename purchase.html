@@ -8,131 +8,352 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- 元のデザインCSS (復元) --- */
+        /* ベースCSS */
         body {
-            background-color: #000000;
-            color: #ffffff;
+            background-color: #000;
+            color: #fff;
             font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding-top: 70px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding-top: 80px; /* ヘッダー分 */
         }
 
         /* 共通ヘッダー */
         .sticky-nav {
-            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
-            background-color: #000; border-bottom: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; box-sizing: border-box; z-index: 1000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-sizing: border-box;
+            z-index: 1000;
         }
-        .nav-left a { color: #ccc; text-decoration: none; font-weight: bold; margin-right: 20px; font-size: 0.9rem; }
-        .nav-left a:hover { color: #00E701; }
-        .nav-right { display: flex; align-items: center; gap: 20px; }
-        
-        /* 通知ポップアップ用 */
-        .notif-container { position: relative; }
-        .notification-btn { color: #fff; font-size: 1.3rem; cursor: pointer; position: relative; }
-        .badge { position: absolute; top: -2px; right: -2px; background: #ff4444; color: #fff; font-size: 0.6rem; min-width: 8px; height: 8px; border-radius: 50%; display: none; justify-content: center; align-items: center; border: 1px solid #000; }
-        
-        /* 小さい通知ウィンドウ */
-        .notif-popup {
-            position: absolute; top: 40px; right: -10px; width: 280px;
-            background: #111; border: 1px solid #333; border-radius: 8px;
-            display: none; flex-direction: column; z-index: 2000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
         }
-        .notif-popup.show { display: flex; animation: fadeIn 0.2s ease; }
-        .notif-header { padding: 10px; border-bottom: 1px solid #222; font-weight: bold; font-size: 0.9rem; color: #00E701; }
-        .notif-list { max-height: 200px; overflow-y: auto; }
-        .notif-item { padding: 10px; border-bottom: 1px solid #222; font-size: 0.8rem; color: #ccc; }
-        .notif-item:last-child { border-bottom: none; }
-        .notif-empty { padding: 15px; text-align: center; color: #666; font-size: 0.8rem; }
 
-        /* ユーザーメニュー */
-        .user-menu-container { position: relative; }
-        .user-avatar-nav { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #00E701; cursor: pointer; }
-        .dropdown-menu { position: absolute; top: 55px; right: 0; background: #111; border: 1px solid #333; border-radius: 10px; width: 200px; display: none; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
-        .dropdown-menu.show { display: flex; }
-        .menu-item { padding: 15px; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
-        .menu-item:hover { background: #222; color: #00E701; }
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
 
-        /* --- 購入画面メイン --- */
+        .nav-link:hover {
+            color: #00E701;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-btn {
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+            margin: 0 5px;
+        }
+
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar-nav {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            background: #111;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        /* 購入ページ固有 */
         .container {
-            max-width: 800px; width: 100%; margin-top: 30px; padding: 0 20px; box-sizing: border-box;
+            max-width: 800px;
+            width: 100%;
+            margin-top: 30px;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 
         .page-title {
-            font-size: 2rem; color: #00E701; font-weight: bold; margin-bottom: 40px;
-            text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px;
+            font-size: 2rem;
+            color: #00E701;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
         }
 
         .section-title {
-            font-size: 1.2rem; margin-bottom: 20px; color: #ccc;
-            border-left: 4px solid #00E701; padding-left: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ccc;
+            border-left: 4px solid #00E701;
+            padding-left: 10px;
         }
 
         .selection-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px; margin-bottom: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
         }
 
         .select-card {
-            background: #111; border: 2px solid #333; border-radius: 15px;
-            padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; position: relative;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
         }
-        .select-card:hover { transform: translateY(-3px); border-color: #666; }
+
         .select-card.selected {
-            border-color: #00E701; background: rgba(0, 231, 1, 0.05);
+            border-color: #00E701;
+            background: rgba(0, 231, 1, 0.05);
             box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
         }
-        /* チェックマーク */
+
         .select-card.selected::after {
-            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            position: absolute; top: -10px; right: -10px;
-            background: #00E701; color: #000; width: 25px; height: 25px;
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.8rem;
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #00E701;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
         }
-        .select-card.disabled { opacity: 0.4; cursor: not-allowed; border-color: #333; background: #0a0a0a; pointer-events: none; }
 
-        .coming-soon { color: #ff4444; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
-        .p-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
-        .p-price { font-family: monospace; font-size: 1.1rem; color: #aaa; }
-        .pay-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
-        .pay-name { font-weight: bold; }
+        .select-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #333;
+            background: #0a0a0a;
+            pointer-events: none;
+        }
 
-        /* クーポン入力欄（元のデザインに馴染ませる） */
-        .coupon-area { text-align: center; margin-bottom: 40px; }
+        .coupon-area {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         .coupon-input {
-            width: 100%; max-width: 400px; padding: 15px; background: #111;
-            border: 1px solid #333; color: #fff; border-radius: 10px;
-            text-align: center; font-size: 1rem;
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1rem;
         }
 
         .checkout-btn {
-            display: block; width: 100%; max-width: 400px; margin: 0 auto;
-            background: #00E701; color: #000; font-weight: bold; font-size: 1.5rem;
-            padding: 20px; border: none; border-radius: 50px; cursor: pointer;
-            transition: 0.3s; opacity: 0.5; pointer-events: none;
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #00E701;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            opacity: 0.5;
+            pointer-events: none;
         }
-        .checkout-btn.active { opacity: 1; pointer-events: auto; box-shadow: 0 0 20px rgba(0, 231, 1, 0.5); }
-        .checkout-btn:hover { transform: scale(1.05); }
 
-        .back-link { display: block; text-align: center; margin-top: 30px; color: #666; text-decoration: none; }
+        .checkout-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
+        }
+
+        .checkout-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            text-decoration: none;
+        }
 
         /* モーダル */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: #111; border: 2px solid #00E701; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; }
-        
-        .loading-spinner { border: 4px solid #333; border-top: 4px solid #00E701; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .key-box { background: #000; border: 1px dashed #00E701; padding: 15px; font-family: monospace; font-size: 1.5rem; color: #00ffff; margin: 20px 0; word-break: break-all; cursor: pointer; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
 
-        /* アニメーション */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-box {
+            background: #111;
+            border: 2px solid #00E701;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        /* 規約同意チェック */
+        .agreement-box {
+            background: #000;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+
+        .agree-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            background: transparent;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .agree-circle.checked {
+            background: #00E701;
+            border-color: #00E701;
+        }
+
+        .agree-circle.checked::after {
+            content: '✔';
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .agree-text {
+            font-size: 0.9rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #333;
+            border-top: 4px solid #00E701;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .key-box {
+            background: #000;
+            border: 1px dashed #00E701;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 1.5rem;
+            color: #00ffff;
+            margin: 20px 0;
+            word-break: break-all;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -140,31 +361,22 @@
 
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="index.html">Home</a>
-            <a href="terms.html">利用規約</a>
-            <a href="usage.html">使用方法</a>
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="terms.html" class="nav-link">利用規約</a>
+            <a href="usage.html" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notif-container">
-                <div class="notification-btn" onclick="toggleNotifPopup()">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge" id="notif-badge"></span>
-                </div>
-                <div id="notif-popup" class="notif-popup">
-                    <div class="notif-header">お知らせ</div>
-                    <div id="notif-list" class="notif-list">
-                        <div class="notif-empty">通知はありません</div>
-                    </div>
-                </div>
-            </div>
-
+            <div class="notification-btn"><i class="fa-solid fa-bell"></i></div>
+            <div class="nav-divider"></div>
             <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleUserMenu()">
+                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
                 <div id="user-menu" class="dropdown-menu">
                     <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
                     <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
-                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
+                    <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-discord"></i> 公式Discord</a>
+                    <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i
+                            class="fa-brands fa-x-twitter"></i> 公式X</a>
                 </div>
             </div>
         </div>
@@ -176,31 +388,35 @@
         <div class="section-title">プランを選択</div>
         <div class="selection-grid" id="plan-grid">
             <div class="select-card" onclick="selectPlan(this, '1day')">
-                <div class="p-name">1 Day</div><div class="p-price">¥1,200</div>
+                <div class="p-name">1 Day</div>
+                <div class="p-price">¥1,200</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1week')">
-                <div class="p-name">1 Week</div><div class="p-price">¥3,000</div>
+                <div class="p-name">1 Week</div>
+                <div class="p-price">¥3,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '2weeks')">
-                <div class="p-name">2 Weeks</div><div class="p-price">¥5,000</div>
+                <div class="p-name">2 Weeks</div>
+                <div class="p-price">¥5,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1month')">
-                <div class="p-name">1 Month</div><div class="p-price">¥6,800</div>
+                <div class="p-name">1 Month</div>
+                <div class="p-price">¥6,800</div>
             </div>
         </div>
 
         <div class="section-title">支払い方法を選択</div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled">
-                <span class="pay-icon" style="color: #ff0033; font-weight:900;">P</span>
-                <div class="pay-name">PayPay</div><div class="coming-soon">Coming Soon</div>
+            <div class="select-card disabled"><span class="pay-icon" style="color:#ff0033;">P</span>
+                <div class="pay-name">PayPay</div>
+                <div class="coming-soon">Coming Soon</div>
             </div>
-            <div class="select-card disabled">
-                <i class="fa-brands fa-stripe pay-icon" style="color: #635bff;"></i>
-                <div class="pay-name">クレジットカード</div><div class="coming-soon">Coming Soon</div>
+            <div class="select-card disabled"><i class="fa-brands fa-stripe pay-icon" style="color:#635bff;"></i>
+                <div class="pay-name">Card</div>
+                <div class="coming-soon">Coming Soon</div>
             </div>
-            <div class="select-card" onclick="selectPayment(this, 'crypto')">
-                <i class="fa-brands fa-bitcoin pay-icon" style="color: #f7931a;"></i>
+            <div class="select-card" onclick="selectPayment(this, 'crypto')"><i class="fa-brands fa-bitcoin pay-icon"
+                    style="color:#f7931a;"></i>
                 <div class="pay-name">仮想通貨</div>
             </div>
         </div>
@@ -217,12 +433,24 @@
     <div id="confirm-modal" class="modal-overlay">
         <div class="modal-box">
             <h2 style="color:#fff;">最終確認</h2>
-            <div style="text-align:left; background:#000; padding:20px; border:1px solid #333; margin-bottom:20px; color:#ccc;">
-                <div style="display:flex; justify-content:space-between;"><span>プラン:</span> <span id="conf-plan-name">-</span></div>
-                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:1.2rem; color:#00E701; font-weight:bold;"><span>支払額:</span> <span id="conf-total">¥0</span></div>
+            <div
+                style="text-align:left; background:#000; padding:20px; border:1px solid #333; margin-bottom:20px; color:#ccc;">
+                <div style="display:flex; justify-content:space-between;"><span>プラン:</span> <span
+                        id="conf-plan-name">-</span></div>
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:10px; font-size:1.2rem; color:#00E701; font-weight:bold;">
+                    <span>支払額:</span> <span id="conf-total">¥0</span></div>
             </div>
-            <button id="final-pay-btn" class="checkout-btn active">支払う (Oxapayへ)</button>
-            <button onclick="document.getElementById('confirm-modal').style.display='none'" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">閉じる</button>
+
+            <div class="agreement-box" onclick="toggleAgreement()">
+                <div id="agree-circle" class="agree-circle"></div>
+                <span class="agree-text">利用規約に同意する</span>
+            </div>
+
+            <button id="final-pay-btn" class="checkout-btn" style="opacity:0.5; pointer-events:none;">支払う</button>
+
+            <button onclick="document.getElementById('confirm-modal').style.display='none'"
+                style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">閉じる</button>
         </div>
     </div>
 
@@ -232,16 +460,16 @@
                 <div class="loading-spinner"></div>
                 <h2 style="color:#ffd700;">支払い確認中...</h2>
                 <p>別タブで支払いを完了してください。<br>完了すると自動で切り替わります。</p>
-                <button onclick="window.open(payUrl, '_blank')" style="background:#333; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer; margin-top:10px;">支払いページを再表示</button>
+                <button onclick="window.open(payUrl, '_blank')"
+                    style="background:#333; color:#fff; padding:10px; border:none; border-radius:5px; cursor:pointer; margin-top:10px;">支払いページを再表示</button>
             </div>
             <div id="success-view" style="display:none;">
                 <i class="fa-solid fa-circle-check" style="font-size:4rem; color:#00E701; margin-bottom:20px;"></i>
                 <h2>支払い完了！</h2>
                 <p>商品キーをコピーしてください</p>
-                <div class="key-box" onclick="copyKey()">
-                    <span id="final-key">LOADING...</span>
-                </div>
-                <button onclick="window.location.href='usage.html'" class="checkout-btn active" style="font-size:1rem; margin-top:10px;">利用方法を見る</button>
+                <div class="key-box" onclick="copyKey()"><span id="final-key">...</span></div>
+                <button onclick="window.location.href='usage.html'" class="checkout-btn active"
+                    style="font-size:1rem; margin-top:10px;">利用方法を見る</button>
             </div>
             <div id="error-view" style="display:none;">
                 <h2 style="color:#ff4444;">エラー</h2>
@@ -254,62 +482,16 @@
     <script src="setting.js"></script>
     <script>
         let selectedPlan = null; let selectedPayment = null; let currentUser = null;
-        let pollingInterval = null; let currentOrderId = null; let payUrl = null;
+        let isAgreed = false; let pollingInterval = null; let currentOrderId = null; let payUrl = null;
 
-        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('show'); }
-        
-        // 通知ポップアップの制御
-        function toggleNotifPopup() {
-            const popup = document.getElementById('notif-popup');
-            popup.classList.toggle('show');
-            // 開いたときにバッジを消す等の処理はお好みで
-        }
+        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if(!session) { window.location.href="index.html"; return; }
             currentUser = session.user;
             document.getElementById('user-avatar').src = currentUser.user_metadata.avatar_url;
-            
-            checkNotifications(currentUser.id);
         });
-
-        // 通知の中身を取得してポップアップに入れる
-        async function checkNotifications(userId) {
-            try {
-                const res = await fetch('/api/history', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const orders = await res.json();
-                
-                const list = document.getElementById('notif-list');
-                list.innerHTML = "";
-                
-                // 未完了のものを抽出
-                const pendingOrders = orders.filter(o => o.status === 'pending');
-                const badge = document.getElementById('notif-badge');
-
-                if (pendingOrders.length > 0) {
-                    badge.style.display = 'flex';
-                    badge.innerText = pendingOrders.length;
-
-                    pendingOrders.forEach(o => {
-                        const item = document.createElement('div');
-                        item.className = 'notif-item';
-                        item.innerHTML = `
-                            <div style="color:#ffd700; font-weight:bold;">支払い待ち</div>
-                            <div>${o.plan_type.toUpperCase()} PLAN</div>
-                            <div style="font-size:0.7rem; color:#666;">ID: ${o.order_id}</div>
-                            <a href="${o.pay_url}" target="_blank" style="color:#00E701;">支払う</a>
-                        `;
-                        list.appendChild(item);
-                    });
-                } else {
-                    list.innerHTML = '<div class="notif-empty">新しい通知はありません</div>';
-                }
-            } catch(e) {}
-        }
 
         function selectPlan(card, planId) {
             document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected'));
@@ -326,10 +508,37 @@
             const prices = {'1day':1200,'1week':3000,'2weeks':5000,'1month':6800};
             document.getElementById('conf-plan-name').innerText = selectedPlan.toUpperCase();
             document.getElementById('conf-total').innerText = "¥" + prices[selectedPlan];
+            // 同意状態をリセット
+            isAgreed = false;
+            document.getElementById('agree-circle').classList.remove('checked');
+            document.getElementById('final-pay-btn').classList.remove('active');
+            document.getElementById('final-pay-btn').style.opacity = '0.5';
+            document.getElementById('final-pay-btn').style.pointerEvents = 'none';
+            
             document.getElementById('confirm-modal').style.display = 'flex';
         });
 
+        // 規約同意の切り替え
+        function toggleAgreement() {
+            isAgreed = !isAgreed;
+            const circle = document.getElementById('agree-circle');
+            const btn = document.getElementById('final-pay-btn');
+            
+            if (isAgreed) {
+                circle.classList.add('checked');
+                btn.classList.add('active');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            } else {
+                circle.classList.remove('checked');
+                btn.classList.remove('active');
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+            }
+        }
+
         document.getElementById('final-pay-btn').addEventListener('click', async () => {
+            if (!isAgreed) return;
             const btn = document.getElementById('final-pay-btn'); btn.innerText = "処理中...";
             try {
                 const res = await fetch('/api/create_order', {
@@ -344,15 +553,13 @@
                     currentOrderId = data.order_id;
                     payUrl = data.payLink;
                     window.open(payUrl, '_blank');
-                    
                     document.getElementById('confirm-modal').style.display='none';
                     document.getElementById('process-modal').style.display='flex';
-                    
                     startPolling();
                 } else {
-                    alert("エラー: " + data.error); btn.innerText = "支払う (Oxapayへ)";
+                    alert("エラー: " + data.error); btn.innerText = "支払う";
                 }
-            } catch(e) { alert("通信エラー"); btn.innerText = "支払う (Oxapayへ)"; }
+            } catch(e) { alert("通信エラー"); btn.innerText = "支払う"; }
         });
 
         function startPolling() {
@@ -385,4 +592,5 @@
         }
     </script>
 </body>
+
 </html>

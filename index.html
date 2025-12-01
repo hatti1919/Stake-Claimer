@@ -8,41 +8,59 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ベースCSS */
+        /* --- ベース設定 --- */
         body {
-            background-color: #000;
-            color: #fff;
+            background-color: #000000;
+            color: #ffffff;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding-top: 60px;
+            padding-top: 70px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* ヘッダー */
+        /* --- 共通ヘッダー (画像再現) --- */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.95);
-            border-bottom: 1px solid #333;
+            height: 70px;
+            background-color: #000000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 30px;
             box-sizing: border-box;
             z-index: 1000;
+            /* 下線は画像には薄く見えるか見えない程度だが、区切りのため薄く入れる */
+            border-bottom: 1px solid #1a1a1a;
         }
 
-        .nav-left a {
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            margin-right: 20px;
+            font-size: 1.1rem;
+            /* 少し大きめ */
+            transition: color 0.3s;
+        }
+
+        .nav-link.home {
+            color: #fff;
+        }
+
+        /* Homeは白く強調 */
+        .nav-link:hover {
+            color: #00E701;
         }
 
         .nav-right {
@@ -51,37 +69,115 @@
             gap: 20px;
         }
 
-        /* 通知ポップアップ */
-        .notif-container {
-            position: relative;
-        }
-
+        /* 通知ベル */
         .notification-btn {
             color: #fff;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             cursor: pointer;
             position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-btn:hover {
+            color: #00E701;
         }
 
         .badge {
             position: absolute;
             top: -2px;
             right: -2px;
-            background: #ff4444;
-            color: #fff;
+            background-color: #ff4444;
+            color: white;
             font-size: 0.6rem;
             min-width: 8px;
             height: 8px;
+            padding: 3px;
             border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
+            font-weight: bold;
             border: 1px solid #000;
         }
 
+        /* 区切り線 (|) */
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+            margin: 0 5px;
+        }
+
+        /* アバター (緑枠付き) */
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar-nav {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #00E701;
+            /* 太めの緑枠 */
+            cursor: pointer;
+            object-fit: cover;
+            transition: 0.3s;
+            background-color: #111;
+        }
+
+        .user-avatar-nav:hover {
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.4);
+        }
+
+        /* ドロップダウンメニュー */
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #222;
+            transition: 0.2s;
+            background: #111;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 通知ポップアップ */
         .notif-popup {
             position: absolute;
-            top: 40px;
+            top: 50px;
             right: -10px;
             width: 280px;
             background: #111;
@@ -98,98 +194,64 @@
             animation: fadeIn 0.2s ease;
         }
 
-        .notif-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
         .notif-item {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #222;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #ccc;
         }
 
         .notif-empty {
-            padding: 15px;
+            padding: 20px;
             text-align: center;
             color: #666;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
-        /* ユーザーメニュー */
-        .user-menu-container {
-            position: relative;
-        }
-
-        .user-avatar-nav {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 2px solid #00E701;
+        /* ログインボタン */
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
             cursor: pointer;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 55px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 200px;
-            display: none;
-            flex-direction: column;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-        }
-
-        .dropdown-menu.show {
-            display: flex;
-        }
-
-        .menu-item {
-            padding: 15px;
-            color: #fff;
-            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #222;
+            gap: 8px;
         }
 
-        .menu-item:hover {
-            background: #222;
-            color: #00E701;
-        }
-
-        /* コンテンツCSS (省略なし) */
+        /* --- コンテンツ --- */
         .hero-section {
-            margin-top: 50px;
+            margin-top: 60px;
             text-align: center;
             width: 90%;
             max-width: 800px;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
         .logo-img {
-            width: 200px;
+            width: 220px;
             height: auto;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
             font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .typing-container {
             height: 30px;
             margin-bottom: 30px;
             font-size: 1.2rem;
-            color: #ccc;
+            color: #bbb;
             font-family: 'Courier New', monospace;
         }
 
@@ -341,7 +403,26 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: color 0.3s;
+            transition: 0.3s;
+        }
+
+        .faq-question:hover {
+            color: #00E701;
+        }
+
+        .faq-question.active {
+            color: #00E701;
+        }
+
+        .faq-question.active .faq-icon {
+            color: #00E701;
+            transform: rotate(135deg);
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            color: #fff;
+            transition: transform 0.3s ease, color 0.3s ease;
         }
 
         .faq-answer {
@@ -359,6 +440,7 @@
             text-align: center;
             width: 100%;
             border-top: 1px solid #333;
+            background: #050505;
         }
 
         .footer-links a {
@@ -397,26 +479,32 @@
 
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="index.html">Home</a>
-            <a href="terms.html">利用規約</a>
-            <a href="usage.html">使用方法</a>
+            <a href="index.html" class="nav-link home">Home</a>
+            <a href="terms.html" class="nav-link">利用規約</a>
+            <a href="usage.html" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notif-container">
+            <div style="position:relative;">
                 <div class="notification-btn" onclick="toggleNotifPopup()">
                     <i class="fa-solid fa-bell"></i>
                     <span class="badge" id="notif-badge"></span>
                 </div>
                 <div id="notif-popup" class="notif-popup">
-                    <div style="padding:10px; border-bottom:1px solid #222; font-weight:bold; color:#00E701;">お知らせ</div>
-                    <div id="notif-list" class="notif-list">
+                    <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701;">お知らせ</div>
+                    <div id="notif-list">
                         <div class="notif-empty">通知はありません</div>
                     </div>
                 </div>
             </div>
 
+            <div class="nav-divider"></div>
+
             <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleUserMenu()">
+                <img id="user-avatar" src="" class="user-avatar-nav" style="display:none;" onclick="toggleMenu()">
+                <button id="login-btn" onclick="loginWithDiscord()" class="login-btn-nav">
+                    <i class="fa-brands fa-discord"></i> Login
+                </button>
+
                 <div id="user-menu" class="dropdown-menu">
                     <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
                     <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
@@ -428,15 +516,6 @@
             </div>
         </div>
     </nav>
-
-    <div id="auth-overlay"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; flex-direction:column; justify-content:center; align-items:center;">
-        <h2 style="color:#00E701;">ログインが必要です</h2>
-        <button onclick="loginWithDiscord()"
-            style="background:#5865F2; color:#fff; padding:15px 30px; border:none; border-radius:30px; font-weight:bold; font-size:1.2rem; cursor:pointer;">
-            <i class="fa-brands fa-discord"></i> Discordでログイン
-        </button>
-    </div>
 
     <div class="hero-section fade-up">
         <img src="image/logo.jpg" alt="Logo" class="logo-img">
@@ -523,71 +602,72 @@
     <script src="setting.js"></script>
     <script>
         let currentUser = null;
+
         async function loginWithDiscord() {
             await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } });
         }
-        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('show'); }
+        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
         function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
 
         function goToPurchase(plan) {
             if(currentUser) window.location.href = `purchase.html?plan=${plan}`;
-            else document.getElementById('auth-overlay').style.display='flex';
+            else alert("購入するにはログインが必要です");
+        }
+
+        async function checkNotifications(userId) {
+            try {
+                const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: userId }) });
+                const orders = await res.json();
+                const list = document.getElementById('notif-list');
+                const pending = orders.filter(o => o.status === 'pending');
+                
+                if(pending.length > 0) {
+                    document.getElementById('notif-badge').style.display='flex';
+                    document.getElementById('notif-badge').innerText = pending.length;
+                    list.innerHTML = "";
+                    pending.forEach(o => {
+                        list.innerHTML += `<div class="notif-item"><span style="color:#ffd700">支払い待ち</span>: ${o.plan_type}<br><a href="${o.pay_url}" target="_blank" style="color:#00E701; text-decoration:underline;">支払う</a></div>`;
+                    });
+                }
+            } catch(e) {}
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if(session) {
                 currentUser = session.user;
-                document.getElementById('user-avatar').src = currentUser.user_metadata.avatar_url;
+                const avatar = document.getElementById('user-avatar');
+                avatar.src = currentUser.user_metadata.avatar_url;
+                avatar.style.display = 'block';
+                document.getElementById('login-btn').style.display = 'none';
                 checkNotifications(currentUser.id);
-            } else {
-                // 未ログイン時のアバター表示処理（デフォルト画像など）
-                // ここでは簡易的に非表示
-                document.querySelector('.user-menu-container').style.display = 'none';
             }
 
-            // アニメ
             const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
-            let count = 0, index = 0, currentText = "", letter = "", isDeleting = false;
-            (function type() { if (count === texts.length) count = 0; currentText = texts[count]; letter = isDeleting ? currentText.slice(0, --index) : currentText.slice(0, ++index); document.querySelector(".typing-container .text").textContent = letter; let typeSpeed = isDeleting ? 50 : 100; if (!isDeleting && letter.length === currentText.length) { typeSpeed = 2000; isDeleting = true; } else if (isDeleting && letter.length === 0) { isDeleting = false; count++; typeSpeed = 500; } setTimeout(type, typeSpeed); })();
+            let count=0, index=0, currentText="", letter="", isDeleting=false;
+            (function type() { if(count===texts.length)count=0; currentText=texts[count]; letter=isDeleting?currentText.slice(0,--index):currentText.slice(0,++index); document.querySelector(".typing-container .text").textContent=letter; let speed=isDeleting?50:100; if(!isDeleting&&letter.length===currentText.length){speed=2000;isDeleting=true;}else if(isDeleting&&letter.length===0){isDeleting=false;count++;speed=500;} setTimeout(type,speed); })();
             
-            // FAQ
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.addEventListener('click', () => {
-                    const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
-                    item.classList.toggle('active');
-                    if (item.classList.contains('active')) { a.style.maxHeight = a.scrollHeight+"px"; i.classList.remove('fa-plus'); i.classList.add('fa-minus'); }
-                    else { a.style.maxHeight = null; i.classList.remove('fa-minus'); i.classList.add('fa-plus'); }
+                    const item = q.parentElement; 
+                    const a = item.querySelector('.faq-answer'); 
+                    const i = q.querySelector('.faq-icon');
+                    
+                    q.classList.toggle('active');
+                    
+                    if (q.classList.contains('active')) {
+                        a.style.maxHeight = a.scrollHeight + "px";
+                        i.classList.remove('fa-plus'); i.classList.add('fa-minus');
+                    } else {
+                        a.style.maxHeight = null;
+                        i.classList.remove('fa-minus'); i.classList.add('fa-plus');
+                    }
                 });
             });
 
-            const observer = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } }), {threshold:0.1});
-            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+            const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:0.1});
+            document.querySelectorAll('.fade-up').forEach(e=>obs.observe(e));
         });
-
-        async function checkNotifications(userId) {
-            try {
-                const res = await fetch('/api/history', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_id: userId })
-                });
-                const orders = await res.json();
-                const list = document.getElementById('notif-list');
-                list.innerHTML = "";
-                
-                const pending = orders.filter(o => o.status === 'pending');
-                if(pending.length > 0) {
-                    document.getElementById('notif-badge').style.display='flex';
-                    pending.forEach(o => {
-                        const i = document.createElement('div'); i.className='notif-item';
-                        i.innerHTML = `<div style="color:#ffd700;">支払い待ち</div><div>${o.plan_type}</div><a href="${o.pay_url}" target="_blank" style="color:#00E701;">支払う</a>`;
-                        list.appendChild(i);
-                    });
-                } else {
-                    list.innerHTML = '<div class="notif-empty">通知はありません</div>';
-                }
-            } catch(e) {}
-        }
     </script>
 </body>
 

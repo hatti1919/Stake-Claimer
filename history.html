@@ -4,43 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>購入履歴 - Stake Bonus Claimer</title>
+    <title>購入履歴</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
-            padding-top: 80px;
+            padding-top: 70px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
+        /* 共通ヘッダー */
         .sticky-nav {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.95);
-            border-bottom: 1px solid #333;
+            height: 70px;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 30px;
             box-sizing: border-box;
             z-index: 1000;
         }
 
-        .nav-left a {
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            margin-right: 20px;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #00E701;
         }
 
         .nav-right {
@@ -49,46 +61,38 @@
             gap: 20px;
         }
 
-        /* ベルアイコン */
         .notification-btn {
             color: #fff;
-            font-size: 1.3rem;
-            position: relative;
+            font-size: 1.5rem;
             cursor: pointer;
         }
 
-        .badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #ff4444;
-            color: #fff;
-            font-size: 0.6rem;
-            min-width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #000;
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+            margin: 0 5px;
         }
 
-        /* ユーザーメニュー */
         .user-menu-container {
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .user-avatar-nav {
-            width: 38px;
-            height: 38px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
-            border: 2px solid #00E701;
+            border: 3px solid #00E701;
             cursor: pointer;
+            object-fit: cover;
+            background: #111;
         }
 
         .dropdown-menu {
             position: absolute;
-            top: 55px;
+            top: 60px;
             right: 0;
             background: #111;
             border: 1px solid #333;
@@ -97,7 +101,6 @@
             display: none;
             flex-direction: column;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
-            z-index: 2000;
         }
 
         .dropdown-menu.show {
@@ -120,28 +123,46 @@
             color: #00E701;
         }
 
-        .menu-item i {
-            width: 20px;
-            text-align: center;
-            color: #888;
-        }
-
-        .menu-item:hover i {
-            color: #00E701;
-        }
-
         .container {
             width: 90%;
             max-width: 800px;
+            margin-top: 30px;
             margin-bottom: 50px;
         }
 
         .page-title {
             font-size: 2rem;
+            color: #00E701;
+            font-weight: bold;
             border-bottom: 2px solid #333;
             padding-bottom: 15px;
-            margin-bottom: 30px;
-            color: #00E701;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #ccc;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #00E701;
+            color: #000;
+            border-color: #00E701;
             font-weight: bold;
         }
 
@@ -154,13 +175,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            cursor: pointer;
             position: relative;
             overflow: hidden;
-        }
-
-        .history-card:hover {
-            background: #1a1a1a;
         }
 
         .status-bar {
@@ -200,18 +216,6 @@
         .h-status {
             text-align: right;
             font-weight: bold;
-        }
-
-        .text-pending {
-            color: #ffd700;
-        }
-
-        .text-paid {
-            color: #00E701;
-        }
-
-        .text-expired {
-            color: #ff4444;
         }
 
         .modal-overlay {
@@ -255,38 +259,22 @@
             padding: 10px 25px;
             border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-        }
-
-        .footer-links {
-            margin-top: auto;
-            padding: 40px 0;
-            text-align: center;
-            width: 100%;
-            border-top: 1px solid #333;
-        }
-
-        .footer-links a {
-            color: #888;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 0.9rem;
         }
     </style>
 </head>
 
 <body>
     <nav class="sticky-nav">
-        <div class="nav-left"><a href="index.html" style="color:#ccc;text-decoration:none;font-weight:bold;">Home</a>
+        <div class="nav-left">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="terms.html" class="nav-link">利用規約</a>
+            <a href="usage.html" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notification-btn" onclick="location.reload()" title="更新">
-                <i class="fa-solid fa-bell"></i>
-                <span class="badge" id="notif-badge">!</span>
-            </div>
-
+            <div class="notification-btn" onclick="location.reload()"><i class="fa-solid fa-bell"></i></div>
+            <div class="nav-divider"></div>
             <div class="user-menu-container">
-                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleUserMenu()">
+                <img id="user-avatar" src="" class="user-avatar-nav" onclick="toggleMenu()">
                 <div id="user-menu" class="dropdown-menu">
                     <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
                     <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
@@ -300,7 +288,15 @@
     </nav>
 
     <div class="container">
-        <h1 class="page-title">購入履歴 / 通知</h1>
+        <h1 class="page-title">購入履歴</h1>
+
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterHistory('all', this)">すべて</button>
+            <button class="filter-btn" onclick="filterHistory('paid', this)">完了</button>
+            <button class="filter-btn" onclick="filterHistory('pending', this)">待機中</button>
+            <button class="filter-btn" onclick="filterHistory('expired', this)">期限切れ</button>
+        </div>
+
         <div id="history-list">
             <p style="text-align:center;color:#666;">読み込み中...</p>
         </div>
@@ -309,7 +305,6 @@
     <div id="key-modal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="color:#00E701;">ライセンスキー</h3>
-            <p>コピーして使用してください</p>
             <div id="modal-key-text" class="key-display"></div>
             <button class="close-btn" onclick="document.getElementById('key-modal').style.display='none'">閉じる</button>
         </div>
@@ -317,15 +312,7 @@
 
     <script src="setting.js"></script>
     <script>
-        function toggleUserMenu() {
-            const menu = document.getElementById('user-menu');
-            menu.classList.toggle('show');
-            setTimeout(() => { document.addEventListener('click', closeMenu, {once:true}); }, 100);
-        }
-        function closeMenu(e) {
-            const menu = document.getElementById('user-menu');
-            if(menu && !menu.contains(e.target)) menu.classList.remove('show');
-        }
+        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
 
         window.addEventListener('DOMContentLoaded', async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -335,50 +322,43 @@
         });
 
         async function loadHistory(userId) {
-            try {
-                const res = await fetch('/api/history', {
-                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId})
-                });
-                const orders = await res.json();
-                const list = document.getElementById('history-list');
-                list.innerHTML = "";
+            const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user_id:userId}) });
+            const orders = await res.json();
+            const list = document.getElementById('history-list');
+            list.innerHTML = "";
 
-                const activeCount = orders.filter(o => o.status==='pending'||o.status==='paid').length;
-                if(activeCount>0) { const b = document.getElementById('notif-badge'); b.style.display='flex'; b.innerText=activeCount; }
+            if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
 
-                if(orders.length===0) { list.innerHTML="<p style='text-align:center;'>履歴なし</p>"; return; }
+            orders.forEach(o => {
+                let stHtml, cls, act, statType;
+                const dt = new Date(o.created_at).toLocaleString('ja-JP');
+                
+                if(o.status==='pending') { cls='status-pending'; stHtml='<span style="color:#ffd700">🟡 待機中</span>'; act=`window.open('${o.pay_url}')`; statType='pending'; }
+                else if(o.status==='paid') { cls='status-paid'; stHtml='<span style="color:#00E701">🟢 完了</span>'; act=`showKey('${o.license_key}')`; statType='paid'; }
+                else { cls='status-expired'; stHtml='<span style="color:#ff4444">🔴 期限切れ</span>'; act=`alert('再購入してください')`; statType='expired'; }
 
-                orders.forEach(o => {
-                    let stHtml, cls, act;
-                    const dt = new Date(o.created_at).toLocaleString('ja-JP');
-                    if(o.status==='pending') { 
-                        cls='status-pending'; 
-                        stHtml='<span class="text-pending">🟡 待機中</span>'; 
-                        act=`window.open('${o.pay_url}')`; 
-                    }
-                    else if(o.status==='paid') { 
-                        cls='status-paid'; 
-                        stHtml='<span class="text-paid">🟢 完了</span>'; 
-                        act=`showKey('${o.license_key}')`; 
-                    }
-                    else { 
-                        cls='status-expired'; 
-                        stHtml='<span class="text-expired">🔴 期限切れ</span>'; 
-                        act=`if(confirm('期限切れです。再購入しますか？')) window.location.href='purchase.html'`; 
-                    }
-
-                    const d = document.createElement('div');
-                    d.className = 'history-card';
-                    d.onclick = new Function(act);
-                    d.innerHTML = `
-                        <div class="status-bar ${cls}"></div>
-                        <div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()}</div><div class="h-date">${dt}</div></div>
-                        <div class="h-status">${stHtml}</div>
-                    `;
-                    list.appendChild(d);
-                });
-            } catch(e) { console.error(e); }
+                const d = document.createElement('div');
+                d.className = 'history-card';
+                d.dataset.status = statType;
+                d.onclick = new Function(act);
+                d.innerHTML = `
+                    <div class="status-bar ${cls}"></div>
+                    <div class="h-info"><div class="h-plan">${o.plan_type.toUpperCase()} PLAN</div><div class="h-date">${dt}</div></div>
+                    <div class="h-status">${stHtml}</div>
+                `;
+                list.appendChild(d);
+            });
         }
+
+        function filterHistory(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.history-card').forEach(card => {
+                if(type === 'all' || card.dataset.status === type) card.style.display = 'flex';
+                else card.style.display = 'none';
+            });
+        }
+
         function showKey(k) {
             document.getElementById('modal-key-text').innerText = k;
             document.getElementById('key-modal').style.display = 'flex';
