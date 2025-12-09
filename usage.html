@@ -17,8 +17,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
+        /* ヘッダー統一 */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -30,7 +32,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 30px;
             box-sizing: border-box;
             z-index: 1000;
         }
@@ -38,14 +40,14 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 30px;
         }
 
         .nav-link {
             color: #ccc;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             transition: 0.3s;
             white-space: nowrap;
         }
@@ -54,20 +56,96 @@
             color: #fff;
         }
 
+        .nav-link.active {
+            color: #fff;
+            font-size: 1.3rem;
+        }
+
         .nav-right {
             display: flex;
             align-items: center;
             gap: 20px;
         }
 
+        .notification-btn {
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+        }
+
         .user-avatar-nav {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: 2px solid #00E701;
             cursor: pointer;
             object-fit: cover;
             background: #111;
+        }
+
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #000;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            border-top: 1px solid #222;
+        }
+
+        .mobile-nav-link {
+            font-size: 1.2rem;
+            color: #ccc;
+            text-decoration: none;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .nav-left {
+                gap: 15px;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sticky-nav {
+                padding: 0 15px;
+            }
         }
 
         .content {
@@ -92,17 +170,47 @@
             font-weight: bold;
             margin-right: 10px;
         }
+
+        .footer-links {
+            margin-top: auto;
+            padding: 30px 0;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #333;
+            background: #050505;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 
 <body>
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="/" class="nav-link" style="font-size:1.2rem;">Home</a>
+            <div class="mobile-menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('show')"><i
+                    class="fa-solid fa-bars"></i></div>
+            <a href="/" class="nav-link">Home</a>
             <a href="/terms" class="nav-link">利用規約</a>
+            <a href="/usage" class="nav-link active">使用方法</a>
         </div>
-        <div class="nav-right" id="auth-container"></div>
+        <div class="nav-right">
+            <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i></div>
+            <div class="nav-divider"></div>
+            <div id="auth-container"></div>
+        </div>
     </nav>
+
+    <div id="mobile-nav" class="mobile-nav-overlay">
+        <a href="/" class="mobile-nav-link">Home</a>
+        <a href="/terms" class="mobile-nav-link">利用規約</a>
+        <a href="/usage" class="mobile-nav-link">使用方法</a>
+    </div>
+
     <div class="content">
         <h1 style="color:#00E701; border-bottom:1px solid #333; padding-bottom:15px;">使用方法</h1>
         <div class="step">
@@ -118,6 +226,13 @@
             <p>発行されたキーをDiscordサーバー内の指定チャンネルで使用するか、BotにDMで送信してアクティベートしてください。</p>
         </div>
     </div>
+
+    <div class="footer-links">
+        <a href="/terms">利用規約</a>
+        <a href="/usage">使用方法</a>
+        <a href="/">ホームに戻る</a>
+    </div>
+
     <script src="setting.js"></script>
     <script>
         const authContainer = document.getElementById('auth-container');
@@ -125,7 +240,7 @@
             await initSupabase();
             const { data: { session } } = await window.supabaseApp.auth.getSession();
             if(session) authContainer.innerHTML=`<img src="${session.user.user_metadata.avatar_url}" class="user-avatar-nav">`;
-            else authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:6px 14px;border-radius:20px;font-weight:bold;cursor:pointer;">Login</button>`;
+            else authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav">Login</button>`;
         });
     </script>
 </body>
