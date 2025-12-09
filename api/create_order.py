@@ -9,22 +9,19 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             content_len = int(self.headers.get('Content-Length'))
-            body = self.rfile.read(content_len)
-            data = json.loads(body)
+            data = json.loads(self.rfile.read(content_len))
 
+            action = data.get('action') 
             user_id = data.get('user_id')
-            email = data.get('email') # Discordのメールアドレスを受け取る
+            email = data.get('email')
             plan_id = data.get('plan_id')
             coupon_code = data.get('coupon_code', '').strip()
-            is_dry_run = data.get('dry_run', False)
 
-            # 環境変数
-            MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
             SUPABASE_URL = os.environ.get('SUPABASE_URL')
-            SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+            SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') # 管理者キー
+            MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            # プラン定義
             plans = {
                 '1day':   {'price': 1200, 'label': '1 Day Plan'},
                 '1week':  {'price': 3000, 'label': '1 Week Plan'},
@@ -32,34 +29,36 @@ class handler(BaseHTTPRequestHandler):
                 '1month': {'price': 6800, 'label': '1 Month Plan'}
             }
             
-            if plan_id not in plans:
-                raise Exception("無効なプランIDです")
+            if plan_id not in plans: raise Exception("無効なプランIDです")
 
             original_price = plans[plan_id]['price']
             final_price = original_price
             discount = 0
 
-            # クーポン確認
+            # クーポン計算
             if coupon_code:
                 res = supabase.table('coupons').select('*').eq('code', coupon_code).eq('is_active', True).execute()
                 if res.data:
                     discount = res.data[0]['discount_amount']
                     final_price = max(1, original_price - discount)
+                elif action == 'check_coupon':
+                    raise Exception("無効なクーポンコードです")
 
-            # ドライラン（計算のみ）
-            if is_dry_run:
+            # 確認アクション
+            if action == 'check_coupon':
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({
+                    "valid": True,
                     "original_price": original_price,
                     "discount": discount,
                     "final_price": final_price,
-                    "message": "Calculation only"
+                    "plan_name": plans[plan_id]['label']
                 }).encode())
                 return
 
-            # 本番注文作成
+            # 注文作成
             order_id = f"{int(time.time())}_{user_id[:4]}"
             
             payload = {
@@ -69,41 +68,43 @@ class handler(BaseHTTPRequestHandler):
                 "lifeTime": 60,
                 "feePaidByPayer": 1,
                 "orderId": order_id,
-                "email": email, # Oxapayにメールアドレスを渡す
-                "description": f"StakeClaimer: {plans[plan_id]['label']} (Coupon: {coupon_code})",
-                "returnUrl": "https://stake-claimer.vercel.app/history.html" 
+                "email": email,
+                "description": f"StakeClaimer: {plans[plan_id]['label']}",
+                "returnUrl": f"https://stake-claimer.vercel.app/checkout/{order_id}" 
             }
             
-            oxa_res = requests.post("https://api.oxapay.com/merchants/request", json=payload, headers={"Content-Type": "application/json"}).json()
-
-            if oxa_res.get("result") != 100:
-                raise Exception(f"Oxapay Error: {oxa_res.get('message')}")
+            oxa_res = requests.post("https://api.oxapay.com/merchants/request", json=payload).json()
+            if oxa_res.get("result") != 100: raise Exception(f"Payment Error: {oxa_res.get('message')}")
 
             pay_link = oxa_res.get("payLink")
 
-            # DB保存
             supabase.table('orders').insert({
                 "user_id": user_id,
                 "order_id": order_id,
                 "plan_type": plan_id,
-                "amount": final_price,
+                "amount": original_price,
+                "discount_amount": discount,
+                "final_amount": final_price,
+                "coupon_code": coupon_code if coupon_code else None,
                 "status": "pending",
                 "pay_url": pay_link,
                 "created_at": "now()"
             }).execute()
 
+            # 通知作成
+            supabase.table('notifications').insert({
+                "user_id": user_id,
+                "title": "支払いリクエスト作成",
+                "message": f"{plans[plan_id]['label']} の注文を作成しました。\n未払いの場合は履歴または通知からお支払いください。",
+                "type": "info"
+            }).execute()
+
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({
-                "payLink": pay_link,
-                "order_id": order_id,
-                "original_price": original_price,
-                "discount": discount,
-                "final_price": final_price
-            }).encode())
+            self.wfile.write(json.dumps({"order_id": order_id, "pay_url": pay_link}).encode())
 
         except Exception as e:
-            self.send_response(500)
+            self.send_response(400)
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode())

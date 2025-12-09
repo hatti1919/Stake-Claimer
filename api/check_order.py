@@ -2,91 +2,71 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 import requests
+import string
+import random
 from supabase import create_client
-from datetime import datetime, timedelta, timezone
+
+def generate_license_key(plan_type):
+    chars = string.ascii_letters + string.digits
+    random_str = ''.join(random.choices(chars, k=20))
+    days_map = {'1day': 1, '1week': 7, '2weeks': 14, '1month': 30}
+    days = days_map.get(plan_type, 0)
+    return f"{random_str}-{days}", days
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
-            content_len = int(self.headers.get('Content-Length'))
-            data = json.loads(self.rfile.read(content_len))
-            
+            data = json.loads(self.rfile.read(int(self.headers.get('Content-Length'))))
             order_id = data.get('order_id')
             user_id = data.get('user_id')
 
             MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
             SUPABASE_URL = os.environ.get('SUPABASE_URL')
-            SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+            SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-            # DBから注文取得
             res = supabase.table('orders').select('*').eq('order_id', order_id).eq('user_id', user_id).execute()
-            if not res.data:
-                raise Exception("Order not found")
-            
+            if not res.data: raise Exception("Order not found")
             order = res.data[0]
 
-            # 既にPaidなら即返す
             if order['status'] == 'paid':
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({
-                    "status": "paid",
-                    "license_key": order.get('license_key')
-                }).encode())
+                self.wfile.write(json.dumps({"status": "paid", "license_key": order.get('license_key')}).encode())
                 return
 
-            # Oxapayに問い合わせ
             oxa_res = requests.post("https://api.oxapay.com/merchants/inquiry", 
                                   json={"merchant": MERCHANT_KEY, "orderId": order_id}).json()
             
             payment_status = oxa_res.get('status')
 
             if oxa_res.get('result') == 100 and payment_status == 'Paid':
-                # 在庫引き当て
-                key_res = supabase.rpc('claim_license_key', {
-                    'p_plan_type': order['plan_type'],
-                    'p_buyer_id': user_id
-                }).execute()
+                new_key, days = generate_license_key(order['plan_type'])
 
-                license_key = key_res.data
-                
-                # 在庫切れハンドリング
-                if not license_key:
-                    self.send_response(200)
-                    self.send_header('Content-type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({
-                        "status": "error",
-                        "message": "支払いは確認できましたが、在庫切れが発生しました。サポートへ連絡してください。"
-                    }).encode())
-                    return
-
-                # DB更新
                 supabase.table('orders').update({
-                    'status': 'paid',
-                    'license_key': license_key
+                    'status': 'paid', 'license_key': new_key
                 }).eq('id', order['id']).execute()
 
+                supabase.table('codes').insert({
+                    "code": new_key, "days": days, "is_used": True, "created_at": "now()"
+                }).execute()
+
+                supabase.table('notifications').insert({
+                    "user_id": user_id, "title": "支払い完了",
+                    "message": f"ライセンスキーが発行されました。\nKey: {new_key}", "type": "success"
+                }).execute()
+
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.wfile.write(json.dumps({
-                    "status": "paid",
-                    "license_key": license_key
-                }).encode())
+                self.wfile.write(json.dumps({"status": "paid", "license_key": new_key}).encode())
             
             elif payment_status == 'Expired':
                 supabase.table('orders').update({'status': 'expired'}).eq('id', order['id']).execute()
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({"status": "expired"}).encode())
-            
             else:
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({"status": "pending"}).encode())
 

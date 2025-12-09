@@ -21,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* --- ヘッダー共通 --- */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -75,135 +74,30 @@
             gap: 15px;
         }
 
-        .nav-divider {
-            width: 1px;
-            height: 25px;
-            background-color: #333;
-            margin: 0 5px;
-        }
-
         .notification-btn {
             color: #fff;
             font-size: 1.4rem;
             cursor: pointer;
+            position: relative;
         }
 
-        .user-avatar-nav {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
-
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .dropdown-menu {
+        .badge {
             position: absolute;
-            top: 60px;
-            right: 0;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 10px;
-            width: 220px;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-        }
-
-        .dropdown-menu.show {
-            display: flex;
-        }
-
-        .menu-item {
-            padding: 15px;
+            top: -3px;
+            right: -3px;
+            background: #ff4444;
             color: #fff;
-            text-decoration: none;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #222;
-            background: #111;
-            cursor: pointer;
-        }
-
-        .menu-item:hover {
-            background: #222;
-            color: #00E701;
-        }
-
-        /* スマホメニュー */
-        .mobile-nav-overlay {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 70px);
-            background: #000;
-            z-index: 999;
+            font-size: 0.6rem;
+            padding: 2px 5px;
+            border-radius: 50%;
             display: none;
-            flex-direction: column;
-            padding: 20px;
-            border-top: 1px solid #222;
         }
 
-        .mobile-nav-overlay.show {
-            display: flex;
-        }
-
-        .mobile-nav-link {
-            font-size: 1.1rem;
-            color: #ccc;
-            text-decoration: none;
-            padding: 15px 0;
-            border-bottom: 1px solid #222;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .desktop-links {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .nav-divider {
-                display: none;
-            }
-
-            .sticky-nav {
-                padding: 0 15px;
-            }
-        }
-
-        /* --- 購入ページ固有 --- */
         .container {
+            width: 90%;
             max-width: 800px;
-            width: 100%;
             margin-top: 30px;
-            padding: 0 20px;
-            box-sizing: border-box;
-            margin-bottom: 50px;
+            text-align: center;
         }
 
         .page-title {
@@ -216,27 +110,18 @@
             padding-bottom: 20px;
         }
 
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #ccc;
-            border-left: 4px solid #00E701;
-            padding-left: 10px;
-        }
-
         .selection-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
         .select-card {
             background: #111;
             border: 2px solid #333;
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 20px;
-            text-align: center;
             cursor: pointer;
             transition: 0.2s;
             position: relative;
@@ -244,7 +129,7 @@
 
         .select-card.selected {
             border-color: #00E701;
-            background: rgba(0, 231, 1, 0.05);
+            background: rgba(0, 231, 1, 0.1);
             box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
         }
 
@@ -266,154 +151,122 @@
             font-size: 0.8rem;
         }
 
-        .select-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: #333;
-            background: #0a0a0a;
-            pointer-events: none;
-        }
-
-        .coupon-area {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
         .coupon-input {
-            width: 100%;
-            max-width: 400px;
+            width: 80%;
             padding: 15px;
             background: #111;
             border: 1px solid #333;
             color: #fff;
-            border-radius: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             text-align: center;
             font-size: 1rem;
         }
 
         .checkout-btn {
-            display: block;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
             background: #00E701;
             color: #000;
             font-weight: bold;
-            font-size: 1.5rem;
-            padding: 20px;
+            padding: 15px 30px;
+            border-radius: 30px;
             border: none;
-            border-radius: 50px;
+            font-size: 1.2rem;
             cursor: pointer;
+            width: 100%;
+            max-width: 300px;
             transition: 0.3s;
-            opacity: 0.5;
-            pointer-events: none;
         }
 
-        .checkout-btn.active {
-            opacity: 1;
-            pointer-events: auto;
+        .checkout-btn:hover {
             box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
         }
 
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 30px;
-            color: #666;
-            text-decoration: none;
-        }
-
-        .modal-overlay {
+        /* カスタムモーダル */
+        .custom-modal-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3000;
             align-items: center;
+            justify-content: center;
         }
 
-        .modal-box {
+        .custom-modal {
             background: #111;
-            border: 2px solid #00E701;
+            border: 2px solid #333;
             padding: 30px;
             border-radius: 20px;
             width: 90%;
             max-width: 450px;
             text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
         }
 
-        .agreement-box {
-            background: #000;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid #333;
-            border-radius: 10px;
-        }
-
-        .agree-circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            background: transparent;
-            transition: 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .agree-circle.checked {
-            background: #00E701;
-            border-color: #00E701;
-        }
-
-        .agree-circle.checked::after {
-            content: '✔';
-            color: #000;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .loading-spinner {
-            border: 4px solid #333;
-            border-top: 4px solid #00E701;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .key-box {
-            background: #000;
-            border: 1px dashed #00E701;
-            padding: 15px;
-            font-family: monospace;
+        .modal-title {
             font-size: 1.5rem;
-            color: #00ffff;
-            margin: 20px 0;
-            word-break: break-all;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+            text-align: left;
+            background: #000;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #222;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
             cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .btn-green {
+            background: #00E701;
+            color: #000;
+        }
+
+        .btn-gray {
+            background: #333;
+            color: #fff;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+            font-size: 1rem;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-total {
+            border-top: 2px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00E701;
         }
     </style>
 </head>
@@ -421,30 +274,21 @@
 <body>
     <nav class="sticky-nav">
         <div class="nav-left">
-            <div class="mobile-menu-btn" onclick="toggleMobileNav()"><i class="fa-solid fa-bars"></i></div>
+            <a href="index.html" class="nav-link">Home</a>
             <div class="desktop-links">
-                <a href="index.html" class="nav-link">Home</a>
                 <a href="terms.html" class="nav-link">利用規約</a>
                 <a href="usage.html" class="nav-link">使用方法</a>
             </div>
         </div>
         <div class="nav-right">
-            <div class="notification-btn" onclick="window.location.href='history.html'"><i class="fa-solid fa-bell"></i>
-            </div>
-            <div class="nav-divider"></div>
+            <div class="notification-btn" onclick="location.href='history.html'"><i class="fa-solid fa-bell"></i><span
+                    class="badge" id="notif-badge"></span></div>
             <div id="auth-container"></div>
         </div>
     </nav>
 
-    <div id="mobile-nav" class="mobile-nav-overlay">
-        <a href="index.html" class="mobile-nav-link">Home</a>
-        <a href="terms.html" class="mobile-nav-link">利用規約</a>
-        <a href="usage.html" class="mobile-nav-link">使用方法</a>
-    </div>
-
     <div class="container">
         <h1 class="page-title">購入手続き</h1>
-        <div class="section-title">プランを選択</div>
         <div class="selection-grid" id="plan-grid">
             <div class="select-card" onclick="selectPlan(this, '1day')">
                 <div>1 Day</div>
@@ -463,184 +307,124 @@
                 <div style="font-family:monospace;color:#aaa;">¥6,800</div>
             </div>
         </div>
-        <div class="section-title">支払い方法を選択</div>
-        <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled"><span style="color:#ff0033;font-weight:bold;">P</span>
-                PayPay<br><small>Coming Soon</small></div>
-            <div class="select-card disabled"><i class="fa-brands fa-stripe" style="color:#635bff;"></i>
-                Card<br><small>Coming Soon</small></div>
-            <div class="select-card" onclick="selectPayment(this, 'crypto')"><i class="fa-brands fa-bitcoin"
-                    style="color:#f7931a;"></i> 仮想通貨</div>
-        </div>
-        <div class="coupon-area">
-            <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
-        </div>
-        <button id="pre-checkout-btn" class="checkout-btn">決済内容を確認</button>
-        <a href="index.html" class="back-link">キャンセルして戻る</a>
+
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
+        <button class="checkout-btn" onclick="verifyOrder()">決済内容を確認</button>
     </div>
 
-    <div id="confirm-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2 style="color:#fff;">最終確認</h2>
-            <div style="text-align:left;background:#000;padding:20px;border:1px solid #333;margin-bottom:20px;">
-                <div style="display:flex;justify-content:space-between;"><span>プラン:</span><span
-                        id="conf-plan-name">-</span></div>
-                <div
-                    style="display:flex;justify-content:space-between;margin-top:10px;color:#00E701;font-weight:bold;font-size:1.2rem;">
-                    <span>支払額:</span><span id="conf-total">¥0</span></div>
-            </div>
-            <div class="agreement-box" onclick="toggleAgreement()">
-                <div id="agree-circle" class="agree-circle"></div><span>利用規約に同意する</span>
-            </div>
-            <button id="final-pay-btn" class="checkout-btn" style="opacity:0.5;pointer-events:none;">支払う</button>
-            <button onclick="document.getElementById('confirm-modal').style.display='none'"
-                style="background:none;border:none;color:#666;margin-top:15px;cursor:pointer;">閉じる</button>
-        </div>
-    </div>
-
-    <div id="process-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div id="pending-view">
-                <div class="loading-spinner"></div>
-                <h2 style="color:#ffd700;">支払い確認中...</h2>
-                <p id="status-detail" style="font-weight:bold;color:#00E701;">待機中...</p>
-                <p>別タブで支払いを完了してください</p>
-                <button onclick="window.open(payUrl,'_blank')"
-                    style="background:#333;color:#fff;padding:10px;border:none;border-radius:5px;cursor:pointer;">ページ再表示</button>
-            </div>
-            <div id="success-view" style="display:none;">
-                <i class="fa-solid fa-circle-check" style="font-size:4rem;color:#00E701;"></i>
-                <h2>完了！</h2>
-                <div class="key-box" onclick="copyKey()"><span id="final-key">...</span></div>
-                <button onclick="window.location.href='usage.html'" class="checkout-btn active">利用方法</button>
-            </div>
-            <div id="error-view" style="display:none;">
-                <h2 style="color:#ff4444;">エラー</h2>
-                <p id="error-msg"></p>
-                <button onclick="location.reload()" class="checkout-btn active">閉じる</button>
-            </div>
+    <div id="custom-modal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div id="modal-title" class="modal-title"></div>
+            <div id="modal-body" class="modal-body"></div>
+            <div id="modal-actions" class="modal-actions"></div>
         </div>
     </div>
 
     <script src="setting.js"></script>
     <script>
         const authContainer = document.getElementById('auth-container');
-        let selectedPlan=null, selectedPayment=null, currentUser=null, isAgreed=false, pollingInterval=null, currentOrderId=null, payUrl=null;
+        let currentUser=null, selectedPlan=null;
 
-        async function loginWithDiscord() { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } }); }
-        async function logout() { await supabase.auth.signOut(); window.location.reload(); }
-        function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
-        function toggleMobileNav() { document.getElementById('mobile-nav').classList.toggle('show'); }
+        function selectPlan(el, plan) {
+            document.querySelectorAll('.select-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedPlan = plan;
+        }
 
-        // UI更新
-        function updateAuthUI(user) {
-            currentUser = user;
-            authContainer.innerHTML = `
-                <div style="position:relative;">
-                    <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
-                    <div id="user-menu" class="dropdown-menu">
-                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
-                        <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
-                        <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
-                        <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
-                    </div>
-                </div>
+        function showModal(title, html, buttons) {
+            document.getElementById('modal-title').innerText = title;
+            const body = document.getElementById('modal-body');
+            // エラー表示などで本文がない場合は枠ごと非表示にしてデザインを調整
+            if(html) { body.innerHTML = html; body.style.display = 'block'; } else { body.style.display = 'none'; }
+            
+            const acts = document.getElementById('modal-actions'); acts.innerHTML='';
+            buttons.forEach(b => {
+                const btn = document.createElement('button');
+                btn.className = `modal-btn ${b.class}`;
+                btn.innerText = b.text;
+                btn.onclick = b.onClick;
+                acts.appendChild(btn);
+            });
+            document.getElementById('custom-modal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
+
+        async function verifyOrder() {
+            if(!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+            if(!selectedPlan) return showModal("エラー", "プランを選択してください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+            
+            const coupon = document.getElementById('coupon-code').value;
+            
+            // サーバーチェック
+            const res = await fetch('/api/create_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon })
+            });
+            const data = await res.json();
+
+            if(!res.ok) {
+                return showModal("エラー", data.error || "エラーが発生しました", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+            }
+
+            const html = `
+                <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
+                <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
+                <div class="price-row" style="color:#00E701"><span>割引</span><span>-¥${data.discount}</span></div>
+                <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
             `;
+            showModal("決済内容の確認", html, [
+                {text:"キャンセル", class:"btn-gray", onClick:closeModal},
+                {text:"支払う", class:"btn-green", onClick:()=>createOrder(coupon)}
+            ]);
+        }
+
+        async function createOrder(coupon) {
+            const btn = document.querySelector('.btn-green');
+            if(btn) { btn.innerText = "処理中..."; btn.disabled = true; }
+            
+            try {
+                const res = await fetch('/api/create_order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    window.location.href = `/checkout/${data.order_id}`;
+                } else {
+                    showModal("エラー", data.error, [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+                }
+            } catch(e) {
+                showModal("通信エラー", "サーバーに接続できませんでした。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+            }
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if(session) updateAuthUI(session.user);
-            else authContainer.innerHTML = `<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-
-            supabase.auth.onAuthStateChange((event, session) => {
-                if(event==='SIGNED_IN' && session) updateAuthUI(session.user);
-                else if(event==='SIGNED_OUT') {
-                    currentUser=null;
-                    authContainer.innerHTML=`<button onclick="loginWithDiscord()" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-                }
-            });
-
-            // パラメータ処理
-            const params = new URLSearchParams(window.location.search);
-            const plan = params.get('plan');
-            if(plan) {
+            await initSupabase();
+            const { data: { session } } = await window.supabaseApp.auth.getSession();
+            if(session) {
+                currentUser=session.user;
+                authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" style="width:40px;border-radius:50%;border:2px solid #00E701;">`;
+                
+                // URLパラメータからプラン選択
+                const params = new URLSearchParams(window.location.search);
+                const p = params.get('plan');
                 const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
-                if(map[plan]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[plan]], plan);
+                if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('.select-card')[map[p]], p);
+                
+                // 通知バッジ
+                const notifRes = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action:'get', user_id:currentUser.id }) });
+                const notifs = await notifRes.json();
+                const unread = notifs.filter(n => !n.is_read).length;
+                if(unread > 0) {
+                    const b = document.getElementById('notif-badge');
+                    b.style.display = 'inline-block'; b.innerText = unread;
+                }
+            } else {
+                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:bold;cursor:pointer;">Login</button>`;
             }
         });
-
-        function selectPlan(c,p) { document.querySelectorAll('#plan-grid .select-card').forEach(e=>e.classList.remove('selected')); c.classList.add('selected'); selectedPlan=p; checkForm(); }
-        function selectPayment(c,p) { document.querySelectorAll('#payment-grid .select-card').forEach(e=>e.classList.remove('selected')); c.classList.add('selected'); selectedPayment=p; checkForm(); }
-        function checkForm() { if(selectedPlan&&selectedPayment) document.getElementById('pre-checkout-btn').classList.add('active'); }
-
-        document.getElementById('pre-checkout-btn').addEventListener('click', () => {
-            if(!selectedPlan||!currentUser) { if(!currentUser) alert("ログインしてください"); return; }
-            const prices = {'1day':1200,'1week':3000,'2weeks':5000,'1month':6800};
-            document.getElementById('conf-plan-name').innerText = selectedPlan.toUpperCase();
-            document.getElementById('conf-total').innerText = "¥" + prices[selectedPlan];
-            isAgreed=false;
-            document.getElementById('agree-circle').classList.remove('checked');
-            document.getElementById('final-pay-btn').classList.remove('active');
-            document.getElementById('final-pay-btn').style.opacity='0.5';
-            document.getElementById('final-pay-btn').style.pointerEvents='none';
-            document.getElementById('confirm-modal').style.display='flex';
-        });
-
-        function toggleAgreement() {
-            isAgreed = !isAgreed;
-            const c = document.getElementById('agree-circle'); const b = document.getElementById('final-pay-btn');
-            if(isAgreed) { c.classList.add('checked'); b.classList.add('active'); b.style.opacity='1'; b.style.pointerEvents='auto'; }
-            else { c.classList.remove('checked'); b.classList.remove('active'); b.style.opacity='0.5'; b.style.pointerEvents='none'; }
-        }
-
-        document.getElementById('final-pay-btn').addEventListener('click', async () => {
-            const btn=document.getElementById('final-pay-btn'); btn.innerText="処理中...";
-            try {
-                const res = await fetch('/api/create_order', {
-                    method: 'POST', headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: document.getElementById('coupon-code').value })
-                });
-                const data = await res.json();
-                if(data.payLink) {
-                    currentOrderId=data.order_id; payUrl=data.payLink;
-                    window.open(payUrl,'_blank');
-                    document.getElementById('confirm-modal').style.display='none';
-                    document.getElementById('process-modal').style.display='flex';
-                    startPolling();
-                } else { alert("エラー: "+data.error); btn.innerText="支払う"; }
-            } catch(e) { alert("通信エラー"); btn.innerText="支払う"; }
-        });
-
-        function startPolling() {
-            if(pollingInterval) clearInterval(pollingInterval);
-            pollingInterval = setInterval(async()=>{
-                try {
-                    const res=await fetch('/api/check_order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:currentOrderId,user_id:currentUser.id})});
-                    const d=await res.json();
-                    
-                    if(d.detail) {
-                        const t = document.getElementById('status-detail');
-                        if(d.detail==='Confirming') t.innerText="⚡ 確認中 (Confirming)";
-                        else if(d.detail==='Waiting') t.innerText="入金待ち...";
-                    }
-
-                    if(d.status==='paid'){
-                        clearInterval(pollingInterval);
-                        document.getElementById('pending-view').style.display='none';
-                        document.getElementById('success-view').style.display='block';
-                        document.getElementById('final-key').innerText=d.license_key;
-                    } else if(d.status==='error'||d.status==='expired'){
-                        clearInterval(pollingInterval);
-                        document.getElementById('pending-view').style.display='none';
-                        document.getElementById('error-view').style.display='block';
-                        document.getElementById('error-msg').innerText=d.message||"エラー";
-                    }
-                }catch(e){}
-            },5000);
-        }
-        function copyKey() { navigator.clipboard.writeText(document.getElementById('final-key').innerText).then(()=>alert("コピーしました")); }
     </script>
 </body>
 

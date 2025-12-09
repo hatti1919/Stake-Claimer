@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Stake Bonus Claimer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: #000;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .split-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            width: 95%;
+            margin: 40px auto;
+            gap: 20px;
+        }
+
+        .left-col,
+        .right-col {
+            flex: 1;
+            min-width: 300px;
+            background: #111;
+            border: 1px solid #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-sizing: border-box;
+        }
+
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h2 {
+            color: #00E701;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-top: 0;
+            width: 100%;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .info-label {
+            color: #aaa;
+        }
+
+        .info-val {
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .pay-btn {
+            background: #00E701;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            margin: 30px 0;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .pay-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
+            transform: scale(1.05);
+        }
+
+        .trouble-link {
+            color: #666;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        .reload-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .key-box {
+            font-family: monospace;
+            font-size: 1.8rem;
+            color: #00ffff;
+            border: 2px dashed #00E701;
+            padding: 20px;
+            margin: 20px 0;
+            word-break: break-all;
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #333;
+            border-top: 4px solid #00E701;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sticky-nav">
+        <a href="index.html" style="color:#ccc; text-decoration:none; font-weight:bold; font-size:1.1rem;"><i
+                class="fa-solid fa-arrow-left"></i> Home</a>
+        <div id="auth-container"></div>
+    </nav>
+
+    <div class="split-container">
+        <div class="left-col">
+            <h2>注文詳細</h2>
+            <div class="info-row"><span class="info-label">Order ID</span><span class="info-val"
+                    id="disp-oid">Loading...</span></div>
+            <div class="info-row"><span class="info-label">プラン</span><span class="info-val" id="disp-plan">-</span>
+            </div>
+            <div class="info-row"><span class="info-label">金額</span><span class="info-val" id="disp-amount">-</span>
+            </div>
+            <p style="color:#666; font-size:0.9rem; margin-top:30px;">
+                お支払いが完了すると、右側の画面が自動的に切り替わりライセンスキーが表示されます。<br>
+                この画面を閉じても、購入履歴からいつでも確認できます。
+            </p>
+        </div>
+
+        <div class="right-col" id="pending-view">
+            <h2>お支払い</h2>
+            <p>以下のボタンから決済ページへ進んでください。</p>
+            <a id="pay-link" href="#" target="_blank" class="pay-btn">支払う</a>
+
+            <div style="margin-top:20px;">
+                <div class="spinner"></div>
+                <div id="status-text" style="color:#ffd700; font-weight:bold;">入金待ち...</div>
+            </div>
+
+            <div class="trouble-link" onclick="document.getElementById('trouble-area').style.display='block'">
+                支払いが完了したのに反映されませんか？</div>
+            <div id="trouble-area" style="display:none; margin-top:15px; border-top:1px solid #222; padding-top:15px;">
+                <button class="reload-btn" onclick="location.reload()">ページを再読み込み</button>
+                <p style="font-size:0.8rem; color:#666;">それでも解決しない場合は <a href="contact.html"
+                        style="color:#aaa;">お問い合わせ</a> チケットを作成してください。</p>
+            </div>
+        </div>
+
+        <div class="right-col" id="success-view" style="display:none;">
+            <i class="fa-solid fa-circle-check" style="font-size:5rem; color:#00E701; margin-bottom:20px;"></i>
+            <h2>支払い完了！</h2>
+            <p>ライセンスキーが発行されました。</p>
+            <div id="license-key" class="key-box"></div>
+            <p style="color:#aaa; font-size:0.9rem;">コピーしてDiscordなどで使用してください。</p>
+            <a href="usage.html" class="pay-btn" style="background:#333; color:#fff; border:1px solid #555;">使い方を見る</a>
+        </div>
+    </div>
+
+    <script src="setting.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('order_id');
+        document.getElementById('disp-oid').innerText = orderId || "Unknown";
+        
+        let currentUser = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initSupabase();
+            const { data: { session } } = await window.supabaseApp.auth.getSession();
+            
+            if(session) {
+                currentUser = session.user;
+                document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" style="width:40px;border-radius:50%;border:2px solid #00E701;">`;
+                
+                // 注文情報を取得して表示
+                try {
+                    const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUser.id }) });
+                    const orders = await res.json();
+                    const target = orders.find(o => o.order_id === orderId);
+                    
+                    if (target) {
+                        document.getElementById('disp-plan').innerText = target.plan_type.toUpperCase();
+                        document.getElementById('disp-amount').innerText = "¥" + target.final_amount;
+                        
+                        if(target.status === 'paid') {
+                            showSuccess(target.license_key);
+                        } else {
+                            document.getElementById('pay-link').href = target.pay_url;
+                            startPolling();
+                        }
+                    } else {
+                        document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
+                    }
+                } catch(e) { console.error(e); }
+
+            } else {
+                alert("ログインしてください");
+                window.location.href = "/";
+            }
+        });
+
+        function startPolling() {
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: orderId, user_id: currentUser.id }) });
+                    const data = await res.json();
+                    
+                    if(data.status === 'paid') {
+                        clearInterval(interval);
+                        showSuccess(data.license_key);
+                    } else if (data.status === 'expired') {
+                        clearInterval(interval);
+                        document.getElementById('status-text').innerText = "期限切れ";
+                        document.getElementById('status-text').style.color = "red";
+                        document.getElementById('pay-link').style.display = 'none';
+                    }
+                } catch(e){}
+            }, 3000);
+        }
+
+        function showSuccess(key) {
+            document.getElementById('pending-view').style.display='none';
+            document.getElementById('success-view').style.display='flex';
+            document.getElementById('license-key').innerText = key;
+        }
+    </script>
+</body>
+
+</html>

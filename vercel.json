@@ -1,0 +1,36 @@
+{
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/index.html"
+        },
+        {
+            "source": "/terms",
+            "destination": "/terms.html"
+        },
+        {
+            "source": "/usage",
+            "destination": "/usage.html"
+        },
+        {
+            "source": "/purchase",
+            "destination": "/purchase.html"
+        },
+        {
+            "source": "/history",
+            "destination": "/history.html"
+        },
+        {
+            "source": "/contact",
+            "destination": "/contact.html"
+        },
+        {
+            "source": "/checkout/:order_id",
+            "destination": "/checkout.html?order_id=:order_id"
+        },
+        {
+            "source": "/api/:match*",
+            "destination": "/api/:match*"
+        }
+    ]
+}
