@@ -7,7 +7,7 @@
     <title>Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <style>
         /* ページ固有のCSS */
         .hero-section {
@@ -40,18 +40,20 @@
             font-family: 'Courier New', monospace;
         }
 
-        .philosophy-section {
+        /* 行動理念 & 機能概要のデザイン */
+        .content-section {
             width: 85%;
             max-width: 700px;
             text-align: center;
-            margin: 30px auto 60px auto;
+            margin: 30px auto;
             padding: 40px;
             border: 1px solid #333;
             border-radius: 20px;
             background: linear-gradient(145deg, #111, #000);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
-        .philosophy-title {
+        .section-title {
             font-size: 1.6rem;
             color: #00E701;
             margin-bottom: 25px;
@@ -59,7 +61,7 @@
             letter-spacing: 1px;
         }
 
-        .philosophy-text {
+        .section-text {
             font-size: 1rem;
             line-height: 2.2;
             color: #ddd;
@@ -69,7 +71,8 @@
         .highlight-text {
             color: #fff;
             font-weight: bold;
-            border-bottom: 1px solid #00E701;
+            border-bottom: 2px solid #00E701;
+            padding-bottom: 2px;
         }
 
         .plans-scroll-wrapper {
@@ -77,6 +80,7 @@
             overflow-x: auto;
             padding: 10px 0 40px 0;
             -webkit-overflow-scrolling: touch;
+            margin-top: 50px;
         }
 
         .plans-container {
@@ -215,14 +219,25 @@
         <div class="typing-container"><span class="text"></span><span class="cursor">|</span></div>
     </div>
 
-    <div class="philosophy-section fade-up">
-        <div class="philosophy-title">私たちの行動理念</div>
-        <div class="philosophy-text">
-            私たちは、ボーナスコードを請求するあらゆる手間をテクノロジーで解決し、ユーザーの皆様に<span
-                class="highlight-text">「究極のシンプルさと迅速さ」</span>を提供することを理念としています。<br><br>
-            時間は有限であり、また機会は一瞬で過ぎ去ります。手動での操作によるストレスや、チャンスを逃す不安から解放され、本来の楽しみに集中できる環境を作ること。<br>
-            それこそが私たちの使命であり、Stake Bonus Claimerが存在する意義です。<br><br>
-            あなたの代わりに、システムが24時間365日、正確かつ確実にコードを請求し続けます。
+    <div class="content-section fade-up">
+        <div class="section-title">私たちの行動理念</div>
+        <div class="section-text">
+            ボーナスコードはランダムに落ちてきます。仕事中に降ってきたら、取れなくてイライラしますよね？<br><br>
+            私たちは複雑な作業はすべて自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>に結果を提供します。<br><br>
+            また、システム導入の手順は<span class="highlight-text">完全に確立されています。</span><br>
+            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。<br><br>
+            最先端のスピードと信頼を、あなたの手に。
+        </div>
+    </div>
+
+    <div class="content-section fade-up" style="margin-top: 40px;">
+        <div class="section-title">機能概要</div>
+        <div class="section-text">
+            <strong>🚀 常時起動は一切不要</strong><br>
+            既存の自動化ツールは、PCを24時間つけっぱなしにする必要がありましたが、本ツールはその常識を覆しました。<br><br>
+            <strong>📱 スマホだけで完結</strong><br>
+            設定はすべてdiscord上で完了します。あなたがスマホやPCの電源を切っても、クラウド上のシステムが24時間365日、あなたの代わりにコードを取得し続けます。<br><br>
+            高価なPCも、面倒な環境構築も必要ありません。
         </div>
     </div>
 
@@ -264,6 +279,12 @@
             </div>
         </div>
         <div class="faq-item">
+            <div class="faq-question">導入は難しいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>いいえ、スマホのみで完結し、数分で設定可能です。専門知識は不要です。</p>
+            </div>
+        </div>
+        <div class="faq-item">
             <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
                 <p>ほぼ、即答できると思います。</p>
@@ -289,7 +310,7 @@
         </div>
     </div>
 
-    <script src="setting.js"></script>
+    <script src="/setting.js"></script>
     <script>
         function goToPurchase(plan) {
             if(currentUser) window.location.href = `/purchase?plan=${plan}`;
@@ -297,8 +318,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Typing Animation
-            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
+            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。", "スマホ一台で完結。"];
             let count=0, index=0, currentText="", letter="", isDeleting=false;
             (function type() { 
                 if(count===texts.length)count=0; currentText=texts[count]; 
@@ -310,7 +330,6 @@
                 setTimeout(type,speed); 
             })();
             
-            // FAQ
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.addEventListener('click', () => {
                     const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
