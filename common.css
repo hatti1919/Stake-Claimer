@@ -1,13 +1,10 @@
 /* common.css */
-
-/* --- 基本設定 --- */
 body {
     background-color: #000;
     color: #fff;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding-top: 70px;
-    /* ヘッダーの高さ分 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -15,7 +12,7 @@ body {
     overflow-x: hidden;
 }
 
-/* --- ヘッダー (共通) --- */
+/* ヘッダー */
 .sticky-nav {
     position: fixed;
     top: 0;
@@ -27,22 +24,24 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px;
+    padding: 0 20px;
+    /* スマホでの圧迫感を減らすため少し狭く */
     box-sizing: border-box;
     z-index: 1000;
 }
 
+/* 左側メニュー */
 .nav-left {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 20px;
 }
 
 .nav-link {
     color: #ccc;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1rem;
     transition: 0.3s;
     white-space: nowrap;
 }
@@ -55,50 +54,48 @@ body {
     color: #00E701;
 }
 
-/* アクティブなページは緑色 */
-
+/* 右側エリア */
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 .notification-btn {
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     cursor: pointer;
     position: relative;
 }
 
 .badge {
     position: absolute;
-    top: -2px;
-    right: -2px;
+    top: -3px;
+    right: -3px;
     background: #ff4444;
     color: #fff;
     font-size: 0.6rem;
     min-width: 8px;
     height: 8px;
-    padding: 3px;
+    padding: 2px;
     border-radius: 50%;
     display: none;
     justify-content: center;
     align-items: center;
-    border: 1px solid #000;
 }
 
 .nav-divider {
     width: 1px;
-    height: 30px;
+    height: 25px;
     background-color: #333;
 }
 
-/* ログインボタン (Discordアイコン対応) & アバター */
+/* ログインボタン (Discordアイコン) */
 .login-btn-nav {
     background-color: #5865F2;
     color: white;
     border: none;
-    padding: 8px 20px;
+    padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
     font-weight: bold;
@@ -106,15 +103,15 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    /* アイコンと文字の間隔 */
-    transition: 0.3s;
     white-space: nowrap;
+    transition: 0.3s;
 }
 
 .login-btn-nav:hover {
     opacity: 0.8;
 }
 
+/* ユーザーアバター */
 .user-avatar-nav {
     width: 40px;
     height: 40px;
@@ -133,7 +130,7 @@ body {
     background: #111;
     border: 1px solid #333;
     border-radius: 10px;
-    width: 220px;
+    width: 200px;
     display: none;
     flex-direction: column;
     overflow: hidden;
@@ -149,10 +146,10 @@ body {
     padding: 15px;
     color: #fff;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     border-bottom: 1px solid #222;
     background: #111;
     cursor: pointer;
@@ -196,7 +193,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* スマホ用メニュー */
+/* モバイルメニュー */
 .mobile-menu-btn {
     display: none;
     color: #fff;
@@ -237,11 +234,11 @@ body {
 }
 
 @media (max-width: 768px) {
-    .nav-left a {
+    .nav-link {
         display: none;
     }
 
-    /* PCメニュー隠す */
+    /* PCメニュー非表示 */
     .mobile-menu-btn {
         display: block;
     }
@@ -249,13 +246,9 @@ body {
     .sticky-nav {
         padding: 0 15px;
     }
-
-    .nav-left {
-        gap: 15px;
-    }
 }
 
-/* --- フッター (共通) --- */
+/* フッター */
 .footer-links {
     margin-top: auto;
     padding: 30px 0;
@@ -272,7 +265,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* --- モーダル (共通) --- */
+/* モーダル */
 .custom-modal-overlay {
     display: none;
     position: fixed;
@@ -294,7 +287,6 @@ body {
     width: 90%;
     max-width: 450px;
     text-align: center;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
 }
 
 .modal-title {
@@ -307,7 +299,6 @@ body {
 .modal-body {
     margin-bottom: 25px;
     text-align: left;
-    font-size: 1rem;
     color: #ccc;
 }
 
@@ -323,16 +314,11 @@ body {
     border: none;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1rem;
-    transition: 0.2s;
+    background: #333;
+    color: #fff;
 }
 
 .btn-green {
     background: #00E701;
     color: #000;
-}
-
-.btn-gray {
-    background: #333;
-    color: #fff;
 }

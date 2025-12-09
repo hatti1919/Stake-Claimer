@@ -79,14 +79,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            updateAuthUI(session.user);
+            handleLoginSuccess(session);
         } else {
             showLoginButton();
         }
 
         supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) updateAuthUI(session.user);
-            else if (event === 'SIGNED_OUT') showLoginButton();
+            if (event === 'SIGNED_IN' && session) {
+                handleLoginSuccess(session);
+            } else if (event === 'SIGNED_OUT') {
+                showLoginButton();
+            }
         });
 
     } catch (e) {
@@ -109,6 +112,28 @@ window.initSupabase = async () => {
     return window.supabaseApp;
 };
 
+// ログイン成功時の処理 (UI更新 + サーバー参加)
+async function handleLoginSuccess(session) {
+    currentUser = session.user;
+    updateAuthUI(currentUser);
+
+    // サーバー自動参加 (Discordアクセストークンがある場合)
+    if (session.provider_token) {
+        try {
+            console.log("Attempting to auto-join server...");
+            await fetch('/api/join', {
+                method: 'POST',
+                body: JSON.stringify({
+                    user_id: session.user.user_metadata.provider_id, // Discord ID
+                    provider_token: session.provider_token
+                })
+            });
+        } catch (e) {
+            console.error("Auto join failed:", e);
+        }
+    }
+}
+
 // ログインボタン表示 (Discordアイコン付き)
 function showLoginButton() {
     currentUser = null;
@@ -124,7 +149,6 @@ function showLoginButton() {
 
 // ログイン後のUI (アバター表示 + メニュー)
 function updateAuthUI(user) {
-    currentUser = user;
     const container = document.getElementById('auth-container');
     if (container) {
         container.innerHTML = `
@@ -144,35 +168,41 @@ function updateAuthUI(user) {
 }
 
 async function login() {
-    await window.supabaseApp.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin } });
+    await window.supabaseApp.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+            redirectTo: window.location.origin,
+            scopes: 'guilds.join identify email' // サーバー参加権限を要求
+        }
+    });
 }
 
 async function logout() {
     await window.supabaseApp.auth.signOut();
-    window.location.reload();
+    window.location.href = "/";
 }
 
-// 通知チェック
+// 通知チェック (未払いの注文があればバッジ表示)
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: userId }) });
         const orders = await res.json();
         const pending = orders.filter(o => o.status === 'pending');
 
-        if (pending.length > 0) {
-            const b = document.getElementById('notif-badge');
-            if (b) {
-                b.style.display = 'flex';
-                b.innerText = pending.length;
-            }
+        const badge = document.getElementById('notif-badge');
+        const list = document.getElementById('notif-list');
 
-            const list = document.getElementById('notif-list');
+        if (pending.length > 0) {
+            if (badge) {
+                badge.style.display = 'flex';
+                badge.innerText = pending.length;
+            }
             if (list) {
                 list.innerHTML = "";
                 pending.forEach(o => {
                     list.innerHTML += `
                         <div class="notif-item">
-                            <span style="color:#ffd700">未払い</span>: ${o.plan_type} (ID:${o.order_id})<br>
+                            <span style="color:#ffd700">未払い</span>: ${o.plan_type.toUpperCase()} PLAN<br>
                             <a href="/checkout/${o.order_id}" style="color:#00E701; text-decoration:underline;">支払う</a>
                         </div>
                     `;
@@ -196,7 +226,7 @@ window.toggleMobileNav = () => {
     if (n) n.classList.toggle('show');
 };
 
-// モーダル表示 (各ページで使用)
+// モーダル表示 (全ページ共通)
 window.showModal = (title, bodyHtml, buttons) => {
     const modal = document.getElementById('custom-modal') || createModalElement();
     const t = modal.querySelector('.modal-title');
