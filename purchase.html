@@ -117,6 +117,13 @@
             box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
         }
 
+        .checkout-btn:disabled {
+            background: #555;
+            color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .price-row {
             display: flex;
             justify-content: space-between;
@@ -181,7 +188,7 @@
 
     <script src="setting.js"></script>
     <script>
-        let selectedPlan=null, selectedPayment=null;
+        let selectedPlan = null, selectedPayment = null;
 
         function selectPlan(el, plan) {
             document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected'));
@@ -195,56 +202,95 @@
             selectedPayment = method;
         }
 
+        // ★修正ポイント: エラーハンドリングを追加した検証関数
         async function verifyOrder() {
-            if(!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-            if(!selectedPlan) return showModal("エラー", "プランを選択してください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-            if(!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-            
-            const coupon = document.getElementById('coupon-code').value;
-            const res = await fetch('/api/create_order', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon })
-            });
-            const data = await res.json();
+            if (!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+            if (!selectedPlan) return showModal("エラー", "プランを選択してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+            if (!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
 
-            if(!res.ok) return showModal("エラー", data.error || "エラーが発生しました", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+            const btn = document.querySelector('.checkout-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "確認中...";
+            btn.disabled = true;
 
-            const html = `
-                <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
-                <div class="price-row"><span>支払い方法</span><span>仮想通貨</span></div>
-                <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
-                <div class="price-row" style="color:#00E701"><span>割引</span><span>-¥${data.discount}</span></div>
-                <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
-            `;
-            showModal("決済内容の確認", html, [
-                {text:"キャンセル", class:"btn-gray", onClick:closeModal},
-                {text:"支払う", class:"btn-green", onClick:()=>createOrder(coupon)}
-            ]);
+            try {
+                const coupon = document.getElementById('coupon-code').value;
+                const res = await fetch('/api/create_order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon })
+                });
+
+                // サーバーエラーの場合、テキストで詳細を取得して投げる
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    // 500エラーや404エラーの内容を含める
+                    throw new Error(`サーバーエラー (${res.status}):\n${errorText.slice(0, 200)}...`);
+                }
+
+                const data = await res.json();
+
+                // APIが { error: "..." } を返してきた場合
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                const html = `
+                    <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
+                    <div class="price-row"><span>支払い方法</span><span>仮想通貨</span></div>
+                    <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
+                    <div class="price-row" style="color:#00E701"><span>割引</span><span>-¥${data.discount}</span></div>
+                    <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
+                `;
+                showModal("決済内容の確認", html, [
+                    { text: "キャンセル", class: "btn-gray", onClick: closeModal },
+                    { text: "支払う", class: "btn-green", onClick: () => createOrder(coupon) }
+                ]);
+
+            } catch (e) {
+                // エラー内容をアラートで表示（ここが重要）
+                alert("エラーが発生しました:\n" + e.message);
+                console.error("詳細エラーログ:", e);
+            } finally {
+                // ボタンを元の状態に戻す
+                if (btn) {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
         }
 
         async function createOrder(coupon) {
             const btn = document.querySelector('.btn-green');
-            if(btn) { btn.innerText = "処理中..."; btn.disabled = true; }
+            if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon })
                 });
+                
+                // create側でも同様にエラーハンドリング
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(`サーバーエラー (${res.status}): ${txt}`);
+                }
+
                 const data = await res.json();
-                if(res.ok) window.location.href = `/checkout/${data.order_id}`;
-                else showModal("エラー", data.error, [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-            } catch(e) {
-                showModal("通信エラー", "サーバーに接続できませんでした。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+                if (data.order_id) window.location.href = `/checkout/${data.order_id}`;
+                else showModal("エラー", data.error || "注文IDが取得できませんでした", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+                
+            } catch (e) {
+                alert("注文作成中にエラーが発生しました:\n" + e.message);
+                showModal("通信エラー", "サーバーに接続できませんでした。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
             }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const p = params.get('plan');
-            const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
-            if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
+            const map = { '1day': 0, '1week': 1, '2weeks': 2, '1month': 3 };
+            if (p && map[p] !== undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
         });
     </script>
 </body>
