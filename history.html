@@ -22,15 +22,52 @@
         .sticky-nav {
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
             height: 70px;
-            background: #000;
-            border-bottom: 1px solid #222;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .nav-left {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 100;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
         }
 
         .container {
@@ -103,7 +140,7 @@
 
         .modal-box {
             background: #111;
-            border: 2px solid #00E701;
+            border: 1px solid #00E701;
             padding: 30px;
             border-radius: 15px;
             text-align: center;
@@ -135,7 +172,11 @@
 
 <body>
     <nav class="sticky-nav">
-        <a href="index.html" style="color:#ccc; text-decoration:none; font-weight:bold;">Home</a>
+        <div class="nav-left">
+            <a href="/" class="nav-link" style="font-size:1.2rem;">Home</a>
+            <a href="/terms" class="nav-link">利用規約</a>
+            <a href="/usage" class="nav-link">使用方法</a>
+        </div>
         <div id="auth-container"></div>
     </nav>
     <div class="container">
@@ -158,10 +199,10 @@
             await initSupabase();
             const { data: { session } } = await window.supabaseApp.auth.getSession();
             if(session) {
-                authContainer.innerHTML=`<img src="${session.user.user_metadata.avatar_url}" style="width:40px;border-radius:50%;border:2px solid #00E701;">`;
+                authContainer.innerHTML=`<img src="${session.user.user_metadata.avatar_url}" class="user-avatar-nav">`;
                 loadHistory(session.user.id);
             } else {
-                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:5px 15px;border-radius:15px;">Login</button>`;
+                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:6px 14px;border-radius:20px;font-weight:bold;cursor:pointer;">Login</button>`;
                 document.getElementById('history-list').innerHTML = "<p style='text-align:center;'>ログインしてください</p>";
             }
         });

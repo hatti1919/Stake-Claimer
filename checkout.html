@@ -26,14 +26,49 @@
             left: 0;
             width: 100%;
             height: 70px;
-            background: #000;
-            border-bottom: 1px solid #222;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .nav-left {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 100;
-            box-sizing: border-box;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
         }
 
         .split-container {
@@ -161,9 +196,12 @@
 
 <body>
     <nav class="sticky-nav">
-        <a href="index.html" style="color:#ccc; text-decoration:none; font-weight:bold; font-size:1.1rem;"><i
-                class="fa-solid fa-arrow-left"></i> Home</a>
-        <div id="auth-container"></div>
+        <div class="nav-left">
+            <a href="/" class="nav-link" style="font-size:1.2rem;">Home</a>
+            <a href="/terms" class="nav-link">利用規約</a>
+            <a href="/usage" class="nav-link">使用方法</a>
+        </div>
+        <div class="nav-right" id="auth-container"></div>
     </nav>
 
     <div class="split-container">
@@ -195,8 +233,8 @@
                 支払いが完了したのに反映されませんか？</div>
             <div id="trouble-area" style="display:none; margin-top:15px; border-top:1px solid #222; padding-top:15px;">
                 <button class="reload-btn" onclick="location.reload()">ページを再読み込み</button>
-                <p style="font-size:0.8rem; color:#666;">それでも解決しない場合は <a href="contact.html"
-                        style="color:#aaa;">お問い合わせ</a> チケットを作成してください。</p>
+                <p style="font-size:0.8rem; color:#666;">それでも解決しない場合は <a href="/contact" style="color:#aaa;">お問い合わせ</a>
+                    チケットを作成してください。</p>
             </div>
         </div>
 
@@ -206,11 +244,11 @@
             <p>ライセンスキーが発行されました。</p>
             <div id="license-key" class="key-box"></div>
             <p style="color:#aaa; font-size:0.9rem;">コピーしてDiscordなどで使用してください。</p>
-            <a href="usage.html" class="pay-btn" style="background:#333; color:#fff; border:1px solid #555;">使い方を見る</a>
+            <a href="/usage" class="pay-btn" style="background:#333; color:#fff; border:1px solid #555;">使い方を見る</a>
         </div>
     </div>
 
-    <script src="setting.js"></script>
+    <script src="/setting.js"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('order_id');
@@ -224,9 +262,8 @@
             
             if(session) {
                 currentUser = session.user;
-                document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" style="width:40px;border-radius:50%;border:2px solid #00E701;">`;
+                document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
                 
-                // 注文情報を取得して表示
                 try {
                     const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUser.id }) });
                     const orders = await res.json();
@@ -246,7 +283,6 @@
                         document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
                     }
                 } catch(e) { console.error(e); }
-
             } else {
                 alert("ログインしてください");
                 window.location.href = "/";

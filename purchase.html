@@ -21,6 +21,7 @@
             overflow-x: hidden;
         }
 
+        /* ヘッダー統一 */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -40,12 +41,7 @@
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .desktop-links {
-            display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .nav-link {
@@ -58,20 +54,13 @@
         }
 
         .nav-link:hover {
-            color: #00E701;
-        }
-
-        .mobile-menu-btn {
-            display: none;
             color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
         }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .notification-btn {
@@ -83,14 +72,29 @@
 
         .badge {
             position: absolute;
-            top: -3px;
-            right: -3px;
+            top: -2px;
+            right: -2px;
             background: #ff4444;
             color: #fff;
             font-size: 0.6rem;
-            padding: 2px 5px;
+            min-width: 8px;
+            height: 8px;
+            padding: 3px;
             border-radius: 50%;
             display: none;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+        }
+
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
         }
 
         .container {
@@ -274,14 +278,12 @@
 <body>
     <nav class="sticky-nav">
         <div class="nav-left">
-            <a href="index.html" class="nav-link">Home</a>
-            <div class="desktop-links">
-                <a href="terms.html" class="nav-link">利用規約</a>
-                <a href="usage.html" class="nav-link">使用方法</a>
-            </div>
+            <a href="/" class="nav-link" style="font-size:1.2rem;">Home</a>
+            <a href="/terms" class="nav-link">利用規約</a>
+            <a href="/usage" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
-            <div class="notification-btn" onclick="location.href='history.html'"><i class="fa-solid fa-bell"></i><span
+            <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i><span
                     class="badge" id="notif-badge"></span></div>
             <div id="auth-container"></div>
         </div>
@@ -334,7 +336,6 @@
         function showModal(title, html, buttons) {
             document.getElementById('modal-title').innerText = title;
             const body = document.getElementById('modal-body');
-            // エラー表示などで本文がない場合は枠ごと非表示にしてデザインを調整
             if(html) { body.innerHTML = html; body.style.display = 'block'; } else { body.style.display = 'none'; }
             
             const acts = document.getElementById('modal-actions'); acts.innerHTML='';
@@ -354,8 +355,6 @@
             if(!selectedPlan) return showModal("エラー", "プランを選択してください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
             
             const coupon = document.getElementById('coupon-code').value;
-            
-            // サーバーチェック
             const res = await fetch('/api/create_order', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -382,7 +381,6 @@
         async function createOrder(coupon) {
             const btn = document.querySelector('.btn-green');
             if(btn) { btn.innerText = "処理中..."; btn.disabled = true; }
-            
             try {
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
@@ -390,11 +388,8 @@
                     body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon })
                 });
                 const data = await res.json();
-                if(res.ok) {
-                    window.location.href = `/checkout/${data.order_id}`;
-                } else {
-                    showModal("エラー", data.error, [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-                }
+                if(res.ok) window.location.href = `/checkout/${data.order_id}`;
+                else showModal("エラー", data.error, [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
             } catch(e) {
                 showModal("通信エラー", "サーバーに接続できませんでした。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
             }
@@ -405,15 +400,12 @@
             const { data: { session } } = await window.supabaseApp.auth.getSession();
             if(session) {
                 currentUser=session.user;
-                authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" style="width:40px;border-radius:50%;border:2px solid #00E701;">`;
-                
-                // URLパラメータからプラン選択
+                authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
                 const params = new URLSearchParams(window.location.search);
                 const p = params.get('plan');
                 const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
                 if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('.select-card')[map[p]], p);
                 
-                // 通知バッジ
                 const notifRes = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action:'get', user_id:currentUser.id }) });
                 const notifs = await notifRes.json();
                 const unread = notifs.filter(n => !n.is_read).length;
@@ -422,7 +414,7 @@
                     b.style.display = 'inline-block'; b.innerText = unread;
                 }
             } else {
-                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:bold;cursor:pointer;">Login</button>`;
+                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" style="background:#5865F2;color:#fff;border:none;padding:6px 14px;border-radius:20px;font-weight:bold;cursor:pointer;">Login</button>`;
             }
         });
     </script>

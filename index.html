@@ -22,7 +22,7 @@
             overflow-x: hidden;
         }
 
-        /* --- ヘッダー --- */
+        /* --- ヘッダー (IMG_3049のデザインに統一) --- */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -39,15 +39,11 @@
             z-index: 1000;
         }
 
+        /* 左側: ロゴ的なHomeリンクとメニュー */
         .nav-left {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .desktop-links {
-            display: flex;
-            gap: 20px;
+            gap: 25px;
         }
 
         .nav-link {
@@ -60,39 +56,29 @@
         }
 
         .nav-link:hover {
-            color: #00E701;
-        }
-
-        .nav-link.home {
             color: #fff;
         }
 
-        .mobile-menu-btn {
-            display: none;
+        .nav-link.active {
             color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
         }
 
+        /* 現在のページ用 */
+
+        /* 右側: アイコン類 */
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .nav-divider {
-            width: 1px;
-            height: 25px;
-            background-color: #333;
-            margin: 0 5px;
-        }
-
-        /* 通知 */
         .notification-btn {
             color: #fff;
             font-size: 1.4rem;
             cursor: pointer;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .badge {
@@ -112,12 +98,22 @@
             border: 1px solid #000;
         }
 
-        /* ログインボタン */
+        /* アバター・ログイン */
+        .user-avatar-nav {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
         .login-btn-nav {
             background-color: #5865F2;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
@@ -128,23 +124,6 @@
             white-space: nowrap;
         }
 
-        /* アバター */
-        .user-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .user-avatar-nav {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
-
         /* ドロップダウンメニュー */
         .dropdown-menu {
             position: absolute;
@@ -153,7 +132,7 @@
             background: #111;
             border: 1px solid #333;
             border-radius: 10px;
-            width: 220px;
+            width: 200px;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -169,10 +148,10 @@
             padding: 15px;
             color: #fff;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             border-bottom: 1px solid #222;
             background: #111;
             cursor: pointer;
@@ -216,61 +195,7 @@
             font-size: 0.85rem;
         }
 
-        /* スマホメニュー */
-        .mobile-nav-overlay {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 70px);
-            background: #000;
-            z-index: 999;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            border-top: 1px solid #222;
-        }
-
-        .mobile-nav-overlay.show {
-            display: flex;
-        }
-
-        .mobile-nav-link {
-            font-size: 1.1rem;
-            color: #ccc;
-            text-decoration: none;
-            padding: 15px 0;
-            border-bottom: 1px solid #222;
-            font-weight: bold;
-        }
-
-        .mobile-nav-link:hover {
-            color: #00E701;
-        }
-
-        @media (max-width: 768px) {
-            .desktop-links {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .sticky-nav {
-                padding: 0 15px;
-            }
-
-            .nav-right {
-                gap: 10px;
-            }
-
-            .nav-divider {
-                display: none;
-            }
-        }
-
-        /* --- コンテンツ --- */
+        /* コンテンツ */
         .hero-section {
             margin-top: 40px;
             text-align: center;
@@ -403,7 +328,6 @@
             font-weight: bold;
         }
 
-        /* FAQ */
         .faq-section {
             width: 90%;
             max-width: 800px;
@@ -489,14 +413,9 @@
 
     <nav class="sticky-nav">
         <div class="nav-left">
-            <div class="mobile-menu-btn" onclick="toggleMobileNav()">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-            <div class="desktop-links">
-                <a href="index.html" class="nav-link home">Home</a>
-                <a href="terms.html" class="nav-link">利用規約</a>
-                <a href="usage.html" class="nav-link">使用方法</a>
-            </div>
+            <a href="/" class="nav-link active" style="font-size:1.2rem;">Home</a>
+            <a href="/terms" class="nav-link">利用規約</a>
+            <a href="/usage" class="nav-link">使用方法</a>
         </div>
         <div class="nav-right">
             <div style="position:relative;">
@@ -511,21 +430,10 @@
                     </div>
                 </div>
             </div>
-
-            <div class="nav-divider"></div>
-
             <div id="auth-container">
             </div>
         </div>
     </nav>
-
-    <div id="mobile-nav" class="mobile-nav-overlay">
-        <a href="index.html" class="mobile-nav-link" style="color:#fff;">Home</a>
-        <a href="terms.html" class="mobile-nav-link">利用規約</a>
-        <a href="usage.html" class="mobile-nav-link">使用方法</a>
-        <div style="margin-top:auto; padding:20px; color:#666; font-size:0.8rem; text-align:center;">© Stake Bonus
-            Claimer</div>
-    </div>
 
     <div class="hero-section fade-up">
         <img src="image/logo.jpg" alt="Logo" class="logo-img">
@@ -608,9 +516,9 @@
     </div>
 
     <div class="footer-links">
-        <a href="terms.html">利用規約</a>
-        <a href="usage.html">使用方法</a>
-        <a href="index.html">ホームに戻る</a>
+        <a href="/terms">利用規約</a>
+        <a href="/usage">使用方法</a>
+        <a href="/">ホームに戻る</a>
     </div>
 
     <script src="setting.js"></script>
@@ -620,22 +528,20 @@
 
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
         function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
-        function toggleMobileNav() { document.getElementById('mobile-nav').classList.toggle('show'); }
 
         function goToPurchase(plan) {
-            if(currentUser) window.location.href = `purchase.html?plan=${plan}`;
+            if(currentUser) window.location.href = `/purchase?plan=${plan}`;
             else alert("購入するにはログインしてください");
         }
 
-        // ログイン状態に応じたUI更新
         function updateAuthUI(user) {
             currentUser = user;
             authContainer.innerHTML = `
                 <div class="user-menu-container">
                     <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleMenu()">
                     <div id="user-menu" class="dropdown-menu">
-                        <a href="contact.html" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
-                        <a href="history.html" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
+                        <a href="/contact" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                        <a href="/history" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
                         <a href="https://discord.gg/ueVedsjved" target="_blank" class="menu-item"><i class="fa-brands fa-discord"></i> 公式Discord</a>
                         <a href="https://x.com/Stake_hatti" target="_blank" class="menu-item"><i class="fa-brands fa-x-twitter"></i> 公式X</a>
                         <div class="menu-item" onclick="window.supabaseApp.auth.signOut(); location.reload();" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket"></i> ログアウト</div>
@@ -664,7 +570,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // Supabase初期化待機
             await initSupabase();
             const supabase = window.supabaseApp;
 
