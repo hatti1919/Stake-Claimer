@@ -1,0 +1,338 @@
+/* common.css */
+
+/* --- 基本設定 --- */
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding-top: 70px;
+    /* ヘッダーの高さ分 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- ヘッダー (共通) --- */
+.sticky-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background-color: #000;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-link {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: #fff;
+}
+
+.nav-link.active {
+    color: #00E701;
+}
+
+/* アクティブなページは緑色 */
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.notification-btn {
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ff4444;
+    color: #fff;
+    font-size: 0.6rem;
+    min-width: 8px;
+    height: 8px;
+    padding: 3px;
+    border-radius: 50%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #000;
+}
+
+.nav-divider {
+    width: 1px;
+    height: 30px;
+    background-color: #333;
+}
+
+/* ログインボタン (Discordアイコン対応) & アバター */
+.login-btn-nav {
+    background-color: #5865F2;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* アイコンと文字の間隔 */
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.login-btn-nav:hover {
+    opacity: 0.8;
+}
+
+.user-avatar-nav {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00E701;
+    cursor: pointer;
+    object-fit: cover;
+    background: #111;
+}
+
+/* ドロップダウンメニュー */
+.dropdown-menu {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+    width: 220px;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+}
+
+.dropdown-menu.show {
+    display: flex;
+}
+
+.menu-item {
+    padding: 15px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #222;
+    background: #111;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background: #222;
+    color: #00E701;
+}
+
+/* 通知ポップアップ */
+.notif-popup {
+    position: absolute;
+    top: 50px;
+    right: -10px;
+    width: 280px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
+}
+
+.notif-popup.show {
+    display: flex;
+}
+
+.notif-item {
+    padding: 12px;
+    border-bottom: 1px solid #222;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.notif-empty {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* スマホ用メニュー */
+.mobile-menu-btn {
+    display: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: #000;
+    z-index: 999;
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    border-top: 1px solid #222;
+    box-sizing: border-box;
+}
+
+.mobile-nav-overlay.show {
+    display: flex;
+}
+
+.mobile-nav-link {
+    font-size: 1.2rem;
+    color: #ccc;
+    text-decoration: none;
+    padding: 15px 0;
+    border-bottom: 1px solid #222;
+    font-weight: bold;
+}
+
+.mobile-nav-link.active {
+    color: #00E701;
+}
+
+@media (max-width: 768px) {
+    .nav-left a {
+        display: none;
+    }
+
+    /* PCメニュー隠す */
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .sticky-nav {
+        padding: 0 15px;
+    }
+
+    .nav-left {
+        gap: 15px;
+    }
+}
+
+/* --- フッター (共通) --- */
+.footer-links {
+    margin-top: auto;
+    padding: 30px 0;
+    text-align: center;
+    width: 100%;
+    border-top: 1px solid #333;
+    background: #050505;
+}
+
+.footer-links a {
+    color: #888;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 0.85rem;
+}
+
+/* --- モーダル (共通) --- */
+.custom-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal {
+    background: #111;
+    border: 2px solid #333;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.modal-body {
+    margin-bottom: 25px;
+    text-align: left;
+    font-size: 1rem;
+    color: #ccc;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-btn {
+    padding: 10px 25px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.btn-green {
+    background: #00E701;
+    color: #000;
+}
+
+.btn-gray {
+    background: #333;
+    color: #fff;
+}

@@ -7,172 +7,8 @@
     <title>Checkout - Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="common.css">
     <style>
-        body {
-            background: #000;
-            color: #fff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding-top: 70px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .sticky-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #000;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            box-sizing: border-box;
-            z-index: 1000;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .nav-link {
-            color: #ccc;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
-        .nav-link:hover {
-            color: #fff;
-        }
-
-        .nav-link.active {
-            color: #00E701;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .notification-btn {
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #ff4444;
-            color: #fff;
-            font-size: 0.6rem;
-            min-width: 8px;
-            height: 8px;
-            padding: 3px;
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #000;
-        }
-
-        .nav-divider {
-            width: 1px;
-            height: 30px;
-            background-color: #333;
-        }
-
-        .user-avatar-nav {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
-
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
-        .login-btn-nav:hover {
-            opacity: 0.8;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .mobile-nav-overlay {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 70px);
-            background: #000;
-            z-index: 999;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            border-top: 1px solid #222;
-        }
-
-        .mobile-nav-link {
-            font-size: 1.2rem;
-            color: #ccc;
-            text-decoration: none;
-            padding: 15px 0;
-            border-bottom: 1px solid #222;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .nav-left {
-                gap: 15px;
-            }
-
-            .nav-link {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .sticky-nav {
-                padding: 0 15px;
-            }
-        }
-
         .split-container {
             display: flex;
             flex-wrap: wrap;
@@ -293,51 +129,10 @@
                 transform: rotate(360deg);
             }
         }
-
-        .footer-links {
-            margin-top: auto;
-            padding: 30px 0;
-            text-align: center;
-            width: 100%;
-            border-top: 1px solid #333;
-            background: #050505;
-        }
-
-        .footer-links a {
-            color: #888;
-            text-decoration: none;
-            margin: 0 10px;
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 
 <body>
-    <nav class="sticky-nav">
-        <div class="nav-left">
-            <div class="mobile-menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('show')"><i
-                    class="fa-solid fa-bars"></i></div>
-            <a href="/" class="nav-link">Home</a>
-            <a href="/terms" class="nav-link">利用規約</a>
-            <a href="/usage" class="nav-link">使用方法</a>
-        </div>
-        <div class="nav-right">
-            <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i><span
-                    class="badge" id="notif-badge"></span></div>
-            <div class="nav-divider"></div>
-            <div id="auth-container">
-                <button class="login-btn-nav" style="opacity:0.7;"><i class="fa-brands fa-discord"></i>
-                    Login...</button>
-            </div>
-        </div>
-    </nav>
-
-    <div id="mobile-nav" class="mobile-nav-overlay">
-        <a href="/" class="mobile-nav-link">Home</a>
-        <a href="/terms" class="mobile-nav-link">利用規約</a>
-        <a href="/usage" class="mobile-nav-link">使用方法</a>
-    </div>
-
     <div class="split-container">
         <div class="left-col">
             <h2>注文詳細</h2>
@@ -382,31 +177,20 @@
         </div>
     </div>
 
-    <div class="footer-links">
-        <a href="/terms">利用規約</a>
-        <a href="/usage">使用方法</a>
-        <a href="/">ホームに戻る</a>
-    </div>
-
     <script src="/setting.js"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('order_id');
         document.getElementById('disp-oid').innerText = orderId || "Unknown";
         
-        let currentUser = null;
-
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                await initSupabase();
+                if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000)); // setting.jsの初期化待ち
                 const { data: { session } } = await window.supabaseApp.auth.getSession();
                 
                 if(session) {
-                    currentUser = session.user;
-                    document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
-                    
                     try {
-                        const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUser.id }) });
+                        const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) });
                         const orders = await res.json();
                         const target = orders.find(o => o.order_id === orderId);
                         
@@ -418,7 +202,7 @@
                                 showSuccess(target.license_key);
                             } else {
                                 document.getElementById('pay-link').href = target.pay_url;
-                                startPolling();
+                                startPolling(session.user.id);
                             }
                         } else {
                             document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
@@ -428,15 +212,13 @@
                     alert("ログインしてください");
                     window.location.href = "/";
                 }
-            } catch(e) {
-                document.getElementById('auth-container').innerHTML = `<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
-            }
+            } catch(e) { console.log("Init wait"); }
         });
 
-        function startPolling() {
+        function startPolling(uid) {
             const interval = setInterval(async () => {
                 try {
-                    const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: orderId, user_id: currentUser.id }) });
+                    const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: orderId, user_id: uid }) });
                     const data = await res.json();
                     
                     if(data.status === 'paid') {

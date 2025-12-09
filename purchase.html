@@ -7,173 +7,8 @@
     <title>Purchase - Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="common.css">
     <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding-top: 70px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .sticky-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #000;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            box-sizing: border-box;
-            z-index: 1000;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .nav-link {
-            color: #ccc;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
-        .nav-link:hover {
-            color: #fff;
-        }
-
-        .nav-link.active {
-            color: #00E701;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .notification-btn {
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .badge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #ff4444;
-            color: #fff;
-            font-size: 0.6rem;
-            min-width: 8px;
-            height: 8px;
-            padding: 3px;
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #000;
-        }
-
-        .nav-divider {
-            width: 1px;
-            height: 30px;
-            background-color: #333;
-        }
-
-        .user-avatar-nav {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #00E701;
-            cursor: pointer;
-            object-fit: cover;
-            background: #111;
-        }
-
-        .login-btn-nav {
-            background-color: #5865F2;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
-        .login-btn-nav:hover {
-            opacity: 0.8;
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .mobile-nav-overlay {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            height: calc(100vh - 70px);
-            background: #000;
-            z-index: 999;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            border-top: 1px solid #222;
-        }
-
-        .mobile-nav-link {
-            font-size: 1.2rem;
-            color: #ccc;
-            text-decoration: none;
-            padding: 15px 0;
-            border-bottom: 1px solid #222;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .nav-left {
-                gap: 15px;
-            }
-
-            .nav-link {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .sticky-nav {
-                padding: 0 15px;
-            }
-        }
-
         .container {
             width: 90%;
             max-width: 800px;
@@ -282,72 +117,6 @@
             box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
         }
 
-        .custom-modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .custom-modal {
-            background: #111;
-            border: 2px solid #333;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #fff;
-        }
-
-        .modal-body {
-            margin-bottom: 25px;
-            text-align: left;
-            background: #000;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #222;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .modal-btn {
-            padding: 12px 25px;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-
-        .btn-green {
-            background: #00E701;
-            color: #000;
-        }
-
-        .btn-gray {
-            background: #333;
-            color: #fff;
-        }
-
         .price-row {
             display: flex;
             justify-content: space-between;
@@ -368,51 +137,10 @@
             font-weight: bold;
             color: #00E701;
         }
-
-        .footer-links {
-            margin-top: auto;
-            padding: 30px 0;
-            text-align: center;
-            width: 100%;
-            border-top: 1px solid #333;
-            background: #050505;
-        }
-
-        .footer-links a {
-            color: #888;
-            text-decoration: none;
-            margin: 0 10px;
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 
 <body>
-    <nav class="sticky-nav">
-        <div class="nav-left">
-            <div class="mobile-menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('show')"><i
-                    class="fa-solid fa-bars"></i></div>
-            <a href="/" class="nav-link">Home</a>
-            <a href="/terms" class="nav-link">利用規約</a>
-            <a href="/usage" class="nav-link">使用方法</a>
-        </div>
-        <div class="nav-right">
-            <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i><span
-                    class="badge" id="notif-badge"></span></div>
-            <div class="nav-divider"></div>
-            <div id="auth-container">
-                <button class="login-btn-nav" style="opacity:0.7;"><i class="fa-brands fa-discord"></i>
-                    Login...</button>
-            </div>
-        </div>
-    </nav>
-
-    <div id="mobile-nav" class="mobile-nav-overlay">
-        <a href="/" class="mobile-nav-link">Home</a>
-        <a href="/terms" class="mobile-nav-link">利用規約</a>
-        <a href="/usage" class="mobile-nav-link">使用方法</a>
-    </div>
-
     <div class="container">
         <h1 class="page-title">購入手続き</h1>
 
@@ -451,24 +179,9 @@
         <button class="checkout-btn" onclick="verifyOrder()">決済内容を確認</button>
     </div>
 
-    <div id="custom-modal" class="custom-modal-overlay">
-        <div class="custom-modal">
-            <div id="modal-title" class="modal-title"></div>
-            <div id="modal-body" class="modal-body"></div>
-            <div id="modal-actions" class="modal-actions"></div>
-        </div>
-    </div>
-
-    <div class="footer-links">
-        <a href="/terms">利用規約</a>
-        <a href="/usage">使用方法</a>
-        <a href="/">ホームに戻る</a>
-    </div>
-
     <script src="setting.js"></script>
     <script>
-        const authContainer = document.getElementById('auth-container');
-        let currentUser=null, selectedPlan=null, selectedPayment=null;
+        let selectedPlan=null, selectedPayment=null;
 
         function selectPlan(el, plan) {
             document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected'));
@@ -481,23 +194,6 @@
             el.classList.add('selected');
             selectedPayment = method;
         }
-
-        function showModal(title, html, buttons) {
-            document.getElementById('modal-title').innerText = title;
-            const body = document.getElementById('modal-body');
-            if(html) { body.innerHTML = html; body.style.display = 'block'; } else { body.style.display = 'none'; }
-            
-            const acts = document.getElementById('modal-actions'); acts.innerHTML='';
-            buttons.forEach(b => {
-                const btn = document.createElement('button');
-                btn.className = `modal-btn ${b.class}`;
-                btn.innerText = b.text;
-                btn.onclick = b.onClick;
-                acts.appendChild(btn);
-            });
-            document.getElementById('custom-modal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
 
         async function verifyOrder() {
             if(!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
@@ -544,31 +240,11 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await initSupabase();
-                const { data: { session } } = await window.supabaseApp.auth.getSession();
-                if(session) {
-                    currentUser=session.user;
-                    authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
-                    const params = new URLSearchParams(window.location.search);
-                    const p = params.get('plan');
-                    const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
-                    if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
-                    
-                    const notifRes = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action:'get', user_id:currentUser.id }) });
-                    const notifs = await notifRes.json();
-                    const unread = notifs.filter(n => !n.is_read).length;
-                    if(unread > 0) {
-                        const b = document.getElementById('notif-badge');
-                        b.style.display = 'inline-block'; b.innerText = unread;
-                    }
-                } else {
-                    authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-                }
-            } catch(e){
-                authContainer.innerHTML=`<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
-            }
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const p = params.get('plan');
+            const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
+            if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
         });
     </script>
 </body>
