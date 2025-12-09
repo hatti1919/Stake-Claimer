@@ -20,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* ヘッダー統一 */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -54,6 +53,10 @@
 
         .nav-link:hover {
             color: #fff;
+        }
+
+        .nav-link.active {
+            color: #00E701;
         }
 
         .nav-right {
@@ -111,6 +114,15 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .login-btn-nav:hover {
+            opacity: 0.8;
         }
 
         .mobile-menu-btn {
@@ -313,7 +325,10 @@
             <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i><span
                     class="badge" id="notif-badge"></span></div>
             <div class="nav-divider"></div>
-            <div id="auth-container"></div>
+            <div id="auth-container">
+                <button class="login-btn-nav" style="opacity:0.7;"><i class="fa-brands fa-discord"></i>
+                    Login...</button>
+            </div>
         </div>
     </nav>
 
@@ -382,35 +397,39 @@
         let currentUser = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await initSupabase();
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            
-            if(session) {
-                currentUser = session.user;
-                document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
+            try {
+                await initSupabase();
+                const { data: { session } } = await window.supabaseApp.auth.getSession();
                 
-                try {
-                    const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUser.id }) });
-                    const orders = await res.json();
-                    const target = orders.find(o => o.order_id === orderId);
+                if(session) {
+                    currentUser = session.user;
+                    document.getElementById('auth-container').innerHTML = `<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
                     
-                    if (target) {
-                        document.getElementById('disp-plan').innerText = target.plan_type.toUpperCase();
-                        document.getElementById('disp-amount').innerText = "¥" + target.final_amount;
+                    try {
+                        const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUser.id }) });
+                        const orders = await res.json();
+                        const target = orders.find(o => o.order_id === orderId);
                         
-                        if(target.status === 'paid') {
-                            showSuccess(target.license_key);
+                        if (target) {
+                            document.getElementById('disp-plan').innerText = target.plan_type.toUpperCase();
+                            document.getElementById('disp-amount').innerText = "¥" + target.final_amount;
+                            
+                            if(target.status === 'paid') {
+                                showSuccess(target.license_key);
+                            } else {
+                                document.getElementById('pay-link').href = target.pay_url;
+                                startPolling();
+                            }
                         } else {
-                            document.getElementById('pay-link').href = target.pay_url;
-                            startPolling();
+                            document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
                         }
-                    } else {
-                        document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
-                    }
-                } catch(e) { console.error(e); }
-            } else {
-                alert("ログインしてください");
-                window.location.href = "/";
+                    } catch(e) { console.error(e); }
+                } else {
+                    alert("ログインしてください");
+                    window.location.href = "/";
+                }
+            } catch(e) {
+                document.getElementById('auth-container').innerHTML = `<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
             }
         });
 

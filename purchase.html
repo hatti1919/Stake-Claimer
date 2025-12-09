@@ -21,7 +21,6 @@
             overflow-x: hidden;
         }
 
-        /* ヘッダー統一 */
         .sticky-nav {
             position: fixed;
             top: 0;
@@ -55,6 +54,10 @@
 
         .nav-link:hover {
             color: #fff;
+        }
+
+        .nav-link.active {
+            color: #00E701;
         }
 
         .nav-right {
@@ -112,6 +115,15 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .login-btn-nav:hover {
+            opacity: 0.8;
         }
 
         .mobile-menu-btn {
@@ -388,7 +400,10 @@
             <div class="notification-btn" onclick="location.href='/history'"><i class="fa-solid fa-bell"></i><span
                     class="badge" id="notif-badge"></span></div>
             <div class="nav-divider"></div>
-            <div id="auth-container"></div>
+            <div id="auth-container">
+                <button class="login-btn-nav" style="opacity:0.7;"><i class="fa-brands fa-discord"></i>
+                    Login...</button>
+            </div>
         </div>
     </nav>
 
@@ -530,25 +545,29 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await initSupabase();
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            if(session) {
-                currentUser=session.user;
-                authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
-                const params = new URLSearchParams(window.location.search);
-                const p = params.get('plan');
-                const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
-                if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
-                
-                const notifRes = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action:'get', user_id:currentUser.id }) });
-                const notifs = await notifRes.json();
-                const unread = notifs.filter(n => !n.is_read).length;
-                if(unread > 0) {
-                    const b = document.getElementById('notif-badge');
-                    b.style.display = 'inline-block'; b.innerText = unread;
+            try {
+                await initSupabase();
+                const { data: { session } } = await window.supabaseApp.auth.getSession();
+                if(session) {
+                    currentUser=session.user;
+                    authContainer.innerHTML=`<img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav">`;
+                    const params = new URLSearchParams(window.location.search);
+                    const p = params.get('plan');
+                    const map={'1day':0,'1week':1,'2weeks':2,'1month':3};
+                    if(p && map[p]!==undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
+                    
+                    const notifRes = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action:'get', user_id:currentUser.id }) });
+                    const notifs = await notifRes.json();
+                    const unread = notifs.filter(n => !n.is_read).length;
+                    if(unread > 0) {
+                        const b = document.getElementById('notif-badge');
+                        b.style.display = 'inline-block'; b.innerText = unread;
+                    }
+                } else {
+                    authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
                 }
-            } else {
-                authContainer.innerHTML=`<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav">Login</button>`;
+            } catch(e){
+                authContainer.innerHTML=`<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
             }
         });
     </script>

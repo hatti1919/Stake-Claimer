@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,84 +8,421 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- ベース設定 --- */
-        body { background-color: #000; color: #fff; font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding-top: 70px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
-        
-        /* --- ヘッダー (画像のデザインに完全統一) --- */
-        .sticky-nav { position: fixed; top: 0; left: 0; width: 100%; height: 70px; background-color: #000; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-sizing: border-box; z-index: 1000; }
-        
-        /* 左側メニュー */
-        .nav-left { display: flex; align-items: center; gap: 30px; }
-        .nav-link { color: #ccc; text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s; white-space: nowrap; }
-        .nav-link:hover { color: #fff; }
-        .nav-link.active { color: #fff; font-size: 1.3rem; } /* Home強調 */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding-top: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        /* 右側アイコンエリア */
-        .nav-right { display: flex; align-items: center; gap: 25px; height: 100%; }
-        
-        /* 通知ベル */
-        .notification-btn { color: #fff; font-size: 1.5rem; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
-        .badge { position: absolute; top: -2px; right: -2px; background: #ff4444; color: #fff; font-size: 0.6rem; min-width: 8px; height: 8px; padding: 3px; border-radius: 50%; display: none; justify-content: center; align-items: center; border: 1px solid #000; }
-        
-        /* 区切り線 */
-        .nav-divider { width: 1px; height: 30px; background-color: #333; }
+        /* --- ヘッダー --- */
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #000;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
 
-        /* ユーザーアバター / ログインボタン */
-        #auth-container { display: flex; align-items: center; }
-        .user-avatar-nav { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #00E701; cursor: pointer; object-fit: cover; background: #111; }
-        .login-btn-nav { background-color: #5865F2; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; white-space: nowrap; }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
 
-        /* ドロップダウンメニュー */
-        .dropdown-menu { position: absolute; top: 60px; right: 0; background: #111; border: 1px solid #333; border-radius: 10px; width: 220px; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.9); z-index: 2000; }
-        .dropdown-menu.show { display: flex; }
-        .menu-item { padding: 15px; color: #fff; text-decoration: none; font-size: 0.95rem; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #222; background: #111; cursor: pointer; }
-        .menu-item:hover { background: #222; color: #00E701; }
+        .nav-link {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
 
-        /* 通知ポップアップ */
-        .notif-popup { position: absolute; top: 50px; right: -10px; width: 280px; background: #111; border: 1px solid #333; border-radius: 8px; display: none; flex-direction: column; z-index: 2000; box-shadow: 0 5px 15px rgba(0,0,0,0.9); }
-        .notif-popup.show { display: flex; }
-        .notif-item { padding: 12px; border-bottom: 1px solid #222; font-size: 0.85rem; color: #ccc; }
-        .notif-empty { padding: 20px; text-align: center; color: #666; font-size: 0.85rem; }
+        .nav-link:hover {
+            color: #fff;
+        }
 
-        /* コンテンツ */
-        .hero-section { margin-top: 60px; text-align: center; width: 90%; max-width: 800px; margin-bottom: 40px; }
-        .logo-img { width: 180px; height: auto; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); }
-        h1 { font-size: 2.2rem; margin-bottom: 10px; font-weight: bold; }
-        .typing-container { height: 30px; margin-bottom: 30px; font-size: 1rem; color: #bbb; font-family: 'Courier New', monospace; }
-        
-        .philosophy-section { width: 85%; max-width: 700px; text-align: center; margin: 30px auto 60px auto; padding: 40px; border: 1px solid #333; border-radius: 20px; background: linear-gradient(145deg, #111, #000); }
-        .philosophy-title { font-size: 1.6rem; color: #00E701; margin-bottom: 25px; font-weight: bold; letter-spacing: 1px; }
-        .philosophy-text { font-size: 1rem; line-height: 2.2; color: #ddd; text-align: left; }
-        .highlight-text { color: #fff; font-weight: bold; border-bottom: 1px solid #00E701; }
+        .nav-link.active {
+            color: #00E701;
+        }
 
-        .plans-scroll-wrapper { width: 100%; overflow-x: auto; padding: 10px 0 40px 0; -webkit-overflow-scrolling: touch; }
-        .plans-container { display: flex; gap: 20px; padding: 0 20px; width: max-content; margin: 0 auto; }
-        .plan-card { background: #000; color: #fff; border-radius: 16px; padding: 25px 20px; width: 240px; text-align: center; border: 2px solid #333; cursor: pointer; transition: 0.3s; }
-        .plan-card:hover { transform: translateY(-5px); }
-        .plan-cyan { border-color: #00ffff; } .plan-green { border-color: #00ff00; } .plan-blue { border-color: #2979ff; } .plan-red { border-color: #ff0055; }
-        .plan-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 5px; }
-        .plan-price { font-size: 1.6rem; font-weight: bold; margin-bottom: 15px; font-family: monospace; }
-        .buy-label { display: block; width: 100%; padding: 10px 0; border-radius: 8px; background: #1a1a1a; color: white; font-weight: bold; }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-        .faq-section { width: 90%; max-width: 800px; margin: 20px auto 50px auto; padding-bottom: 50px; }
-        .faq-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; border-left: 5px solid #00E701; padding-left: 15px; text-align: left; }
-        .faq-item { border-bottom: 1px solid #333; margin-bottom: 10px; }
-        .faq-question { padding: 15px 10px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
-        .faq-question.active { color: #00E701; }
-        .faq-icon { font-size: 1.2rem; color: #fff; transition: transform 0.3s ease; }
-        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; padding: 0 10px; color: #ccc; line-height: 1.6; font-size: 0.9rem; }
+        .notification-btn {
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            position: relative;
+        }
 
-        .footer-links { margin-top: auto; padding: 30px 0; text-align: center; width: 100%; border-top: 1px solid #333; background: #050505; }
-        .footer-links a { color: #888; text-decoration: none; margin: 0 10px; font-size: 0.85rem; }
-        
-        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ff4444;
+            color: #fff;
+            font-size: 0.6rem;
+            min-width: 8px;
+            height: 8px;
+            padding: 3px;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #333;
+        }
+
+        .user-avatar-nav {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #00E701;
+            cursor: pointer;
+            object-fit: cover;
+            background: #111;
+        }
+
+        /* ログインボタン (Discordアイコン対応) */
+        .login-btn-nav {
+            background-color: #5865F2;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .login-btn-nav:hover {
+            opacity: 0.8;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+        }
+
+        .menu-item {
+            padding: 15px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #222;
+            background: #111;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #222;
+            color: #00E701;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            background: #000;
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            border-top: 1px solid #222;
+        }
+
+        .mobile-nav-link {
+            font-size: 1.2rem;
+            color: #ccc;
+            text-decoration: none;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            font-weight: bold;
+        }
+
+        .mobile-nav-link:hover {
+            color: #00E701;
+        }
+
+        @media (max-width: 768px) {
+            .nav-left {
+                gap: 15px;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .sticky-nav {
+                padding: 0 15px;
+            }
+        }
+
+        /* --- コンテンツ --- */
+        .hero-section {
+            margin-top: 60px;
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+
+        .logo-img {
+            width: 180px;
+            height: auto;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .typing-container {
+            height: 30px;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            color: #bbb;
+            font-family: 'Courier New', monospace;
+        }
+
+        .philosophy-section {
+            width: 85%;
+            max-width: 700px;
+            text-align: center;
+            margin: 30px auto 60px auto;
+            padding: 40px;
+            border: 1px solid #333;
+            border-radius: 20px;
+            background: linear-gradient(145deg, #111, #000);
+        }
+
+        .philosophy-title {
+            font-size: 1.6rem;
+            color: #00E701;
+            margin-bottom: 25px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .philosophy-text {
+            font-size: 1rem;
+            line-height: 2.2;
+            color: #ddd;
+            text-align: left;
+        }
+
+        .highlight-text {
+            color: #fff;
+            font-weight: bold;
+            border-bottom: 1px solid #00E701;
+        }
+
+        .plans-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            padding: 10px 0 40px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .plans-container {
+            display: flex;
+            gap: 20px;
+            padding: 0 20px;
+            width: max-content;
+            margin: 0 auto;
+        }
+
+        .plan-card {
+            background: #000;
+            color: #fff;
+            border-radius: 16px;
+            padding: 25px 20px;
+            width: 240px;
+            text-align: center;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: #00E701;
+        }
+
+        .plan-cyan {
+            border-color: #00ffff;
+        }
+
+        .plan-green {
+            border-color: #00ff00;
+        }
+
+        .plan-blue {
+            border-color: #2979ff;
+        }
+
+        .plan-red {
+            border-color: #ff0055;
+        }
+
+        .plan-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .plan-price {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-family: monospace;
+        }
+
+        .buy-label {
+            display: block;
+            width: 100%;
+            padding: 10px 0;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: white;
+            font-weight: bold;
+        }
+
+        .faq-section {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto 50px auto;
+            padding-bottom: 50px;
+        }
+
+        .faq-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            border-left: 5px solid #00E701;
+            padding-left: 15px;
+            text-align: left;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        .faq-question {
+            padding: 15px 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .faq-question.active {
+            color: #00E701;
+        }
+
+        .faq-icon {
+            font-size: 1.2rem;
+            color: #fff;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 10px;
+            color: #ccc;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            margin-top: auto;
+            padding: 30px 0;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #333;
+            background: #050505;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
+
 <body>
 
     <nav class="sticky-nav">
         <div class="nav-left">
+            <div class="mobile-menu-btn" onclick="document.getElementById('mobile-nav').classList.toggle('show')"><i
+                    class="fa-solid fa-bars"></i></div>
             <a href="/" class="nav-link active">Home</a>
             <a href="/terms" class="nav-link">利用規約</a>
             <a href="/usage" class="nav-link">使用方法</a>
@@ -92,21 +430,28 @@
         <div class="nav-right">
             <div style="position:relative;">
                 <div class="notification-btn" onclick="toggleNotifPopup()">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="badge" id="notif-badge"></span>
+                    <i class="fa-solid fa-bell"></i><span class="badge" id="notif-badge"></span>
                 </div>
                 <div id="notif-popup" class="notif-popup">
                     <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701;">お知らせ</div>
-                    <div id="notif-list"><div class="notif-empty">通知はありません</div></div>
+                    <div id="notif-list">
+                        <div class="notif-empty">通知はありません</div>
+                    </div>
                 </div>
             </div>
-            
             <div class="nav-divider"></div>
-
             <div id="auth-container">
-                </div>
+                <button class="login-btn-nav" style="opacity:0.7;"><i class="fa-brands fa-discord"></i>
+                    Login...</button>
+            </div>
         </div>
     </nav>
+
+    <div id="mobile-nav" class="mobile-nav-overlay">
+        <a href="/" class="mobile-nav-link" style="color:#00E701;">Home</a>
+        <a href="/terms" class="mobile-nav-link">利用規約</a>
+        <a href="/usage" class="mobile-nav-link">使用方法</a>
+    </div>
 
     <div class="hero-section fade-up">
         <img src="image/logo.jpg" alt="Logo" class="logo-img">
@@ -117,7 +462,8 @@
     <div class="philosophy-section fade-up">
         <div class="philosophy-title">私たちの行動理念</div>
         <div class="philosophy-text">
-            私たちは、ボーナスコードを請求するあらゆる手間をテクノロジーで解決し、ユーザーの皆様に<span class="highlight-text">「究極のシンプルさと迅速さ」</span>を提供することを理念としています。<br><br>
+            私たちは、ボーナスコードを請求するあらゆる手間をテクノロジーで解決し、ユーザーの皆様に<span
+                class="highlight-text">「究極のシンプルさと迅速さ」</span>を提供することを理念としています。<br><br>
             時間は有限であり、また機会は一瞬で過ぎ去ります。手動での操作によるストレスや、チャンスを逃す不安から解放され、本来の楽しみに集中できる環境を作ること。<br>
             それこそが私たちの使命であり、Stake Bonus Claimerが存在する意義です。<br><br>
             あなたの代わりに、システムが24時間365日、正確かつ確実にコードを請求し続けます。
@@ -126,20 +472,65 @@
 
     <div class="plans-scroll-wrapper fade-up">
         <div class="plans-container">
-            <div class="plan-card plan-cyan" onclick="goToPurchase('1day')"><div><div class="plan-title">1 Day</div><div class="plan-price">¥1,200</div></div><span class="buy-label">購入する</span></div>
-            <div class="plan-card plan-green" onclick="goToPurchase('1week')"><div><div class="plan-title">1 Week</div><div class="plan-price">¥3,000</div></div><span class="buy-label">購入する</span></div>
-            <div class="plan-card plan-blue" onclick="goToPurchase('2weeks')"><div><div class="plan-title">2 Weeks</div><div class="plan-price">¥5,000</div></div><span class="buy-label">購入する</span></div>
-            <div class="plan-card plan-red" onclick="goToPurchase('1month')"><div><div class="plan-title">1 Month</div><div class="plan-price">¥6,800</div></div><span class="buy-label">購入する</span></div>
+            <div class="plan-card plan-cyan" onclick="goToPurchase('1day')">
+                <div>
+                    <div class="plan-title">1 Day</div>
+                    <div class="plan-price">¥1,200</div>
+                </div><span class="buy-label">購入する</span>
+            </div>
+            <div class="plan-card plan-green" onclick="goToPurchase('1week')">
+                <div>
+                    <div class="plan-title">1 Week</div>
+                    <div class="plan-price">¥3,000</div>
+                </div><span class="buy-label">購入する</span>
+            </div>
+            <div class="plan-card plan-blue" onclick="goToPurchase('2weeks')">
+                <div>
+                    <div class="plan-title">2 Weeks</div>
+                    <div class="plan-price">¥5,000</div>
+                </div><span class="buy-label">購入する</span>
+            </div>
+            <div class="plan-card plan-red" onclick="goToPurchase('1month')">
+                <div>
+                    <div class="plan-title">1 Month</div>
+                    <div class="plan-price">¥6,800</div>
+                </div><span class="buy-label">購入する</span>
+            </div>
         </div>
     </div>
 
     <div class="faq-section fade-up">
         <div class="faq-title">よくある質問</div>
-        <div class="faq-item"><div class="faq-question">支払い方法は何がありますか？<i class="fa-solid fa-plus faq-icon"></i></div><div class="faq-answer"><p>PayPay、クレジットカード、仮想通貨に対応しています。</p></div></div>
-        <div class="faq-item"><div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div><div class="faq-answer"><p>ほぼ、即答できると思います。</p></div></div>
-        <div class="faq-item"><div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div><div class="faq-answer"><p>ライセンスを追加購入してもらう形になります。</p></div></div>
-        <div class="faq-item"><div class="faq-question">アカウントの凍結リスクはありますか？<i class="fa-solid fa-plus faq-icon"></i></div><div class="faq-answer"><p>基本的にないです。</p></div></div>
-        <div class="faq-item"><div class="faq-question">ボーナスコードは全て取れますか？<i class="fa-solid fa-plus faq-icon"></i></div><div class="faq-answer"><p>ほとんど取れますが、リミットの低いものだと取れない時があります。</p></div></div>
+        <div class="faq-item">
+            <div class="faq-question">支払い方法は何がありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>PayPay、クレジットカード、仮想通貨に対応しています。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ほぼ、即答できると思います。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ライセンスを追加購入してもらう形になります。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">アカウントの凍結リスクはありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>基本的にないです。</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">ボーナスコードは全て取れますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-answer">
+                <p>ほとんど取れますが、リミットの低いものだと取れない時があります。</p>
+            </div>
+        </div>
     </div>
 
     <div class="footer-links">
@@ -156,7 +547,6 @@
         function toggleMenu() { document.getElementById('user-menu').classList.toggle('show'); }
         function toggleNotifPopup() { document.getElementById('notif-popup').classList.toggle('show'); }
 
-        // 購入ページへのリンクも .html なし
         function goToPurchase(plan) {
             if(currentUser) window.location.href = `/purchase?plan=${plan}`;
             else alert("購入するにはログインしてください");
@@ -184,10 +574,9 @@
                 const res = await fetch('/api/history', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: userId }) });
                 const orders = await res.json();
                 const pending = orders.filter(o => o.status === 'pending');
-                
                 if(pending.length > 0) {
-                    document.getElementById('notif-badge').style.display='flex';
-                    document.getElementById('notif-badge').innerText = pending.length;
+                    const b = document.getElementById('notif-badge');
+                    b.style.display = 'flex'; b.innerText = pending.length;
                     const list = document.getElementById('notif-list');
                     list.innerHTML = "";
                     pending.forEach(o => {
@@ -198,26 +587,40 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            await initSupabase();
-            const supabase = window.supabaseApp;
+            try {
+                await initSupabase();
+                const supabase = window.supabaseApp;
+                if(supabase) {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session) updateAuthUI(session.user);
+                    else authContainer.innerHTML = `<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
 
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) updateAuthUI(session.user);
-            else authContainer.innerHTML = `<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
-
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    updateAuthUI(session.user);
-                } else if (event === 'SIGNED_OUT') {
-                    currentUser = null;
-                    authContainer.innerHTML = `<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                    supabase.auth.onAuthStateChange((event, session) => {
+                        if (event === 'SIGNED_IN' && session) updateAuthUI(session.user);
+                        else if (event === 'SIGNED_OUT') {
+                            currentUser = null;
+                            authContainer.innerHTML = `<button onclick="window.supabaseApp.auth.signInWithOAuth({provider:'discord'})" class="login-btn-nav"><i class="fa-brands fa-discord"></i> Login</button>`;
+                        }
+                    });
+                } else {
+                    authContainer.innerHTML = `<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
                 }
-            });
+            } catch(e) {
+                authContainer.innerHTML = `<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Error</button>`;
+            }
 
-            // Typing animation
-            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
+            // Animation & Accordion
             let count=0, index=0, currentText="", letter="", isDeleting=false;
-            (function type() { if(count===texts.length)count=0; currentText=texts[count]; letter=isDeleting?currentText.slice(0,--index):currentText.slice(0,++index); document.querySelector(".typing-container .text").textContent=letter; let speed=isDeleting?50:100; if(!isDeleting&&letter.length===currentText.length){speed=2000;isDeleting=true;}else if(isDeleting&&letter.length===0){isDeleting=false;count++;speed=500;} setTimeout(type,speed); })();
+            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。"];
+            (function type() { 
+                if(count===texts.length)count=0; currentText=texts[count]; 
+                letter=isDeleting?currentText.slice(0,--index):currentText.slice(0,++index); 
+                const el=document.querySelector(".typing-container .text"); if(el)el.textContent=letter;
+                let speed=isDeleting?50:100; 
+                if(!isDeleting&&letter.length===currentText.length){speed=2000;isDeleting=true;}
+                else if(isDeleting&&letter.length===0){isDeleting=false;count++;speed=500;} 
+                setTimeout(type,speed); 
+            })();
             
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.addEventListener('click', () => {
