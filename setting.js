@@ -7,8 +7,7 @@ const CONFIG = {
 
 let currentUser = null;
 
-// ヘッダーのHTMLテンプレート
-// ログインボタンにはFontAwesomeのDiscordアイコンを入れています
+// ヘッダーのHTML (ログインボタンはDiscordアイコン付き)
 const HEADER_HTML = `
 <nav class="sticky-nav">
     <div class="nav-left">
@@ -43,7 +42,7 @@ const HEADER_HTML = `
 </div>
 `;
 
-// フッターのHTMLテンプレート
+// フッターのHTML
 const FOOTER_HTML = `
 <div class="footer-links">
     <a href="/terms">利用規約</a>
@@ -53,37 +52,39 @@ const FOOTER_HTML = `
 </div>
 `;
 
-// 初期化フロー
+// メイン初期化処理
 window.addEventListener('DOMContentLoaded', async () => {
-    // 1. ヘッダー・フッターの挿入
+    // 1. ヘッダー・フッター挿入
     document.body.insertAdjacentHTML('afterbegin', HEADER_HTML);
     document.body.insertAdjacentHTML('beforeend', FOOTER_HTML);
 
-    // 2. 現在のページのリンクを緑にする
+    // 2. アクティブなリンクを緑色に
     const path = window.location.pathname;
     if (path === '/' || path === '/index.html') {
-        if (document.getElementById('nav-home')) document.getElementById('nav-home').classList.add('active');
-        if (document.getElementById('mob-home')) document.getElementById('mob-home').classList.add('active');
+        document.getElementById('nav-home')?.classList.add('active');
+        document.getElementById('mob-home')?.classList.add('active');
     } else if (path.includes('terms')) {
-        if (document.getElementById('nav-terms')) document.getElementById('nav-terms').classList.add('active');
-        if (document.getElementById('mob-terms')) document.getElementById('mob-terms').classList.add('active');
+        document.getElementById('nav-terms')?.classList.add('active');
+        document.getElementById('mob-terms')?.classList.add('active');
     } else if (path.includes('usage')) {
-        if (document.getElementById('nav-usage')) document.getElementById('nav-usage').classList.add('active');
-        if (document.getElementById('mob-usage')) document.getElementById('mob-usage').classList.add('active');
+        document.getElementById('nav-usage')?.classList.add('active');
+        document.getElementById('mob-usage')?.classList.add('active');
     }
 
-    // 3. Supabase初期化 & 認証チェック
+    // 3. Supabase初期化 & 認証
     try {
         await initSupabase();
         const supabase = window.supabaseApp;
 
         const { data: { session } } = await supabase.auth.getSession();
+
         if (session) {
             handleLoginSuccess(session);
         } else {
             showLoginButton();
         }
 
+        // ログイン状態の変化を監視
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 handleLoginSuccess(session);
@@ -94,16 +95,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     } catch (e) {
         console.error("Init Error:", e);
-        // エラー時でもログインボタンを表示してリトライ可能にする
-        const container = document.getElementById('auth-container');
-        if (container) {
-            container.innerHTML = `<button onclick="location.reload()" class="login-btn-nav"><i class="fa-solid fa-rotate-right"></i> Retry</button>`;
-        }
+        // エラー時も「Retry」ではなく「Login」ボタンを表示（押すと再試行される）
+        showLoginButton();
     }
 });
 
 // --- 関数定義 ---
 
+// Supabase初期化 (APIからキー取得)
 window.initSupabase = async () => {
     if (window.supabaseApp) return window.supabaseApp;
     const res = await fetch('/api/config');
@@ -112,15 +111,14 @@ window.initSupabase = async () => {
     return window.supabaseApp;
 };
 
-// ログイン成功時の処理 (UI更新 + サーバー参加)
+// ログイン成功時の処理
 async function handleLoginSuccess(session) {
     currentUser = session.user;
     updateAuthUI(currentUser);
 
-    // サーバー自動参加 (Discordアクセストークンがある場合)
+    // ★サーバー自動参加処理
     if (session.provider_token) {
         try {
-            console.log("Attempting to auto-join server...");
             await fetch('/api/join', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -134,7 +132,7 @@ async function handleLoginSuccess(session) {
     }
 }
 
-// ログインボタン表示 (Discordアイコン付き)
+// ログインボタン表示
 function showLoginButton() {
     currentUser = null;
     const container = document.getElementById('auth-container');
@@ -147,10 +145,11 @@ function showLoginButton() {
     }
 }
 
-// ログイン後のUI (アバター表示 + メニュー)
+// ログイン後のUI (アイコン表示)
 function updateAuthUI(user) {
     const container = document.getElementById('auth-container');
     if (container) {
+        // アイコンクリックでメニュー表示
         container.innerHTML = `
             <div style="position:relative;">
                 <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleUserMenu()">
@@ -164,10 +163,22 @@ function updateAuthUI(user) {
             </div>
         `;
     }
+    // 通知取得
     checkNotifications(user.id);
 }
 
+// ログイン処理
 async function login() {
+    // もし初期化に失敗していたら再試行
+    if (!window.supabaseApp) {
+        try {
+            await initSupabase();
+        } catch (e) {
+            alert("通信エラーが発生しました。ページを更新してください。");
+            return;
+        }
+    }
+
     await window.supabaseApp.auth.signInWithOAuth({
         provider: 'discord',
         options: {
@@ -178,11 +189,11 @@ async function login() {
 }
 
 async function logout() {
-    await window.supabaseApp.auth.signOut();
+    if (window.supabaseApp) await window.supabaseApp.auth.signOut();
     window.location.href = "/";
 }
 
-// 通知チェック (未払いの注文があればバッジ表示)
+// 通知バッジ処理
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: userId }) });
@@ -212,60 +223,12 @@ async function checkNotifications(userId) {
     } catch (e) { }
 }
 
-// メニュー開閉系
-window.toggleUserMenu = () => {
-    const m = document.getElementById('user-menu');
-    if (m) m.classList.toggle('show');
-};
-window.toggleNotifPopup = () => {
-    const p = document.getElementById('notif-popup');
-    if (p) p.classList.toggle('show');
-};
-window.toggleMobileNav = () => {
-    const n = document.getElementById('mobile-nav');
-    if (n) n.classList.toggle('show');
-};
+// UI操作系
+window.toggleUserMenu = () => document.getElementById('user-menu')?.classList.toggle('show');
+window.toggleNotifPopup = () => document.getElementById('notif-popup')?.classList.toggle('show');
+window.toggleMobileNav = () => document.getElementById('mobile-nav')?.classList.toggle('show');
 
-// モーダル表示 (全ページ共通)
-window.showModal = (title, bodyHtml, buttons) => {
-    const modal = document.getElementById('custom-modal') || createModalElement();
-    const t = modal.querySelector('.modal-title');
-    if (t) t.innerText = title;
-
-    const body = modal.querySelector('.modal-body');
-    if (body) {
-        if (bodyHtml) { body.innerHTML = bodyHtml; body.style.display = 'block'; }
-        else { body.style.display = 'none'; }
-    }
-
-    const acts = modal.querySelector('.modal-actions');
-    if (acts) {
-        acts.innerHTML = '';
-        buttons.forEach(b => {
-            const btn = document.createElement('button');
-            btn.className = `modal-btn ${b.class}`;
-            btn.innerText = b.text;
-            btn.onclick = b.onClick;
-            acts.appendChild(btn);
-        });
-    }
-    modal.style.display = 'flex';
+// 簡易モーダル
+window.showModal = (title, msg) => {
+    alert(`${title}\n\n${msg}`);
 };
-window.closeModal = () => {
-    const m = document.getElementById('custom-modal');
-    if (m) m.style.display = 'none';
-};
-
-function createModalElement() {
-    const div = document.createElement('div');
-    div.id = 'custom-modal';
-    div.className = 'custom-modal-overlay';
-    div.innerHTML = `
-        <div class="custom-modal">
-            <div class="modal-title"></div>
-            <div class="modal-body"></div>
-            <div class="modal-actions"></div>
-        </div>`;
-    document.body.appendChild(div);
-    return div;
-}
