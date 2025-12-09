@@ -7,7 +7,9 @@
     <title>Checkout - Stake Bonus Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="common.css">
+
+    <link rel="stylesheet" href="/common.css">
+
     <style>
         .split-container {
             display: flex;
@@ -179,19 +181,31 @@
 
     <script src="/setting.js"></script>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get('order_id');
+        // ★修正2: URLのパス(/checkout/xxxx)から直接IDを取得するロジックに変更
+        // これで「注文が見つかりません」が解消されるはずです
+        const pathSegments = window.location.pathname.split('/');
+        // もし末尾が空文字なら（スラッシュで終わる場合）、一つ手前を取得
+        let orderId = pathSegments.pop() || pathSegments.pop();
+        
+        // もしIDが取れなかったらクエリパラメータも見てみる（念のため）
+        if (!orderId || orderId === 'checkout.html') {
+            const params = new URLSearchParams(window.location.search);
+            orderId = params.get('order_id');
+        }
+
         document.getElementById('disp-oid').innerText = orderId || "Unknown";
         
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000)); // setting.jsの初期化待ち
+                if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
                 const { data: { session } } = await window.supabaseApp.auth.getSession();
                 
                 if(session) {
                     try {
                         const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) });
                         const orders = await res.json();
+                        
+                        // IDで検索
                         const target = orders.find(o => o.order_id === orderId);
                         
                         if (target) {
@@ -205,7 +219,12 @@
                                 startPolling(session.user.id);
                             }
                         } else {
-                            document.querySelector('.split-container').innerHTML = "<p>注文が見つかりません。</p>";
+                            document.querySelector('.split-container').innerHTML = `
+                                <div style="text-align:center; padding:50px;">
+                                    <h2 style="color:#fff;">注文が見つかりません</h2>
+                                    <p>ID: ${orderId}</p>
+                                    <a href="/history" style="color:#00E701;">購入履歴に戻る</a>
+                                </div>`;
                         }
                     } catch(e) { console.error(e); }
                 } else {
