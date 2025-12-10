@@ -10,6 +10,7 @@ import pytz
 import requests
 import re
 
+# 削除ボタン用のView
 class DeleteButtonView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -23,6 +24,7 @@ class DeleteButtonView(discord.ui.View):
 class SimpleClient(discord.Client):
     def __init__(self, data):
         intents = discord.Intents.default()
+        intents.members = True # メンバー取得用
         super().__init__(intents=intents)
         self.contact_data = data
         self.result = None
@@ -45,29 +47,59 @@ class SimpleClient(discord.Client):
             discord_user_id = self.contact_data.get('discord_user_id') 
             subject = self.contact_data.get('subject') 
             
-            # --- 1. チャンネル名生成: ticket-{user_name} ---
-            # ユーザー名をチャンネル名に使える形式にサニタイズ
-            # 小文字化、英数字以外をハイフンに、連続ハイフンを削除
+            # --- 1. チャンネル名生成 ---
             safe_username = re.sub(r'[^a-z0-9]', '-', user_name.lower())
             safe_username = re.sub(r'-+', '-', safe_username).strip('-')
-            
-            # もしサニタイズして空になったらIDを使う
             channel_suffix = safe_username if safe_username else discord_user_id
             ch_name = f"ticket-{channel_suffix}"
             
+            # ★対策2: 重複チェック (同名のチャンネルが既にないか確認)
+            existing_channel = discord.utils.get(category.channels, name=ch_name)
+            if existing_channel:
+                # 既にチャンネルがある場合はエラーにして終了
+                self.result = {"success": False, "error": "既に未解決のチケットが存在します。Discordを確認してください。"}
+                await self.close()
+                return
+
             topic = f"WebContact UserID:{user_id} DiscordID:{discord_user_id}"
             
+            # --- 権限設定 ---
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+            }
+
+            if staff_role_id:
+                try:
+                    staff_role = guild.get_role(int(staff_role_id))
+                    if staff_role:
+                        overwrites[staff_role] = discord.PermissionOverwrite(read_messages=True, send_messages=True, attach_files=True)
+                except: pass
+
+            target_member = None
+            if discord_user_id:
+                try:
+                    target_member = guild.get_member(int(discord_user_id))
+                    if not target_member:
+                        target_member = await guild.fetch_member(int(discord_user_id))
+                    
+                    if target_member:
+                        overwrites[target_member] = discord.PermissionOverwrite(read_messages=True, send_messages=True, attach_files=True)
+                except Exception as member_err:
+                    print(f"Member fetch error: {member_err}")
+
+            # チャンネル作成
             channel = await guild.create_text_channel(
                 name=ch_name,
                 category=category,
-                topic=topic
+                topic=topic,
+                overwrites=overwrites
             )
             
-            # --- 2. メンション ---
+            # --- メッセージ送信 ---
             staff_mention = f"<@&{staff_role_id}>" if staff_role_id else "@here"
-            user_mention = f"<@{discord_user_id}>" if discord_user_id else f"`{user_name}`"
+            user_mention = target_member.mention if target_member else f"<@{discord_user_id}>"
 
-            # --- 3. Embed ---
             embed1 = discord.Embed(
                 title="🧾 チケットが作成されました！",
                 description=f"{user_mention} 様\nスタッフが対応しますので、少々お待ちください。",
@@ -75,9 +107,7 @@ class SimpleClient(discord.Client):
             )
             embed1.add_field(name="チケット番号", value="`Web Ticket`", inline=True)
             embed1.add_field(name="カテゴリ", value=subject, inline=True)
-            
-            now_jst = datetime.datetime.now(pytz.timezone("Asia/Tokyo"))
-            embed1.timestamp = now_jst
+            embed1.timestamp = datetime.datetime.now(pytz.timezone("Asia/Tokyo"))
 
             embed2 = discord.Embed(
                 title="お問合せ内容",
@@ -88,8 +118,7 @@ class SimpleClient(discord.Client):
             
             if self.contact_data.get('order_id'):
                 embed2.add_field(name="関連オーダーID", value=f"`{self.contact_data.get('order_id')}`", inline=False)
-            
-            embed2.timestamp = now_jst
+            embed2.timestamp = datetime.datetime.now(pytz.timezone("Asia/Tokyo"))
 
             files = []
             img_data = self.contact_data.get('image_data')
@@ -115,6 +144,7 @@ class SimpleClient(discord.Client):
                 files=files
             )
 
+            # ログ送信
             if log_channel_id:
                 try:
                     log_ch = guild.get_channel(int(log_channel_id))
@@ -124,10 +154,9 @@ class SimpleClient(discord.Client):
                             description=f"チャンネル: {channel.mention}\nユーザー: {user_name} ({discord_user_id})",
                             color=discord.Color.green()
                         )
-                        log_embed.timestamp = now_jst
+                        log_embed.timestamp = datetime.datetime.now(pytz.timezone("Asia/Tokyo"))
                         await log_ch.send(embed=log_embed)
-                except:
-                    pass
+                except: pass
 
             self.result = {"success": True}
         except Exception as e:
@@ -146,9 +175,45 @@ class handler(BaseHTTPRequestHandler):
             discord_guild_id = os.environ.get('DISCORD_GUILD_ID')
 
             discord_user_id = data.get('discord_user_id')
-            provider_token = data.get('provider_token')
+            provider_token = data.get('provider_token') # Discordのアクセストークン
 
-            if discord_user_id and provider_token and discord_bot_token and discord_guild_id:
+            # ★対策1: 本人確認 (Discord APIで検証)
+            # トークンがない、またはIDがない場合は拒否
+            if not provider_token or not discord_user_id:
+                self.send_response(401)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Unauthorized: No token provided"}).encode())
+                return
+
+            # Discord APIを叩いて「このトークンは本当にこのユーザーのものか？」を確認
+            try:
+                verify_url = "https://discord.com/api/v10/users/@me"
+                verify_headers = {
+                    "Authorization": f"Bearer {provider_token}"
+                }
+                v_res = requests.get(verify_url, headers=verify_headers)
+                
+                if v_res.status_code != 200:
+                    raise Exception("Invalid Discord Token")
+                
+                real_user_data = v_res.json()
+                # リクエストのIDと、トークンの持ち主のIDが違うなら不正アクセス
+                if str(real_user_data.get('id')) != str(discord_user_id):
+                    raise Exception("User ID mismatch (Spoofing attempt)")
+                    
+            except Exception as auth_error:
+                print(f"Auth Blocked: {auth_error}")
+                self.send_response(403) # Forbidden
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "不正なリクエストです。再ログインしてください。"}).encode())
+                return
+
+            # --- ここから正常処理 ---
+
+            # サーバー参加処理 (本物とわかったので実行)
+            if discord_bot_token and discord_guild_id:
                 try:
                     url = f"https://discord.com/api/v10/guilds/{discord_guild_id}/members/{discord_user_id}"
                     headers = {
@@ -160,6 +225,7 @@ class handler(BaseHTTPRequestHandler):
                 except Exception as join_err:
                     print(f"Auto join failed: {join_err}")
 
+            # Bot起動してチケット作成
             client = SimpleClient(data)
             asyncio.run(client.start(discord_bot_token))
             
@@ -169,8 +235,13 @@ class handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"message": "Sent"}).encode())
             else:
+                # 重複エラーなどをクライアントに返す
                 error_msg = client.result["error"] if client.result else "Unknown error"
-                raise Exception(error_msg)
+                # ステータスコード400で返す（クライアント側でキャッチさせる）
+                self.send_response(400) 
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": error_msg}).encode())
 
         except Exception as e:
             self.send_response(500)
