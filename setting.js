@@ -1,21 +1,17 @@
 /* setting.js */
 
 const CONFIG = {
-    // ★サイト共通設定
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app", // 本番URL
-    ogImage: "/image/logo.jpg", // ロゴ画像のパス
+    siteUrl: "https://stake-claimer.vercel.app",
+    ogImage: "/image/logo.jpg",
     themeColor: "#00E701",
-
-    // SNSリンク
     discordInviteUrl: "https://discord.gg/ueVedsjved",
     twitterUrl: "https://x.com/Stake_hatti"
 };
 
 let currentUser = null;
 
-// ヘッダーHTML
 const HEADER_HTML = `
 <nav class="sticky-nav">
     <div class="nav-left">
@@ -31,7 +27,7 @@ const HEADER_HTML = `
                 <span class="badge" id="notif-badge"></span>
             </div>
             <div id="notif-popup" class="notif-popup">
-                <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701; display:flex; justify-content:space-between;">
+                <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701; display:flex; justify-content:space-between; position:sticky; top:0; background:#111; z-index:10;">
                     <span>お知らせ</span>
                     <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666;">×</span>
                 </div>
@@ -53,7 +49,6 @@ const HEADER_HTML = `
 </div>
 `;
 
-// ★フッターHTML (更新版: 左右分割レイアウト)
 const FOOTER_HTML = `
 <footer class="footer-wrapper">
     <div class="footer-content">
@@ -71,20 +66,16 @@ const FOOTER_HTML = `
 </footer>
 `;
 
-// ★メタタグ自動注入関数
 function setupMetaTags() {
     const head = document.head;
-
     if (!document.querySelector("link[rel*='icon']")) {
         head.insertAdjacentHTML('beforeend', `<link rel="icon" href="${CONFIG.ogImage}">`);
     }
-
     if (document.title && !document.title.includes(CONFIG.siteName)) {
         document.title = `${document.title} - ${CONFIG.siteName}`;
     } else if (!document.title) {
         document.title = CONFIG.siteName;
     }
-
     if (!document.querySelector("meta[property='og:image']")) {
         const metaTags = `
             <meta property="og:site_name" content="${CONFIG.siteName}">
@@ -101,7 +92,6 @@ function setupMetaTags() {
     }
 }
 
-// メイン処理
 window.addEventListener('DOMContentLoaded', async () => {
     setupMetaTags();
     document.body.insertAdjacentHTML('afterbegin', HEADER_HTML);
@@ -143,8 +133,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         showLoginButton();
     }
 });
-
-// --- 認証・通知関連 ---
 
 window.initSupabase = async () => {
     if (window.supabaseApp) return window.supabaseApp;
@@ -217,6 +205,7 @@ async function logout() {
     window.location.href = "/";
 }
 
+// ★通知表示ロジックの更新
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/notifications', {
@@ -247,11 +236,12 @@ async function checkNotifications(userId) {
                     const opacity = isRead ? '0.6' : '1.0';
                     const btnHtml = isRead
                         ? `<span style="color:#444; font-size:0.8rem;">既読</span>`
-                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読にする</span>`;
+                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読</span>`;
 
+                    // ★HTML生成: コンパクトにまとめる
                     list.innerHTML += `
-                        <div class="notif-item" id="notif-${n.id}" style="border-bottom:1px solid #222; padding:15px; display:flex; flex-direction:column; gap:8px; opacity:${opacity}; transition: opacity 0.3s;">
-                            <div style="font-weight:bold; color:#00E701;">${n.title}</div>
+                        <div class="notif-item" id="notif-${n.id}" style="border-bottom:1px solid #222; padding:15px; display:flex; flex-direction:column; gap:4px; opacity:${opacity}; transition: opacity 0.3s;">
+                            <div style="font-weight:bold; color:#00E701; font-size:0.9rem;">${n.title}</div>
                             <div style="font-size:0.9rem; color:#ccc; line-height:1.4;">${n.message.replace(/\n/g, '<br>')}</div>
                             <div style="text-align:right; margin-top:5px;">${btnHtml}</div>
                         </div>

@@ -4,12 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Stake Bonus Claimer</title>
+    <title>Checkout</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="stylesheet" href="/common.css">
-
     <style>
         .split-container {
             display: flex;
@@ -131,6 +129,18 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* タイマー用スタイル */
+        .timer-display {
+            font-family: monospace;
+            font-size: 1.5rem;
+            color: #ff4444;
+            margin-top: 15px;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 8px;
+            background: #0a0a0a;
+        }
     </style>
 </head>
 
@@ -152,12 +162,26 @@
 
         <div class="right-col" id="pending-view">
             <h2>お支払い</h2>
-            <p>以下のボタンから決済ページへ進んでください。</p>
-            <a id="pay-link" href="#" target="_blank" class="pay-btn">支払う</a>
+            <div id="payment-active-area">
+                <p>以下のボタンから決済ページへ進んでください。</p>
+                <a id="pay-link" href="#" target="_blank" class="pay-btn">支払う</a>
 
-            <div style="margin-top:20px;">
-                <div class="spinner"></div>
-                <div id="status-text" style="color:#ffd700; font-weight:bold;">入金待ち...</div>
+                <div style="margin-top:20px;">
+                    <div class="spinner"></div>
+                    <div id="status-text" style="color:#ffd700; font-weight:bold;">入金待ち...</div>
+                </div>
+
+                <div class="timer-display" id="countdown-timer">残り時間: --:--</div>
+            </div>
+
+            <div id="expired-area" style="display:none; color:#ff4444; margin-top:20px; text-align:center;">
+                <i class="fa-solid fa-circle-xmark" style="font-size:4rem; margin-bottom:15px;"></i>
+                <h3>期限切れ</h3>
+                <p style="margin-bottom:20px; font-weight:bold;">この注文はキャンセルになりました。</p>
+                <a href="/purchase" class="pay-btn"
+                    style="background:#333; color:#fff; border:1px solid #555; font-size:1rem; padding: 12px 25px;">
+                    新しい注文はこちら
+                </a>
             </div>
 
             <div class="trouble-link" onclick="document.getElementById('trouble-area').style.display='block'">
@@ -181,13 +205,8 @@
 
     <script src="/setting.js"></script>
     <script>
-        // ★修正2: URLのパス(/checkout/xxxx)から直接IDを取得するロジックに変更
-        // これで「注文が見つかりません」が解消されるはずです
         const pathSegments = window.location.pathname.split('/');
-        // もし末尾が空文字なら（スラッシュで終わる場合）、一つ手前を取得
         let orderId = pathSegments.pop() || pathSegments.pop();
-        
-        // もしIDが取れなかったらクエリパラメータも見てみる（念のため）
         if (!orderId || orderId === 'checkout.html') {
             const params = new URLSearchParams(window.location.search);
             orderId = params.get('order_id');
@@ -195,6 +214,8 @@
 
         document.getElementById('disp-oid').innerText = orderId || "Unknown";
         
+        let countdownInterval;
+
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
@@ -204,8 +225,6 @@
                     try {
                         const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) });
                         const orders = await res.json();
-                        
-                        // IDで検索
                         const target = orders.find(o => o.order_id === orderId);
                         
                         if (target) {
@@ -214,9 +233,12 @@
                             
                             if(target.status === 'paid') {
                                 showSuccess(target.license_key);
+                            } else if(target.status === 'expired') {
+                                showExpired();
                             } else {
                                 document.getElementById('pay-link').href = target.pay_url;
                                 startPolling(session.user.id);
+                                startTimer(target.created_at);
                             }
                         } else {
                             document.querySelector('.split-container').innerHTML = `
@@ -242,21 +264,53 @@
                     
                     if(data.status === 'paid') {
                         clearInterval(interval);
+                        clearInterval(countdownInterval);
                         showSuccess(data.license_key);
                     } else if (data.status === 'expired') {
                         clearInterval(interval);
-                        document.getElementById('status-text').innerText = "期限切れ";
-                        document.getElementById('status-text').style.color = "red";
-                        document.getElementById('pay-link').style.display = 'none';
+                        clearInterval(countdownInterval);
+                        showExpired();
                     }
                 } catch(e){}
             }, 3000);
+        }
+
+        // タイマー関数 (1時間 = 3600秒)
+        function startTimer(createdAtStr) {
+            // created_at (例: 2023-12-01T10:00:00+00:00) をパース
+            const created = new Date(createdAtStr).getTime();
+            const expireTime = created + (60 * 60 * 1000); // 1時間後
+
+            function update() {
+                const now = new Date().getTime();
+                const diff = expireTime - now;
+
+                if (diff <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown-timer').innerText = "残り時間: 00:00";
+                    showExpired(); // 時間切れで画面切り替え
+                    return;
+                }
+
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                document.getElementById('countdown-timer').innerText = `残り時間: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+
+            update(); 
+            countdownInterval = setInterval(update, 1000);
         }
 
         function showSuccess(key) {
             document.getElementById('pending-view').style.display='none';
             document.getElementById('success-view').style.display='flex';
             document.getElementById('license-key').innerText = key;
+        }
+
+        // 期限切れ表示への切り替え
+        function showExpired() {
+            document.getElementById('payment-active-area').style.display = 'none'; // 支払いボタン等を消す
+            document.getElementById('expired-area').style.display = 'block'; // キャンセル画面を出す
         }
     </script>
 </body>

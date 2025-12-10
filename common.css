@@ -159,12 +159,13 @@ body {
     color: #00E701;
 }
 
-/* 通知ポップアップ */
+/* ★通知ポップアップ (スクロール対応) */
 .notif-popup {
     position: absolute;
     top: 50px;
     right: -10px;
-    width: 280px;
+    width: 300px;
+    /* 少し幅を広げました */
     background: #111;
     border: 1px solid #333;
     border-radius: 8px;
@@ -172,6 +173,25 @@ body {
     flex-direction: column;
     z-index: 2000;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
+    /* ここからスクロール設定 */
+    max-height: 400px;
+    /* 約10件分くらいの高さ */
+    overflow-y: auto;
+    /* 縦スクロール */
+}
+
+/* スクロールバーのカスタマイズ */
+.notif-popup::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notif-popup::-webkit-scrollbar-track {
+    background: #111;
+}
+
+.notif-popup::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
 }
 
 .notif-popup.show {
@@ -246,7 +266,7 @@ body {
     }
 }
 
-/* ★フッター (新レイアウト) */
+/* フッター */
 .footer-wrapper {
     margin-top: auto;
     width: 100%;
@@ -306,14 +326,13 @@ body {
     font-size: 0.75rem;
 }
 
-/* ★Discord参加ボタン */
+/* Discord参加ボタン */
 .discord-invite-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     background-color: #5865F2;
-    /* Discord Color */
     color: #fff;
     font-weight: bold;
     font-size: 1.2rem;

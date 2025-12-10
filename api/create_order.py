@@ -35,21 +35,18 @@ class handler(BaseHTTPRequestHandler):
             final_price = original_price
             discount = 0
 
-            # クーポン計算
             if coupon_code:
                 res = supabase.table('coupons').select('*').eq('code', coupon_code).eq('is_active', True).execute()
                 if res.data:
                     discount = res.data[0]['discount_amount']
                     final_price = max(1, original_price - discount)
                 elif action == 'check_coupon':
-                    # ★修正: クーポンが見つからない場合はエラーメッセージを返す
                     self.send_response(400)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                     self.wfile.write(json.dumps({"error": "クーポンコードが見当たりません。"}).encode())
                     return
 
-            # 確認アクション (verifyOrderから呼ばれる)
             if action == 'check_coupon':
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
@@ -63,7 +60,6 @@ class handler(BaseHTTPRequestHandler):
                 }).encode())
                 return
 
-            # 注文作成
             order_id = f"{int(time.time())}_{user_id[:4]}"
             
             payload = {
@@ -75,7 +71,7 @@ class handler(BaseHTTPRequestHandler):
                 "orderId": order_id,
                 "email": email,
                 "description": f"StakeClaimer: {plans[plan_id]['label']}",
-                "callbackUrl": "https://stake-claimer.vercel.app/api/webhook", # Webhook
+                "callbackUrl": "https://stake-claimer.vercel.app/api/webhook",
                 "returnUrl": f"https://stake-claimer.vercel.app/checkout/{order_id}" 
             }
             
@@ -97,14 +93,15 @@ class handler(BaseHTTPRequestHandler):
                 "created_at": "now()"
             }).execute()
 
-            # ★通知作成 (リンク付きメッセージ)
+            # ★通知作成フォーマットの変更
             plan_label = plans[plan_id]['label']
+            # シンプルに: リンク付きプラン名 + Order IDのみ
             link_html = f'<a href="/checkout/{order_id}" style="color:#fff; text-decoration:underline; font-weight:bold;">{plan_label}</a>'
             
             supabase.table('notifications').insert({
                 "user_id": user_id,
-                "title": f"支払い: {plan_label}",
-                "message": f"{link_html} の注文を作成しました。\n下のリンクをクリックして支払いへ進んでください。",
+                "title": "新しい支払いリクエスト", # タイトル固定
+                "message": f"{link_html}\norder id {order_id}", # 指定フォーマット
                 "type": "info"
             }).execute()
 

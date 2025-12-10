@@ -294,7 +294,6 @@
 
                 if (!res.ok) {
                     const data = await res.json().catch(() => ({}));
-                    // クーポンコードが見つからない場合のエラーを表示
                     throw new Error(data.error || `サーバーエラー (${res.status})`);
                 }
 
@@ -327,7 +326,8 @@
                         onClick: () => {
                             const chk = document.getElementById('tos-checkbox');
                             if(!chk || !chk.checked) {
-                                alert("利用規約に同意してください");
+                                // ★ここを修正: alert() ではなく showModal() を使う
+                                showModal("確認", "利用規約に同意してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
                                 return;
                             }
                             createOrder(coupon);
