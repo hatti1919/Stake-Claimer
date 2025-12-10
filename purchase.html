@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Purchase - Stake Bonus Claimer</title>
+    <title>購入手続き</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <style>
         .container {
             width: 90%;
@@ -144,6 +144,40 @@
             font-weight: bold;
             color: #00E701;
         }
+
+        /* チェックボックスのスタイル */
+        .tos-container {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            text-align: center;
+        }
+
+        .tos-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .tos-checkbox {
+            transform: scale(1.3);
+            accent-color: #00E701;
+            cursor: pointer;
+        }
+
+        .tos-link {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tos-link:hover {
+            color: #00E701;
+        }
     </style>
 </head>
 
@@ -194,14 +228,13 @@
         </div>
     </div>
 
-    <script src="setting.js"></script>
+    <script src="/setting.js"></script>
     <script>
-        // ★追加: モーダル制御用の関数定義
+        // モーダル制御
         function closeModal() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
         }
 
-        // setting.jsの簡易showModalを上書きして、リッチな表示に対応させる
         window.showModal = (title, content, buttons = []) => {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-body').innerHTML = content;
@@ -219,7 +252,6 @@
                 buttons.forEach(b => {
                     const btn = document.createElement('button');
                     btn.innerText = b.text;
-                    // btn-grayなどはCSSにないのでmodal-btnを基本にする
                     btn.className = b.class.includes('green') ? 'modal-btn btn-green' : 'modal-btn';
                     btn.onclick = b.onClick;
                     actionsDiv.appendChild(btn);
@@ -261,31 +293,50 @@
                 });
 
                 if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(`サーバーエラー (${res.status}):\n${errorText.slice(0, 200)}...`);
+                    const data = await res.json().catch(() => ({}));
+                    // クーポンコードが見つからない場合のエラーを表示
+                    throw new Error(data.error || `サーバーエラー (${res.status})`);
                 }
 
                 const data = await res.json();
+                if (data.error) throw new Error(data.error);
 
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
+                // モーダルHTML: 利用規約チェックボックス追加
                 const html = `
                     <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
                     <div class="price-row"><span>支払い方法</span><span>仮想通貨</span></div>
                     <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
                     <div class="price-row" style="color:#00E701"><span>割引</span><span>-¥${data.discount}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
+                    
+                    <div class="tos-container">
+                        <label class="tos-label">
+                            <input type="checkbox" id="tos-checkbox" class="tos-checkbox">
+                            <span>
+                                <a href="/terms" target="_blank" class="tos-link">利用規約</a>に同意する
+                            </span>
+                        </label>
+                    </div>
                 `;
+                
                 showModal("決済内容の確認", html, [
                     { text: "キャンセル", class: "btn-gray", onClick: closeModal },
-                    { text: "支払う", class: "btn-green", onClick: () => createOrder(coupon) }
+                    { 
+                        text: "支払う", 
+                        class: "btn-green", 
+                        onClick: () => {
+                            const chk = document.getElementById('tos-checkbox');
+                            if(!chk || !chk.checked) {
+                                alert("利用規約に同意してください");
+                                return;
+                            }
+                            createOrder(coupon);
+                        }
+                    }
                 ]);
 
             } catch (e) {
-                alert("エラーが発生しました:\n" + e.message);
-                console.error("詳細エラーログ:", e);
+                showModal("エラー", e.message, [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
             } finally {
                 if (btn) {
                     btn.innerText = originalText;
@@ -295,7 +346,7 @@
         }
 
         async function createOrder(coupon) {
-            const btn = document.querySelector('.btn-green'); // モーダル内のボタン
+            const btn = document.querySelector('.btn-green');
             if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
                 const res = await fetch('/api/create_order', {
@@ -306,17 +357,15 @@
                 
                 if (!res.ok) {
                     const txt = await res.text();
-                    throw new Error(`サーバーエラー (${res.status}): ${txt}`);
+                    throw new Error(txt);
                 }
 
                 const data = await res.json();
                 if (data.order_id) window.location.href = `/checkout/${data.order_id}`;
-                else showModal("エラー", data.error || "注文IDが取得できませんでした", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+                else throw new Error(data.error || "注文ID取得エラー");
                 
             } catch (e) {
-                alert("注文作成中にエラーが発生しました:\n" + e.message);
-                // ここで closeModal を呼ぶことでモーダルを閉じられる
-                closeModal();
+                showModal("エラー", "注文作成に失敗しました:\n" + e.message, [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
             }
         }
 

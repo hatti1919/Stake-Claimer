@@ -18,7 +18,7 @@ class handler(BaseHTTPRequestHandler):
             coupon_code = data.get('coupon_code', '').strip()
 
             SUPABASE_URL = os.environ.get('SUPABASE_URL')
-            SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') # 管理者キー
+            SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
             MERCHANT_KEY = os.environ.get('OXAPAY_MERCHANT_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -42,9 +42,14 @@ class handler(BaseHTTPRequestHandler):
                     discount = res.data[0]['discount_amount']
                     final_price = max(1, original_price - discount)
                 elif action == 'check_coupon':
-                    raise Exception("無効なクーポンコードです")
+                    # ★修正: クーポンが見つからない場合はエラーメッセージを返す
+                    self.send_response(400)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "クーポンコードが見当たりません。"}).encode())
+                    return
 
-            # 確認アクション
+            # 確認アクション (verifyOrderから呼ばれる)
             if action == 'check_coupon':
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
@@ -70,6 +75,7 @@ class handler(BaseHTTPRequestHandler):
                 "orderId": order_id,
                 "email": email,
                 "description": f"StakeClaimer: {plans[plan_id]['label']}",
+                "callbackUrl": "https://stake-claimer.vercel.app/api/webhook", # Webhook
                 "returnUrl": f"https://stake-claimer.vercel.app/checkout/{order_id}" 
             }
             
@@ -91,11 +97,14 @@ class handler(BaseHTTPRequestHandler):
                 "created_at": "now()"
             }).execute()
 
-            # 通知作成
+            # ★通知作成 (リンク付きメッセージ)
+            plan_label = plans[plan_id]['label']
+            link_html = f'<a href="/checkout/{order_id}" style="color:#fff; text-decoration:underline; font-weight:bold;">{plan_label}</a>'
+            
             supabase.table('notifications').insert({
                 "user_id": user_id,
-                "title": "支払いリクエスト作成",
-                "message": f"{plans[plan_id]['label']} の注文を作成しました。\n未払いの場合は履歴または通知からお支払いください。",
+                "title": f"支払い: {plan_label}",
+                "message": f"{link_html} の注文を作成しました。\n下のリンクをクリックして支払いへ進んでください。",
                 "type": "info"
             }).execute()
 

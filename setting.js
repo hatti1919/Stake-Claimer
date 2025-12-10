@@ -35,7 +35,7 @@ const HEADER_HTML = `
                     <span>お知らせ</span>
                     <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666;">×</span>
                 </div>
-                <div id="notif-list"><div class="notif-empty">通知はありません</div></div>
+                <div id="notif-list"><div class="notif-empty">読み込み中...</div></div>
             </div>
         </div>
         <div class="nav-divider"></div>
@@ -53,33 +53,38 @@ const HEADER_HTML = `
 </div>
 `;
 
-// フッターHTML
+// ★フッターHTML (更新版: 左右分割レイアウト)
 const FOOTER_HTML = `
-<div class="footer-links">
-    <a href="/terms">利用規約</a>
-    <a href="/usage">使用方法</a>
-    <a href="/">ホームに戻る</a>
-    <p style="margin-top:20px; color:#444; font-size:0.7rem;">© ${CONFIG.siteName}</p>
-</div>
+<footer class="footer-wrapper">
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="/terms">利用規約</a>
+            <a href="/usage">使用方法</a>
+            <a href="/">ホームに戻る</a>
+        </div>
+        <div class="footer-icons">
+            <a href="${CONFIG.discordInviteUrl}" target="_blank"><i class="fa-brands fa-discord"></i></a>
+            <a href="${CONFIG.twitterUrl}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+    </div>
+    <div class="footer-copyright">© ${CONFIG.siteName}</div>
+</footer>
 `;
 
 // ★メタタグ自動注入関数
 function setupMetaTags() {
     const head = document.head;
 
-    // 1. アイコン (なければ追加)
     if (!document.querySelector("link[rel*='icon']")) {
         head.insertAdjacentHTML('beforeend', `<link rel="icon" href="${CONFIG.ogImage}">`);
     }
 
-    // 2. ページタイトル (現在のタイトル + サイト名)
     if (document.title && !document.title.includes(CONFIG.siteName)) {
         document.title = `${document.title} - ${CONFIG.siteName}`;
     } else if (!document.title) {
         document.title = CONFIG.siteName;
     }
 
-    // 3. OGPタグ (Twitterカードなど) - 既存のものがない場合のみ追加
     if (!document.querySelector("meta[property='og:image']")) {
         const metaTags = `
             <meta property="og:site_name" content="${CONFIG.siteName}">
@@ -98,12 +103,10 @@ function setupMetaTags() {
 
 // メイン処理
 window.addEventListener('DOMContentLoaded', async () => {
-    // 1. メタタグ・ヘッダー・フッター設定
     setupMetaTags();
     document.body.insertAdjacentHTML('afterbegin', HEADER_HTML);
     document.body.insertAdjacentHTML('beforeend', FOOTER_HTML);
 
-    // 2. アクティブなリンク設定
     const path = window.location.pathname;
     if (path === '/' || path === '/index.html') {
         document.getElementById('nav-home')?.classList.add('active');
@@ -116,7 +119,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('mob-usage')?.classList.add('active');
     }
 
-    // 3. Supabase初期化 & 認証
     try {
         await initSupabase();
         const supabase = window.supabaseApp;
@@ -222,56 +224,70 @@ async function checkNotifications(userId) {
             body: JSON.stringify({ user_id: userId, action: 'get' })
         });
         const notifs = await res.json();
-        const unread = notifs.filter(n => !n.is_read);
+
+        const unreadCount = notifs.filter(n => !n.is_read).length;
 
         const badge = document.getElementById('notif-badge');
         const list = document.getElementById('notif-list');
 
-        if (unread.length > 0) {
+        if (unreadCount > 0) {
             if (badge) {
                 badge.style.display = 'flex';
-                badge.innerText = unread.length;
-            }
-            if (list) {
-                list.innerHTML = "";
-                unread.forEach(n => {
-                    list.innerHTML += `
-                        <div class="notif-item" id="notif-${n.id}">
-                            <div style="display:flex; justify-content:space-between; align-items:start;">
-                                <div>
-                                    <div style="font-weight:bold; color:#00E701; margin-bottom:4px;">${n.title}</div>
-                                    <div style="font-size:0.8rem; color:#ccc;">${n.message.replace(/\n/g, '<br>')}</div>
-                                </div>
-                                <button onclick="markAsRead('${n.id}', '${userId}')" style="background:none; border:none; color:#666; cursor:pointer; font-size:1.2rem; padding:0 0 0 10px;">
-                                    <i class="fa-regular fa-circle-check"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
+                badge.innerText = unreadCount;
             }
         } else {
             if (badge) badge.style.display = 'none';
-            if (list) list.innerHTML = '<div class="notif-empty">通知はありません</div>';
+        }
+
+        if (list) {
+            if (notifs.length > 0) {
+                list.innerHTML = "";
+                notifs.forEach(n => {
+                    const isRead = n.is_read;
+                    const opacity = isRead ? '0.6' : '1.0';
+                    const btnHtml = isRead
+                        ? `<span style="color:#444; font-size:0.8rem;">既読</span>`
+                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読にする</span>`;
+
+                    list.innerHTML += `
+                        <div class="notif-item" id="notif-${n.id}" style="border-bottom:1px solid #222; padding:15px; display:flex; flex-direction:column; gap:8px; opacity:${opacity}; transition: opacity 0.3s;">
+                            <div style="font-weight:bold; color:#00E701;">${n.title}</div>
+                            <div style="font-size:0.9rem; color:#ccc; line-height:1.4;">${n.message.replace(/\n/g, '<br>')}</div>
+                            <div style="text-align:right; margin-top:5px;">${btnHtml}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = '<div class="notif-empty">通知はありません</div>';
+            }
         }
     } catch (e) { console.error(e); }
 }
 
 window.markAsRead = async (notifId, userId) => {
     try {
-        const el = document.getElementById(`notif-${notifId}`);
-        if (el) el.remove();
+        const item = document.getElementById(`notif-${notifId}`);
+        const btn = document.getElementById(`btn-read-${notifId}`);
+
+        if (item) item.style.opacity = '0.6';
+
+        if (btn) {
+            btn.innerText = "既読";
+            btn.style.textDecoration = "none";
+            btn.style.color = "#444";
+            btn.style.cursor = "default";
+            btn.onclick = null;
+            btn.removeAttribute('id');
+        }
 
         const badge = document.getElementById('notif-badge');
         if (badge) {
             const current = parseInt(badge.innerText);
-            if (current > 1) badge.innerText = current - 1;
-            else badge.style.display = 'none';
-        }
-
-        const list = document.getElementById('notif-list');
-        if (list && list.children.length === 0) {
-            list.innerHTML = '<div class="notif-empty">通知はありません</div>';
+            if (current > 1) {
+                badge.innerText = current - 1;
+            } else {
+                badge.style.display = 'none';
+            }
         }
 
         await fetch('/api/notifications', {
