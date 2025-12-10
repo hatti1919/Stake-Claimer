@@ -159,13 +159,12 @@ body {
     color: #00E701;
 }
 
-/* ★通知ポップアップ (スクロール対応) */
+/* 通知ポップアップ */
 .notif-popup {
     position: absolute;
     top: 50px;
     right: -10px;
     width: 300px;
-    /* 少し幅を広げました */
     background: #111;
     border: 1px solid #333;
     border-radius: 8px;
@@ -173,14 +172,10 @@ body {
     flex-direction: column;
     z-index: 2000;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
-    /* ここからスクロール設定 */
     max-height: 400px;
-    /* 約10件分くらいの高さ */
     overflow-y: auto;
-    /* 縦スクロール */
 }
 
-/* スクロールバーのカスタマイズ */
 .notif-popup::-webkit-scrollbar {
     width: 6px;
 }
@@ -408,4 +403,140 @@ body {
 .btn-green {
     background: #00E701;
     color: #000;
+}
+
+/* ★カスタムセレクトボックス用CSS (重要) */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 100%;
+}
+
+.custom-select {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.custom-select-trigger:hover {
+    border-color: #00E701;
+}
+
+/* オプションリストのスタイル */
+.custom-options {
+    position: absolute;
+    display: block;
+    top: 100%;
+    left: 0;
+    right: 0;
+    border: 1px solid #333;
+    border-top: 0;
+    background: #111;
+    transition: all 0.3s;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 0 0 8px 8px;
+    /* スクロール設定 */
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+}
+
+/* スクロールバー */
+.custom-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-options::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    margin-top: 5px;
+}
+
+.custom-option {
+    position: relative;
+    display: block;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 1px solid #222;
+}
+
+.custom-option:last-child {
+    border-bottom: none;
+}
+
+.custom-option:hover {
+    color: #00E701;
+    background: #222;
+}
+
+.custom-option.selected {
+    color: #00E701;
+    background: #1a1a1a;
+}
+
+.arrow {
+    position: relative;
+    height: 10px;
+    width: 10px;
+}
+
+.arrow::before,
+.arrow::after {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    width: 0.15rem;
+    height: 100%;
+    transition: all 0.3s;
+}
+
+.arrow::before {
+    left: -3px;
+    transform: rotate(-45deg);
+    background-color: #fff;
+}
+
+.arrow::after {
+    left: 3px;
+    transform: rotate(45deg);
+    background-color: #fff;
+}
+
+.open .arrow::before {
+    left: -3px;
+    transform: rotate(45deg);
+}
+
+.open .arrow::after {
+    left: 3px;
+    transform: rotate(-45deg);
 }

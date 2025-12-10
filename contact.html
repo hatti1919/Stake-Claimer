@@ -35,7 +35,6 @@
             color: #ccc;
         }
 
-        /* 標準入力フォームのスタイル */
         input,
         textarea {
             width: 100%;
@@ -144,7 +143,6 @@
         let currentUserContact = null;
         let currentSessionToken = null;
 
-        // モーダル制御関数 (setting.jsのものを上書き拡張)
         function closeModal() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
         }
@@ -173,16 +171,25 @@
             document.getElementById('custom-modal-overlay').style.display = 'flex';
         };
 
-        // カスタムセレクトボックスの動作設定
         function setupCustomSelects() {
+            // トリガーのクリックイベント
             document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
-                trigger.addEventListener('click', function() {
-                    this.parentElement.classList.toggle('open');
+                // 重複登録防止のため一度cloneして置換
+                const newTrigger = trigger.cloneNode(true);
+                trigger.parentNode.replaceChild(newTrigger, trigger);
+                
+                newTrigger.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    // 他のセレクトボックスを閉じる
+                    document.querySelectorAll('.custom-select').forEach(s => {
+                        if (s !== parent) s.classList.remove('open');
+                    });
+                    parent.classList.toggle('open');
                 });
             });
 
-            // オプション選択時の動作
-            document.querySelectorAll('.custom-option').forEach(option => {
+            // オプションのクリックイベント (静的なもの)
+            document.querySelectorAll('.custom-options .custom-option').forEach(option => {
                 setupOptionClick(option);
             });
 
@@ -197,7 +204,11 @@
         }
 
         function setupOptionClick(option) {
-            option.addEventListener('click', function() {
+            // イベント重複防止
+            const newOption = option.cloneNode(true);
+            option.parentNode.replaceChild(newOption, option);
+
+            newOption.addEventListener('click', function() {
                 const wrapper = this.closest('.custom-select-wrapper');
                 const triggerSpan = wrapper.querySelector('.custom-select-trigger span');
                 const hiddenInput = wrapper.querySelector('input[type="hidden"]');
@@ -211,7 +222,6 @@
                 
                 selectDiv.classList.remove('open');
 
-                // カテゴリ選択時の連動処理
                 if(hiddenInput.id === 'subject-value') {
                     toggleOrderSelect(this.getAttribute('data-value'));
                 }
@@ -219,7 +229,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            setupCustomSelects(); // 初期化
+            setupCustomSelects(); // 静的要素の初期化
 
             if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
             const { data: { session } } = await window.supabaseApp.auth.getSession();
@@ -236,21 +246,26 @@
             try {
                 const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
                 const orders = await res.json();
-                const container = document.getElementById('order-options');
                 
-                // 動的にオプション生成
+                // ★ここでソート (新しい順)
+                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                const container = document.getElementById('order-options');
+                container.innerHTML = ""; // 一旦クリア
+
                 orders.forEach(o => {
                     const span = document.createElement('span');
                     span.className = 'custom-option';
                     span.setAttribute('data-value', o.order_id);
                     span.textContent = `${o.order_id} (${o.status})`;
-                    setupOptionClick(span); // イベントリスナー付与
                     container.appendChild(span);
+                    setupOptionClick(span); // イベント付与
                 });
             } catch(e){}
         }
 
         function toggleOrderSelect(val) {
+            // prod または err の場合のみ表示
             document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
 
@@ -272,7 +287,6 @@
         document.getElementById('contact-form').addEventListener('submit',async(e)=>{
             e.preventDefault(); 
             
-            // バリデーション: カテゴリ選択
             const subjectVal = document.getElementById('subject-value').value;
             if(!subjectVal) {
                 showModal("確認", "カテゴリを選択してください", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
@@ -288,8 +302,9 @@
             if(fileInput.files.length > 0) imageData = await processImage(fileInput.files[0]);
 
             try {
-                // 選択されたテキストを取得するためにDOMから再取得
-                const subjectText = document.querySelector(`#subject-value`).parentNode.querySelector('.custom-select-trigger span').textContent;
+                // 表示テキストを取得
+                const wrapper = document.querySelector('#subject-value').closest('.custom-select-wrapper');
+                const subjectText = wrapper.querySelector('.custom-select-trigger span').textContent;
                 const discordId = currentUserContact.user_metadata.provider_id;
 
                 const res = await fetch('/api/contact', {
@@ -307,7 +322,6 @@
                 });
                 
                 if(res.ok) { 
-                    // ★標準アラート廃止 -> モーダルで完了通知
                     showModal("送信完了", "お問い合わせを受け付けました。\nDiscordをご確認ください。", [
                         {text:"トップへ戻る", class:"btn-green", onClick:()=>{window.location.href="/"}}
                     ]);
