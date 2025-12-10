@@ -35,6 +35,7 @@ class handler(BaseHTTPRequestHandler):
             final_price = original_price
             discount = 0
 
+            # クーポン計算
             if coupon_code:
                 res = supabase.table('coupons').select('*').eq('code', coupon_code).eq('is_active', True).execute()
                 if res.data:
@@ -71,7 +72,6 @@ class handler(BaseHTTPRequestHandler):
                 "orderId": order_id,
                 "email": email,
                 "description": f"StakeClaimer: {plans[plan_id]['label']}",
-                "callbackUrl": "https://stake-claimer.vercel.app/api/webhook",
                 "returnUrl": f"https://stake-claimer.vercel.app/checkout/{order_id}" 
             }
             
@@ -79,10 +79,13 @@ class handler(BaseHTTPRequestHandler):
             if oxa_res.get("result") != 100: raise Exception(f"Payment Error: {oxa_res.get('message')}")
 
             pay_link = oxa_res.get("payLink")
+            track_id = oxa_res.get("trackId") # ★ここを取得
 
+            # DB保存時に track_id も保存
             supabase.table('orders').insert({
                 "user_id": user_id,
                 "order_id": order_id,
+                "track_id": track_id, # ★追加
                 "plan_type": plan_id,
                 "amount": original_price,
                 "discount_amount": discount,
@@ -93,15 +96,14 @@ class handler(BaseHTTPRequestHandler):
                 "created_at": "now()"
             }).execute()
 
-            # ★通知作成フォーマットの変更
+            # 通知作成
             plan_label = plans[plan_id]['label']
-            # シンプルに: リンク付きプラン名 + Order IDのみ
             link_html = f'<a href="/checkout/{order_id}" style="color:#fff; text-decoration:underline; font-weight:bold;">{plan_label}</a>'
             
             supabase.table('notifications').insert({
                 "user_id": user_id,
-                "title": "新しい支払いリクエスト", # タイトル固定
-                "message": f"{link_html}\norder id {order_id}", # 指定フォーマット
+                "title": "新しい支払いリクエスト",
+                "message": f"{link_html}\norder id {order_id}",
                 "type": "info"
             }).execute()
 
