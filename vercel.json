@@ -9,6 +9,10 @@
             "destination": "/terms.html"
         },
         {
+            "source": "/law",
+            "destination": "/law.html"
+        },
+        {
             "source": "/usage",
             "destination": "/usage.html"
         },

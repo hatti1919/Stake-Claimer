@@ -1,17 +1,21 @@
 /* setting.js */
 
 const CONFIG = {
+    // ★サイト共通設定
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app",
-    ogImage: "/image/logo.jpg",
+    siteUrl: "https://stake-claimer.vercel.app", // 本番URL
+    ogImage: "/image/server-logo.jpg",
     themeColor: "#00E701",
+
+    // SNSリンク
     discordInviteUrl: "https://discord.gg/ueVedsjved",
     twitterUrl: "https://x.com/Stake_hatti"
 };
 
 let currentUser = null;
 
+// ヘッダーHTML
 const HEADER_HTML = `
 <nav class="sticky-nav">
     <div class="nav-left">
@@ -46,14 +50,17 @@ const HEADER_HTML = `
     <a href="/" class="mobile-nav-link" id="mob-home">Home</a>
     <a href="/terms" class="mobile-nav-link" id="mob-terms">利用規約</a>
     <a href="/usage" class="mobile-nav-link" id="mob-usage">使用方法</a>
+    <a href="/law" class="mobile-nav-link" id="mob-law">特商法表記</a>
 </div>
 `;
 
+// ★フッターHTML (特商法リンクを追加)
 const FOOTER_HTML = `
 <footer class="footer-wrapper">
     <div class="footer-content">
         <div class="footer-links">
             <a href="/terms">利用規約</a>
+            <a href="/law">特定商取引法に基づく表記</a>
             <a href="/usage">使用方法</a>
             <a href="/">ホームに戻る</a>
         </div>
@@ -66,16 +73,20 @@ const FOOTER_HTML = `
 </footer>
 `;
 
+// ★メタタグ自動注入関数
 function setupMetaTags() {
     const head = document.head;
+
     if (!document.querySelector("link[rel*='icon']")) {
         head.insertAdjacentHTML('beforeend', `<link rel="icon" href="${CONFIG.ogImage}">`);
     }
+
     if (document.title && !document.title.includes(CONFIG.siteName)) {
         document.title = `${document.title} - ${CONFIG.siteName}`;
     } else if (!document.title) {
         document.title = CONFIG.siteName;
     }
+
     if (!document.querySelector("meta[property='og:image']")) {
         const metaTags = `
             <meta property="og:site_name" content="${CONFIG.siteName}">
@@ -92,6 +103,7 @@ function setupMetaTags() {
     }
 }
 
+// メイン処理
 window.addEventListener('DOMContentLoaded', async () => {
     setupMetaTags();
     document.body.insertAdjacentHTML('afterbegin', HEADER_HTML);
@@ -107,6 +119,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     } else if (path.includes('usage')) {
         document.getElementById('nav-usage')?.classList.add('active');
         document.getElementById('mob-usage')?.classList.add('active');
+    } else if (path.includes('law')) {
+        // 特商法ページ用のアクティブ設定があればここに追加
     }
 
     try {
@@ -133,6 +147,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         showLoginButton();
     }
 });
+
+// --- 認証・通知関連 ---
 
 window.initSupabase = async () => {
     if (window.supabaseApp) return window.supabaseApp;
@@ -205,7 +221,6 @@ async function logout() {
     window.location.href = "/";
 }
 
-// ★通知表示ロジックの更新
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/notifications', {
@@ -236,9 +251,8 @@ async function checkNotifications(userId) {
                     const opacity = isRead ? '0.6' : '1.0';
                     const btnHtml = isRead
                         ? `<span style="color:#444; font-size:0.8rem;">既読</span>`
-                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読</span>`;
+                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読にする</span>`;
 
-                    // ★HTML生成: コンパクトにまとめる
                     list.innerHTML += `
                         <div class="notif-item" id="notif-${n.id}" style="border-bottom:1px solid #222; padding:15px; display:flex; flex-direction:column; gap:4px; opacity:${opacity}; transition: opacity 0.3s;">
                             <div style="font-weight:bold; color:#00E701; font-size:0.9rem;">${n.title}</div>
