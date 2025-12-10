@@ -7,15 +7,16 @@ import base64
 import io
 import datetime
 import pytz
+import requests
+import re
 
-# 削除ボタン用のView (ticket 3.pyのBotが反応できるようにIDを統一)
 class DeleteButtonView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(discord.ui.Button(
             style=discord.ButtonStyle.danger,
             label="チケットを削除",
-            custom_id="persistent_ticket_delete_v1", # ticket 3.py と同じID
+            custom_id="persistent_ticket_delete_v1",
             emoji="🗑️"
         ))
 
@@ -28,7 +29,6 @@ class SimpleClient(discord.Client):
 
     async def on_ready(self):
         try:
-            # 環境変数の読み込み
             guild_id = int(os.environ.get('DISCORD_GUILD_ID'))
             category_id = int(os.environ.get('DISCORD_WEB_TICKET_CATEGORY_ID'))
             staff_role_id = os.environ.get('DISCORD_STAFF_ROLE_ID')
@@ -41,12 +41,21 @@ class SimpleClient(discord.Client):
             category = guild.get_channel(category_id)
             
             user_name = self.contact_data.get('user_name', 'Unknown')
-            user_id = self.contact_data.get('user_id')
-            subject = self.contact_data.get('subject') # カテゴリ
+            user_id = self.contact_data.get('user_id') 
+            discord_user_id = self.contact_data.get('discord_user_id') 
+            subject = self.contact_data.get('subject') 
             
-            # --- 1. チャンネル名: ticket-{user_id} ---
-            topic = f"WebContact UserID:{user_id}"
-            ch_name = f"ticket-{user_id}"
+            # --- 1. チャンネル名生成: ticket-{user_name} ---
+            # ユーザー名をチャンネル名に使える形式にサニタイズ
+            # 小文字化、英数字以外をハイフンに、連続ハイフンを削除
+            safe_username = re.sub(r'[^a-z0-9]', '-', user_name.lower())
+            safe_username = re.sub(r'-+', '-', safe_username).strip('-')
+            
+            # もしサニタイズして空になったらIDを使う
+            channel_suffix = safe_username if safe_username else discord_user_id
+            ch_name = f"ticket-{channel_suffix}"
+            
+            topic = f"WebContact UserID:{user_id} DiscordID:{discord_user_id}"
             
             channel = await guild.create_text_channel(
                 name=ch_name,
@@ -54,13 +63,11 @@ class SimpleClient(discord.Client):
                 topic=topic
             )
             
-            # --- 2. メンションの準備 ---
+            # --- 2. メンション ---
             staff_mention = f"<@&{staff_role_id}>" if staff_role_id else "@here"
-            user_mention = f"<@{user_id}>"
+            user_mention = f"<@{discord_user_id}>" if discord_user_id else f"`{user_name}`"
 
-            # --- 3. Embed作成 (2つに分ける) ---
-            
-            # Embed 1: 通知用 (緑色)
+            # --- 3. Embed ---
             embed1 = discord.Embed(
                 title="🧾 チケットが作成されました！",
                 description=f"{user_mention} 様\nスタッフが対応しますので、少々お待ちください。",
@@ -68,19 +75,15 @@ class SimpleClient(discord.Client):
             )
             embed1.add_field(name="チケット番号", value="`Web Ticket`", inline=True)
             embed1.add_field(name="カテゴリ", value=subject, inline=True)
-            # 現在時刻 (JST)
+            
             now_jst = datetime.datetime.now(pytz.timezone("Asia/Tokyo"))
             embed1.timestamp = now_jst
 
-            # Embed 2: 内容用 (グレー/白)
             embed2 = discord.Embed(
                 title="お問合せ内容",
                 description=self.contact_data.get('description'),
                 color=discord.Color.from_rgb(230, 230, 230)
             )
-            # ユーザー情報をAuthorに設定
-            # アイコンURLが取得できない場合はデフォルト
-            # ※ 本来はAPIでアバターURLも送ってもらうのが確実ですが、今回は簡易的に設定
             embed2.set_author(name=user_name) 
             
             if self.contact_data.get('order_id'):
@@ -88,7 +91,6 @@ class SimpleClient(discord.Client):
             
             embed2.timestamp = now_jst
 
-            # --- 4. 画像処理 (Base64 -> File) ---
             files = []
             img_data = self.contact_data.get('image_data')
             if img_data:
@@ -97,16 +99,13 @@ class SimpleClient(discord.Client):
                         header, encoded = img_data.split(",", 1)
                     else:
                         encoded = img_data
-                    
                     decoded_data = base64.b64decode(encoded)
-                    # 画像ファイルとして添付
                     file = discord.File(io.BytesIO(decoded_data), filename="attachment.png")
                     files.append(file)
-                    embed2.set_image(url="attachment://attachment.png") # Embed内に表示させる
+                    embed2.set_image(url="attachment://attachment.png")
                 except Exception as e:
                     embed2.set_footer(text=f"画像展開エラー: {str(e)}")
 
-            # --- 5. 送信 (ボタン付き) ---
             view = DeleteButtonView()
             
             await channel.send(
@@ -116,14 +115,13 @@ class SimpleClient(discord.Client):
                 files=files
             )
 
-            # --- 6. ログ送信 ---
             if log_channel_id:
                 try:
                     log_ch = guild.get_channel(int(log_channel_id))
                     if log_ch:
                         log_embed = discord.Embed(
                             title="🆕 Webチケット作成ログ",
-                            description=f"チャンネル: {channel.mention}\nユーザー: {user_name} ({user_id})",
+                            description=f"チャンネル: {channel.mention}\nユーザー: {user_name} ({discord_user_id})",
                             color=discord.Color.green()
                         )
                         log_embed.timestamp = now_jst
@@ -144,10 +142,26 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_len)
             data = json.loads(body)
             
-            token = os.environ.get('DISCORD_BOT_TOKEN')
-            
+            discord_bot_token = os.environ.get('DISCORD_BOT_TOKEN')
+            discord_guild_id = os.environ.get('DISCORD_GUILD_ID')
+
+            discord_user_id = data.get('discord_user_id')
+            provider_token = data.get('provider_token')
+
+            if discord_user_id and provider_token and discord_bot_token and discord_guild_id:
+                try:
+                    url = f"https://discord.com/api/v10/guilds/{discord_guild_id}/members/{discord_user_id}"
+                    headers = {
+                        "Authorization": f"Bot {discord_bot_token}",
+                        "Content-Type": "application/json"
+                    }
+                    payload = { "access_token": provider_token }
+                    requests.put(url, headers=headers, json=payload)
+                except Exception as join_err:
+                    print(f"Auto join failed: {join_err}")
+
             client = SimpleClient(data)
-            asyncio.run(client.start(token))
+            asyncio.run(client.start(discord_bot_token))
             
             if client.result and client.result["success"]:
                 self.send_response(200)
