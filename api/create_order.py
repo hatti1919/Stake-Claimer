@@ -34,20 +34,47 @@ class handler(BaseHTTPRequestHandler):
             original_price = plans[plan_id]['price']
             final_price = original_price
             discount = 0
+            
+            # --- クーポン計算ロジック修正部分 ---
+            coupon_info = {
+                "is_percent": False,
+                "percent_val": 0,
+                "label": ""
+            }
 
-            # クーポン計算
             if coupon_code:
+                # is_active=True のクーポンを検索
                 res = supabase.table('coupons').select('*').eq('code', coupon_code).eq('is_active', True).execute()
+                
                 if res.data:
-                    discount = res.data[0]['discount_amount']
+                    coupon_data = res.data[0]
+                    # DBのカラム名 'discount_amount' と 'discount_type' を使用
+                    val = float(coupon_data.get('discount_amount', 0))
+                    c_type = coupon_data.get('discount_type', 'fixed') # fixed or percent
+
+                    if c_type == 'percent':
+                        # パーセント計算 (例: 10% -> 0.1 を掛ける)
+                        discount = int(original_price * (val / 100))
+                        coupon_info["is_percent"] = True
+                        coupon_info["percent_val"] = val
+                        coupon_info["label"] = f"{int(val)}% OFF"
+                    else:
+                        # 固定額計算
+                        discount = int(val)
+                        coupon_info["label"] = f"-¥{discount}"
+
+                    # 最終価格が1円未満にならないように調整 (Oxapayの仕様に合わせて調整)
                     final_price = max(1, original_price - discount)
+                
                 elif action == 'check_coupon':
+                    # クーポン確認アクションで、コードが見つからない場合
                     self.send_response(400)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": "クーポンコードが見当たりません。"}).encode())
+                    self.wfile.write(json.dumps({"error": "クーポンコードが無効です。"}).encode())
                     return
 
+            # --- クーポン確認用レスポンス ---
             if action == 'check_coupon':
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
@@ -57,10 +84,13 @@ class handler(BaseHTTPRequestHandler):
                     "original_price": original_price,
                     "discount": discount,
                     "final_price": final_price,
-                    "plan_name": plans[plan_id]['label']
+                    "plan_name": plans[plan_id]['label'],
+                    # フロント表示用の追加情報
+                    "coupon_label": coupon_info["label"] 
                 }).encode())
                 return
 
+            # --- 注文作成 (Oxapay連携) ---
             order_id = f"{int(time.time())}_{user_id[:4]}"
             
             payload = {
@@ -79,13 +109,13 @@ class handler(BaseHTTPRequestHandler):
             if oxa_res.get("result") != 100: raise Exception(f"Payment Error: {oxa_res.get('message')}")
 
             pay_link = oxa_res.get("payLink")
-            track_id = oxa_res.get("trackId") # ★ここを取得
+            track_id = oxa_res.get("trackId")
 
-            # DB保存時に track_id も保存
+            # DB保存
             supabase.table('orders').insert({
                 "user_id": user_id,
                 "order_id": order_id,
-                "track_id": track_id, # ★追加
+                "track_id": track_id,
                 "plan_type": plan_id,
                 "amount": original_price,
                 "discount_amount": discount,

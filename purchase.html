@@ -286,6 +286,8 @@
 
             try {
                 const coupon = document.getElementById('coupon-code').value;
+                
+                // APIでクーポンチェックと金額計算を行う
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -300,12 +302,15 @@
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
 
-                // モーダルHTML: 利用規約チェックボックス追加
+                // --- 割引表示の作成 ---
+                // data.coupon_label に "10% OFF" または "-¥500" が入ってくる
+                const discountDisplay = data.coupon_label ? `${data.coupon_label}` : `-¥${data.discount}`;
+
                 const html = `
                     <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
                     <div class="price-row"><span>支払い方法</span><span>仮想通貨</span></div>
                     <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
-                    <div class="price-row" style="color:#00E701"><span>割引</span><span>-¥${data.discount}</span></div>
+                    <div class="price-row" style="color:#00E701"><span>割引</span><span>${discountDisplay}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
                     
                     <div class="tos-container">
@@ -326,8 +331,7 @@
                         onClick: () => {
                             const chk = document.getElementById('tos-checkbox');
                             if(!chk || !chk.checked) {
-                                // ★ここを修正: alert() ではなく showModal() を使う
-                                showModal("確認", "利用規約に同意してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+                                alert("利用規約に同意してください。");
                                 return;
                             }
                             createOrder(coupon);
