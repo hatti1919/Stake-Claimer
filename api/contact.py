@@ -9,6 +9,7 @@ import datetime
 import pytz
 import requests
 import re
+from supabase import create_client # ★Supabaseクライアントを追加
 
 class DeleteButtonView(discord.ui.View):
     def __init__(self):
@@ -151,43 +152,52 @@ class SimpleClient(discord.Client):
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
+            # 1. ヘッダーからSupabaseトークンを取得
+            auth_header = self.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith("Bearer "):
+                raise Exception("認証エラー: ログインが必要です。")
+
+            token = auth_header.split(" ")[1]
+
+            # 2. Supabaseでトークンを検証し、ユーザー情報を取得
+            SUPABASE_URL = os.environ.get('SUPABASE_URL')
+            SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') # 管理者キーで検証
+            
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+            user_res = supabase.auth.get_user(token)
+            
+            if not user_res.user:
+                raise Exception("認証エラー: 無効なトークンです。再ログインしてください。")
+
+            # ★ここが最重要: トークンから判明した「本物のID」を取得
+            real_user = user_res.user
+            real_user_id = real_user.id
+            # Discord IDは user_metadata に入っているはず
+            real_discord_id = real_user.user_metadata.get('provider_id')
+            real_user_name = real_user.user_metadata.get('full_name', 'Unknown')
+
+            if not real_discord_id:
+                raise Exception("Discord IDが見つかりません。")
+
+            # 3. リクエストボディの読み込み
             content_len = int(self.headers.get('Content-Length'))
             body = self.rfile.read(content_len)
             data = json.loads(body)
             
+            # ★上書き: リクエストの内容にかかわらず、本物のIDを使用する
+            data['user_id'] = real_user_id
+            data['discord_user_id'] = real_discord_id
+            data['user_name'] = real_user_name
+
+            # --- 以下、Bot処理 ---
             discord_bot_token = os.environ.get('DISCORD_BOT_TOKEN')
             discord_guild_id = os.environ.get('DISCORD_GUILD_ID')
-            discord_user_id = data.get('discord_user_id')
             provider_token = data.get('provider_token')
 
-            # ★本人確認 (Token Validation)
-            if not provider_token or not discord_user_id:
-                raise Exception("Token missing. Please login again.")
-
-            try:
-                verify_url = "https://discord.com/api/v10/users/@me"
-                verify_headers = { "Authorization": f"Bearer {provider_token}" }
-                v_res = requests.get(verify_url, headers=verify_headers)
-                
-                if v_res.status_code != 200:
-                    print(f"Auth Failed: {v_res.text}")
-                    raise Exception("セッションの有効期限が切れています。再ログインしてください。")
-                
-                real_user_data = v_res.json()
-                if str(real_user_data.get('id')) != str(discord_user_id):
-                    raise Exception("User ID mismatch.")
-            except Exception as auth_error:
-                print(f"Auth Error: {auth_error}")
-                self.send_response(401)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(auth_error)}).encode())
-                return
-
-            # 強制参加
-            if discord_bot_token and discord_guild_id:
+            # サーバー参加処理 (もしDiscordトークンがあれば)
+            if discord_bot_token and discord_guild_id and provider_token:
                 try:
-                    url = f"https://discord.com/api/v10/guilds/{discord_guild_id}/members/{discord_user_id}"
+                    url = f"https://discord.com/api/v10/guilds/{discord_guild_id}/members/{real_discord_id}"
                     headers = { "Authorization": f"Bot {discord_bot_token}", "Content-Type": "application/json" }
                     payload = { "access_token": provider_token }
                     requests.put(url, headers=headers, json=payload)
@@ -203,9 +213,14 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"message": "Sent"}).encode())
             else:
                 error_msg = client.result["error"] if client.result else "Unknown error"
-                raise Exception(error_msg)
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": error_msg}).encode())
 
         except Exception as e:
-            self.send_response(500)
+            # 401 Unauthorized または 500 Error
+            status_code = 401 if "認証エラー" in str(e) else 500
+            self.send_response(status_code)
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(e)}).encode())

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>お問い合わせ</title>
+    <title>Contact</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
@@ -76,6 +76,7 @@
         .submit-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            background: #555;
         }
     </style>
 </head>
@@ -111,8 +112,7 @@
                             <span id="selected-order">選択してください</span>
                             <div class="arrow"></div>
                         </div>
-                        <div class="custom-options" id="order-options">
-                        </div>
+                        <div class="custom-options" id="order-options"></div>
                     </div>
                     <input type="hidden" id="order-id-value">
                 </div>
@@ -141,7 +141,7 @@
     <script src="setting.js"></script>
     <script>
         let currentUserContact = null;
-        let currentSessionToken = null;
+        let supabaseAccessToken = null; // ★Supabase用トークン
 
         function closeModal() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
@@ -152,18 +152,14 @@
             document.getElementById('modal-body').innerText = content;
             const actionsDiv = document.getElementById('modal-actions');
             actionsDiv.innerHTML = '';
-            
             if (buttons.length === 0) {
                 const btn = document.createElement('button');
-                btn.innerText = '閉じる';
-                btn.className = 'modal-btn';
-                btn.onclick = closeModal;
+                btn.innerText = '閉じる'; btn.className = 'modal-btn'; btn.onclick = closeModal;
                 actionsDiv.appendChild(btn);
             } else {
                 buttons.forEach(b => {
                     const btn = document.createElement('button');
-                    btn.innerText = b.text;
-                    btn.className = b.class.includes('green') ? 'modal-btn btn-green' : 'modal-btn';
+                    btn.innerText = b.text; btn.className = b.class.includes('green') ? 'modal-btn btn-green' : 'modal-btn';
                     btn.onclick = b.onClick;
                     actionsDiv.appendChild(btn);
                 });
@@ -171,71 +167,48 @@
             document.getElementById('custom-modal-overlay').style.display = 'flex';
         };
 
+        // セレクトボックス設定
         function setupCustomSelects() {
-            // トリガーのクリックイベント
             document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
-                // 重複登録防止のため一度cloneして置換
                 const newTrigger = trigger.cloneNode(true);
                 trigger.parentNode.replaceChild(newTrigger, trigger);
-                
                 newTrigger.addEventListener('click', function() {
                     const parent = this.parentElement;
-                    // 他のセレクトボックスを閉じる
-                    document.querySelectorAll('.custom-select').forEach(s => {
-                        if (s !== parent) s.classList.remove('open');
-                    });
+                    document.querySelectorAll('.custom-select').forEach(s => { if (s !== parent) s.classList.remove('open'); });
                     parent.classList.toggle('open');
                 });
             });
-
-            // オプションのクリックイベント (静的なもの)
-            document.querySelectorAll('.custom-options .custom-option').forEach(option => {
-                setupOptionClick(option);
-            });
-
-            // 画面外クリックで閉じる
+            document.querySelectorAll('.custom-options .custom-option').forEach(option => setupOptionClick(option));
             window.addEventListener('click', function(e) {
-                document.querySelectorAll('.custom-select').forEach(select => {
-                    if (!select.contains(e.target)) {
-                        select.classList.remove('open');
-                    }
-                });
+                document.querySelectorAll('.custom-select').forEach(select => { if (!select.contains(e.target)) select.classList.remove('open'); });
             });
         }
 
         function setupOptionClick(option) {
-            // イベント重複防止
             const newOption = option.cloneNode(true);
             option.parentNode.replaceChild(newOption, option);
-
             newOption.addEventListener('click', function() {
                 const wrapper = this.closest('.custom-select-wrapper');
                 const triggerSpan = wrapper.querySelector('.custom-select-trigger span');
                 const hiddenInput = wrapper.querySelector('input[type="hidden"]');
                 const selectDiv = this.closest('.custom-select');
-
                 selectDiv.querySelector('.custom-option.selected')?.classList.remove('selected');
                 this.classList.add('selected');
-                
                 triggerSpan.textContent = this.textContent;
                 hiddenInput.value = this.getAttribute('data-value');
-                
                 selectDiv.classList.remove('open');
-
-                if(hiddenInput.id === 'subject-value') {
-                    toggleOrderSelect(this.getAttribute('data-value'));
-                }
+                if(hiddenInput.id === 'subject-value') toggleOrderSelect(this.getAttribute('data-value'));
             });
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            setupCustomSelects(); // 静的要素の初期化
-
+            setupCustomSelects();
             if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
             const { data: { session } } = await window.supabaseApp.auth.getSession();
+            
             if(session) {
                 currentUserContact = session.user;
-                currentSessionToken = session.provider_token;
+                supabaseAccessToken = session.access_token; // ★Supabaseのアクセストークンを保持
                 loadOrders();
             } else {
                 showModal("エラー", "ログインしてください", [{text:"OK", class:"btn-gray", onClick:()=>{window.location.href="/"}}]);
@@ -246,26 +219,21 @@
             try {
                 const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
                 const orders = await res.json();
-                
-                // ★ここでソート (新しい順)
                 orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
                 const container = document.getElementById('order-options');
-                container.innerHTML = ""; // 一旦クリア
-
+                container.innerHTML = "";
                 orders.forEach(o => {
                     const span = document.createElement('span');
                     span.className = 'custom-option';
                     span.setAttribute('data-value', o.order_id);
                     span.textContent = `${o.order_id} (${o.status})`;
                     container.appendChild(span);
-                    setupOptionClick(span); // イベント付与
+                    setupOptionClick(span);
                 });
             } catch(e){}
         }
 
         function toggleOrderSelect(val) {
-            // prod または err の場合のみ表示
             document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
 
@@ -286,38 +254,33 @@
 
         document.getElementById('contact-form').addEventListener('submit',async(e)=>{
             e.preventDefault(); 
-            
             const subjectVal = document.getElementById('subject-value').value;
-            if(!subjectVal) {
-                showModal("確認", "カテゴリを選択してください", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
-                return;
-            }
+            if(!subjectVal) return showModal("確認", "カテゴリを選択してください", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
 
             const btn=document.getElementById('submit-btn'); 
-            btn.innerText="送信中..."; 
-            btn.disabled=true;
+            btn.innerText="送信中..."; btn.disabled=true;
             
             const fileInput = document.getElementById('image-file');
             let imageData = null;
             if(fileInput.files.length > 0) imageData = await processImage(fileInput.files[0]);
 
             try {
-                // 表示テキストを取得
-                const wrapper = document.querySelector('#subject-value').closest('.custom-select-wrapper');
-                const subjectText = wrapper.querySelector('.custom-select-trigger span').textContent;
-                const discordId = currentUserContact.user_metadata.provider_id;
-
+                const subjectText = document.querySelector(`#subject-value`).parentNode.querySelector('.custom-select-trigger span').textContent;
+                
+                // ★ヘッダーにSupabaseトークンを含める
                 const res = await fetch('/api/contact', {
-                    method: 'POST', headers: {'Content-Type':'application/json'},
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type':'application/json',
+                        'Authorization': `Bearer ${supabaseAccessToken}` // ★ここが重要
+                    },
                     body: JSON.stringify({
-                        user_id: currentUserContact.id, 
-                        discord_user_id: discordId,     
-                        provider_token: currentSessionToken, 
-                        user_name: currentUserContact.user_metadata.full_name || "Unknown",
+                        // ボディにはデータだけを入れる（IDはサーバー側でトークンから復元する）
                         subject: subjectText, 
                         order_id: document.getElementById('order-id-value').value,
                         description: document.getElementById('description').value, 
-                        image_data: imageData
+                        image_data: imageData,
+                        provider_token: currentSessionToken // 参加処理用（あれば）
                     })
                 });
                 
@@ -325,9 +288,12 @@
                     showModal("送信完了", "お問い合わせを受け付けました。\nDiscordをご確認ください。", [
                         {text:"トップへ戻る", class:"btn-green", onClick:()=>{window.location.href="/"}}
                     ]);
-                } else { throw new Error(); }
+                } else { 
+                    const err = await res.json();
+                    throw new Error(err.error || "Unknown Error"); 
+                }
             } catch(e) { 
-                showModal("エラー", "送信に失敗しました。\n時間をおいて再度お試しください。", [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
+                showModal("エラー", "送信に失敗しました。\n" + e.message, [{text:"閉じる", class:"btn-gray", onClick:closeModal}]);
                 btn.innerText="送信する"; btn.disabled=false; 
             }
         });
