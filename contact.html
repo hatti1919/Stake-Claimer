@@ -141,7 +141,8 @@
     <script src="setting.js"></script>
     <script>
         let currentUserContact = null;
-        let supabaseAccessToken = null; // ★Supabase用トークン
+        let supabaseAccessToken = null; // Supabase用トークン
+        let currentSessionToken = null; // ★ここを復活させました (Discord用トークン)
 
         function closeModal() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
@@ -208,7 +209,8 @@
             
             if(session) {
                 currentUserContact = session.user;
-                supabaseAccessToken = session.access_token; // ★Supabaseのアクセストークンを保持
+                supabaseAccessToken = session.access_token; // Supabase認証用
+                currentSessionToken = session.provider_token; // ★Discord連携用(サーバー参加など)
                 loadOrders();
             } else {
                 showModal("エラー", "ログインしてください", [{text:"OK", class:"btn-gray", onClick:()=>{window.location.href="/"}}]);
@@ -267,20 +269,19 @@
             try {
                 const subjectText = document.querySelector(`#subject-value`).parentNode.querySelector('.custom-select-trigger span').textContent;
                 
-                // ★ヘッダーにSupabaseトークンを含める
+                // ヘッダーにSupabaseトークンを含める
                 const res = await fetch('/api/contact', {
                     method: 'POST', 
                     headers: {
                         'Content-Type':'application/json',
-                        'Authorization': `Bearer ${supabaseAccessToken}` // ★ここが重要
+                        'Authorization': `Bearer ${supabaseAccessToken}`
                     },
                     body: JSON.stringify({
-                        // ボディにはデータだけを入れる（IDはサーバー側でトークンから復元する）
                         subject: subjectText, 
                         order_id: document.getElementById('order-id-value').value,
                         description: document.getElementById('description').value, 
                         image_data: imageData,
-                        provider_token: currentSessionToken // 参加処理用（あれば）
+                        provider_token: currentSessionToken // ★ここで使われます(Discordトークンがあれば送る)
                     })
                 });
                 
