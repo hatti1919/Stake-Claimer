@@ -4,7 +4,7 @@ const CONFIG = {
     // ★サイト共通設定
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app", // 本番URL
+    siteUrl: "https://stake-claimer.vercel.app",
     ogImage: "/image/server-logo.jpg",
     themeColor: "#00E701",
 
@@ -31,14 +31,16 @@ const HEADER_HTML = `
                 <span class="badge" id="notif-badge"></span>
             </div>
             <div id="notif-popup" class="notif-popup">
-                <div style="padding:12px; border-bottom:1px solid #222; font-weight:bold; color:#00E701; display:flex; justify-content:space-between; position:sticky; top:0; background:#111; z-index:10;">
-                    <span>お知らせ</span>
-                    <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666;">×</span>
+                <div style="padding:15px; border-bottom:1px solid #222; font-weight:bold; color:#00E701; display:flex; justify-content:space-between; position:sticky; top:0; background:#111; z-index:10; align-items:center;">
+                    <span><i class="fa-solid fa-inbox"></i> お知らせ</span>
+                    <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666; font-size:1.2rem;">&times;</span>
                 </div>
                 <div id="notif-list"><div class="notif-empty">読み込み中...</div></div>
             </div>
         </div>
+
         <div class="nav-divider"></div>
+        
         <div id="auth-container">
             <button class="login-btn-nav" style="opacity:0.6; cursor:default;">
                 <i class="fa-solid fa-spinner fa-spin"></i> Loading...
@@ -54,7 +56,7 @@ const HEADER_HTML = `
 </div>
 `;
 
-// ★フッターHTML (特商法リンクを追加)
+// フッターHTML
 const FOOTER_HTML = `
 <footer class="footer-wrapper">
     <div class="footer-content">
@@ -73,20 +75,28 @@ const FOOTER_HTML = `
 </footer>
 `;
 
-// ★メタタグ自動注入関数
+// ★オリジナル共通モーダルHTML
+const GLOBAL_MODAL_HTML = `
+<div id="global-modal-overlay" class="global-modal-overlay">
+    <div class="global-modal-box">
+        <div id="g-modal-title" class="global-modal-title"></div>
+        <div id="g-modal-body" class="global-modal-body"></div>
+        <div id="g-modal-actions" class="global-modal-actions"></div>
+    </div>
+</div>
+`;
+
+// メタタグ設定
 function setupMetaTags() {
     const head = document.head;
-
     if (!document.querySelector("link[rel*='icon']")) {
         head.insertAdjacentHTML('beforeend', `<link rel="icon" href="${CONFIG.ogImage}">`);
     }
-
     if (document.title && !document.title.includes(CONFIG.siteName)) {
         document.title = `${document.title} - ${CONFIG.siteName}`;
     } else if (!document.title) {
         document.title = CONFIG.siteName;
     }
-
     if (!document.querySelector("meta[property='og:image']")) {
         const metaTags = `
             <meta property="og:site_name" content="${CONFIG.siteName}">
@@ -97,7 +107,6 @@ function setupMetaTags() {
             <meta property="og:type" content="website">
             <meta name="theme-color" content="${CONFIG.themeColor}">
             <meta name="twitter:card" content="summary_large_image">
-            <meta name="description" content="${CONFIG.siteDescription}">
         `;
         head.insertAdjacentHTML('beforeend', metaTags);
     }
@@ -108,20 +117,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     setupMetaTags();
     document.body.insertAdjacentHTML('afterbegin', HEADER_HTML);
     document.body.insertAdjacentHTML('beforeend', FOOTER_HTML);
+    document.body.insertAdjacentHTML('beforeend', GLOBAL_MODAL_HTML);
 
     const path = window.location.pathname;
-    if (path === '/' || path === '/index.html') {
-        document.getElementById('nav-home')?.classList.add('active');
-        document.getElementById('mob-home')?.classList.add('active');
-    } else if (path.includes('terms')) {
-        document.getElementById('nav-terms')?.classList.add('active');
-        document.getElementById('mob-terms')?.classList.add('active');
-    } else if (path.includes('usage')) {
-        document.getElementById('nav-usage')?.classList.add('active');
-        document.getElementById('mob-usage')?.classList.add('active');
-    } else if (path.includes('law')) {
-        // 特商法ページ用のアクティブ設定があればここに追加
-    }
+    const highlight = (id) => document.getElementById(id)?.classList.add('active');
+    if (path === '/' || path === '/index.html') { highlight('nav-home'); highlight('mob-home'); }
+    else if (path.includes('terms')) { highlight('nav-terms'); highlight('mob-terms'); }
+    else if (path.includes('usage')) { highlight('nav-usage'); highlight('mob-usage'); }
+    else if (path.includes('law')) { highlight('mob-law'); }
 
     try {
         await initSupabase();
@@ -147,8 +150,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         showLoginButton();
     }
 });
-
-// --- 認証・通知関連 ---
 
 window.initSupabase = async () => {
     if (window.supabaseApp) return window.supabaseApp;
@@ -186,6 +187,7 @@ function showLoginButton() {
     }
 }
 
+// ★ユーザーメニュー (アイコンタップ式)
 function updateAuthUI(user) {
     const container = document.getElementById('auth-container');
     if (container) {
@@ -193,6 +195,9 @@ function updateAuthUI(user) {
             <div style="position:relative;">
                 <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleUserMenu()">
                 <div id="user-menu" class="dropdown-menu">
+                    <a href="/dashboard" class="menu-item" style="border-bottom:1px solid #333; font-weight:bold; color:#00E701;">
+                        <i class="fa-solid fa-gauge-high"></i> ダッシュボード
+                    </a>
                     <a href="/history" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
                     <a href="/contact" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
                     <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;">
@@ -221,6 +226,8 @@ async function logout() {
     window.location.href = "/";
 }
 
+// --- 通知関連ロジック ---
+
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/notifications', {
@@ -228,11 +235,8 @@ async function checkNotifications(userId) {
             body: JSON.stringify({ user_id: userId, action: 'get' })
         });
         const notifs = await res.json();
-
         const unreadCount = notifs.filter(n => !n.is_read).length;
-
         const badge = document.getElementById('notif-badge');
-        const list = document.getElementById('notif-list');
 
         if (unreadCount > 0) {
             if (badge) {
@@ -243,66 +247,98 @@ async function checkNotifications(userId) {
             if (badge) badge.style.display = 'none';
         }
 
+        const list = document.getElementById('notif-list');
         if (list) {
             if (notifs.length > 0) {
                 list.innerHTML = "";
                 notifs.forEach(n => {
                     const isRead = n.is_read;
-                    const opacity = isRead ? '0.6' : '1.0';
-                    const btnHtml = isRead
-                        ? `<span style="color:#444; font-size:0.8rem;">既読</span>`
-                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="cursor:pointer; color:#666; font-size:0.8rem; text-decoration:underline;">既読にする</span>`;
+                    const opacity = isRead ? '0.5' : '1.0';
+                    const icon = n.type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#00E701"></i>' : '<i class="fa-solid fa-circle-info" style="color:#00AAFF"></i>';
+                    const readBtn = isRead
+                        ? `<span style="font-size:0.75rem; color:#444;">既読</span>`
+                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="font-size:0.75rem; color:#00E701; cursor:pointer; text-decoration:underline;">既読にする</span>`;
 
                     list.innerHTML += `
-                        <div class="notif-item" id="notif-${n.id}" style="border-bottom:1px solid #222; padding:15px; display:flex; flex-direction:column; gap:4px; opacity:${opacity}; transition: opacity 0.3s;">
-                            <div style="font-weight:bold; color:#00E701; font-size:0.9rem;">${n.title}</div>
-                            <div style="font-size:0.9rem; color:#ccc; line-height:1.4;">${n.message.replace(/\n/g, '<br>')}</div>
-                            <div style="text-align:right; margin-top:5px;">${btnHtml}</div>
+                        <div class="notif-item" id="notif-${n.id}" style="opacity:${opacity};">
+                            <div style="display:flex; gap:10px; margin-bottom:5px; align-items:center;">
+                                ${icon} <span style="font-weight:bold; font-size:0.9rem;">${n.title}</span>
+                            </div>
+                            <div style="font-size:0.85rem; line-height:1.4; color:#ccc;">${n.message.replace(/\n/g, '<br>')}</div>
+                            <div style="text-align:right; margin-top:8px;">${readBtn}</div>
                         </div>
                     `;
                 });
             } else {
-                list.innerHTML = '<div class="notif-empty">通知はありません</div>';
+                list.innerHTML = '<div class="notif-empty"><i class="fa-regular fa-bell-slash"></i> 通知はありません</div>';
             }
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Notif Error:", e); }
 }
 
 window.markAsRead = async (notifId, userId) => {
     try {
         const item = document.getElementById(`notif-${notifId}`);
         const btn = document.getElementById(`btn-read-${notifId}`);
-
-        if (item) item.style.opacity = '0.6';
-
+        if (item) item.style.opacity = '0.5';
         if (btn) {
             btn.innerText = "既読";
-            btn.style.textDecoration = "none";
             btn.style.color = "#444";
-            btn.style.cursor = "default";
+            btn.style.textDecoration = "none";
             btn.onclick = null;
-            btn.removeAttribute('id');
         }
-
         const badge = document.getElementById('notif-badge');
         if (badge) {
-            const current = parseInt(badge.innerText);
-            if (current > 1) {
-                badge.innerText = current - 1;
-            } else {
-                badge.style.display = 'none';
-            }
+            let current = parseInt(badge.innerText) || 0;
+            if (current > 1) badge.innerText = current - 1;
+            else badge.style.display = 'none';
         }
-
         await fetch('/api/notifications', {
             method: 'POST',
             body: JSON.stringify({ action: 'read', id: notifId, user_id: userId })
         });
+    } catch (e) { }
+};
 
-    } catch (e) { console.error(e); }
+// --- ★共通モーダル表示関数 ---
+window.showModal = (title, message, buttons = []) => {
+    const overlay = document.getElementById('global-modal-overlay');
+    const mTitle = document.getElementById('g-modal-title');
+    const mBody = document.getElementById('g-modal-body');
+    const mActions = document.getElementById('g-modal-actions');
+
+    if (!overlay) return alert(message);
+
+    mTitle.innerText = title;
+    mBody.innerHTML = message.replace(/\n/g, '<br>');
+    mActions.innerHTML = '';
+
+    if (buttons.length === 0) {
+        const btn = document.createElement('button');
+        btn.className = 'g-modal-btn g-btn-secondary';
+        btn.innerText = '閉じる';
+        btn.onclick = closeModal;
+        mActions.appendChild(btn);
+    } else {
+        buttons.forEach(b => {
+            const btn = document.createElement('button');
+            btn.className = `g-modal-btn ${b.class || 'g-btn-secondary'}`;
+            btn.innerText = b.text;
+            btn.onclick = () => {
+                if (b.onClick) b.onClick();
+                if (!b.onClick) closeModal();
+            };
+            mActions.appendChild(btn);
+        });
+    }
+    overlay.classList.add('show');
+};
+
+window.closeModal = () => {
+    const overlay = document.getElementById('global-modal-overlay');
+    if (overlay) overlay.classList.remove('show');
 };
 
 window.toggleUserMenu = () => document.getElementById('user-menu')?.classList.toggle('show');
 window.toggleNotifPopup = () => document.getElementById('notif-popup')?.classList.toggle('show');
 window.toggleMobileNav = () => document.getElementById('mobile-nav')?.classList.toggle('show');
-window.showModal = (title, msg) => { alert(`${title}\n\n${msg}`); };

@@ -29,8 +29,28 @@
             "destination": "/contact.html"
         },
         {
+            "source": "/dashboard",
+            "destination": "/dashboard.html"
+        },
+        {
             "source": "/checkout/:order_id",
             "destination": "/checkout.html?order_id=:order_id"
+        },
+        {
+            "source": "/api/user_status",
+            "destination": "/api/user_status.py"
+        },
+        {
+            "source": "/api/verify_stake",
+            "destination": "/api/verify_stake.py"
+        },
+        {
+            "source": "/api/delete_stake",
+            "destination": "/api/delete_stake.py"
+        },
+        {
+            "source": "/api/activate",
+            "destination": "/api/activate.py"
         },
         {
             "source": "/api/:match*",

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダッシュボード</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .section-title {
+            color: #00E701;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            border-left: 4px solid #00E701;
+            padding-left: 10px;
+            font-weight: bold;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            background: #000;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #222;
+        }
+
+        .status-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .active-badge {
+            display: inline-block;
+            background: rgba(0, 231, 1, 0.15);
+            color: #00E701;
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            border: 1px solid #00E701;
+        }
+
+        .expired-badge {
+            background: rgba(255, 68, 68, 0.15);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
+        /* アカウントリスト */
+        .account-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid #0066ff;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .acc-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .acc-icon {
+            color: #0066ff;
+            font-size: 1.2rem;
+        }
+
+        .del-btn {
+            background: #ff4444;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .del-btn:hover {
+            background: #cc0000;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .key-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: monospace;
+            min-width: 250px;
+        }
+
+        .action-btn {
+            background: #00E701;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stake-btn {
+            background: #0066ff;
+            color: #fff;
+        }
+
+        .limit-info {
+            text-align: right;
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="border-bottom: 2px solid #333; padding-bottom:15px; margin-bottom:30px;">
+            <i class="fa-solid fa-gauge-high" style="color:#00E701;"></i> ダッシュボード
+        </h1>
+
+        <div class="card">
+            <div class="section-title">現在のステータス</div>
+            <div id="loading-status" style="text-align:center; color:#666;">読み込み中...</div>
+            <div id="status-content" class="status-grid" style="display:none;">
+                <div class="status-item">
+                    <div class="status-label">現在のプラン</div>
+                    <div class="status-value" id="disp-plan">---</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">状態</div>
+                    <div class="status-value" id="disp-badge">---</div>
+                </div>
+                <div class="status-item" style="grid-column: 1 / -1;">
+                    <div class="status-label">有効期限</div>
+                    <div class="status-value" id="disp-date" style="font-family:monospace; color:#00E701;">---</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-color: #0066ff;">
+            <div class="section-title" style="color: #0066ff; border-left-color: #0066ff;">Stake アカウント連携</div>
+
+            <div id="account-list-area" class="account-list"></div>
+            <div class="limit-info">登録済み: <span id="acc-count">0</span> / 上限: <span id="acc-limit">1</span></div>
+
+            <div id="add-account-form" style="margin-top: 20px; border-top: 1px solid #333; padding-top: 20px;">
+                <p style="color:#ccc; font-size:0.9rem; margin-bottom:10px;">新しいアカウントを追加:</p>
+                <div class="input-group">
+                    <input type="password" id="stake-api-key" class="key-input" placeholder="Stake API Key (例: c4f...)"
+                        autocomplete="off">
+                    <button class="action-btn stake-btn" onclick="verifyStakeKey()">連携する</button>
+                </div>
+            </div>
+            <div id="limit-reached-msg"
+                style="display:none; text-align:center; color:#ff4444; margin-top:20px; font-weight:bold;">
+                アカウント上限に達しています。これ以上追加できません。
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">ライセンスキーを有効化</div>
+            <div class="input-group">
+                <input type="text" id="license-key" class="key-input" placeholder="XXXXX-XXXXX-XXXXX-DAYS">
+                <button class="action-btn" onclick="activateLicense()">有効化する</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/setting.js"></script>
+    <script>
+        let currentDiscordId = null;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
+            const { data: { session } } = await window.supabaseApp.auth.getSession();
+            
+            if(session) {
+                currentDiscordId = session.user.user_metadata.provider_id;
+                loadUserStatus(currentDiscordId);
+            } else {
+                showModal("エラー", "ログインしてください", [{text:"OK", class:"g-btn-secondary", onClick:()=>window.location.href="/"}]);
+            }
+        });
+
+        async function loadUserStatus(discordId) {
+            try {
+                const res = await fetch('/api/user_status', { 
+                    method: 'POST', body: JSON.stringify({ discord_id: discordId }) 
+                });
+                const data = await res.json();
+
+                document.getElementById('loading-status').style.display = 'none';
+                document.getElementById('status-content').style.display = 'grid';
+
+                document.getElementById('disp-plan').innerText = data.active ? data.plan_name : "未加入";
+                document.getElementById('disp-badge').innerHTML = data.active 
+                    ? '<span class="active-badge active-badge">有効</span>' 
+                    : '<span class="active-badge expired-badge">無効</span>';
+                document.getElementById('disp-date').innerText = data.active ? new Date(data.expires_at).toLocaleString('ja-JP') : "---";
+
+                const listArea = document.getElementById('account-list-area');
+                listArea.innerHTML = "";
+                const accounts = data.linked_accounts || [];
+                const limit = data.account_limit || 1;
+
+                document.getElementById('acc-count').innerText = accounts.length;
+                document.getElementById('acc-limit').innerText = limit;
+
+                if (accounts.length > 0) {
+                    accounts.forEach(acc => {
+                        const div = document.createElement('div');
+                        div.className = 'account-item';
+                        div.innerHTML = `
+                            <div class="acc-info">
+                                <i class="fa-solid fa-user-tag acc-icon"></i>
+                                <span>${acc.username}</span>
+                                <span style="font-size:0.8rem; color:#888; font-weight:normal;">(ID: ${acc.id})</span>
+                            </div>
+                            <button class="del-btn" onclick="deleteAccount(${acc.id})">解除</button>
+                        `;
+                        listArea.appendChild(div);
+                    });
+                } else {
+                    listArea.innerHTML = '<div style="text-align:center; color:#666;">連携されたアカウントはありません</div>';
+                }
+
+                if (accounts.length >= limit) {
+                    document.getElementById('add-account-form').style.display = 'none';
+                    document.getElementById('limit-reached-msg').style.display = 'block';
+                } else {
+                    document.getElementById('add-account-form').style.display = 'block';
+                    document.getElementById('limit-reached-msg').style.display = 'none';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function verifyStakeKey() {
+            const key = document.getElementById('stake-api-key').value.trim();
+            if (!key) return showModal("エラー", "APIキーを入力してください");
+            
+            const btn = document.querySelector('.stake-btn');
+            btn.innerText = "確認中..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/verify_stake', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ discord_id: currentDiscordId, api_key: key })
+                });
+                const result = await res.json();
+
+                if (res.ok) {
+                    showModal("成功", "連携しました！\nユーザー: " + result.stake_username, [{text:"OK", class:"g-btn-primary"}]);
+                    document.getElementById('stake-api-key').value = "";
+                    loadUserStatus(currentDiscordId);
+                } else {
+                    showModal("エラー", result.error || "連携に失敗しました");
+                }
+            } catch(e) { showModal("エラー", "通信エラーが発生しました"); } 
+            finally { btn.innerText = "連携する"; btn.disabled = false; }
+        }
+
+        async function deleteAccount(id) {
+            showModal("確認", "本当にこのアカウント連携を解除しますか？", [
+                {text:"キャンセル", class:"g-btn-secondary"},
+                {text:"解除する", class:"g-btn-primary", onClick: async () => {
+                    closeModal();
+                    try {
+                        const res = await fetch('/api/delete_stake', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ discord_id: currentDiscordId, id: id })
+                        });
+                        if(res.ok) loadUserStatus(currentDiscordId);
+                        else showModal("エラー", "解除に失敗しました");
+                    } catch(e){ showModal("エラー", "通信エラー"); }
+                }}
+            ]);
+        }
+        
+        async function activateLicense() {
+            const code = document.getElementById('license-key').value.trim();
+            if (!code) return showModal("エラー", "キーを入力してください");
+            
+            showModal("確認", "このライセンスキーを適用しますか？", [
+                {text:"キャンセル", class:"g-btn-secondary"},
+                {text:"適用する", class:"g-btn-primary", onClick: async () => {
+                    closeModal();
+                    const btn = document.querySelector('.action-btn');
+                    btn.disabled = true;
+                    try {
+                        const res = await fetch('/api/activate', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ discord_id: currentDiscordId, license_key: code })
+                        });
+                        const result = await res.json();
+                        if (res.ok) {
+                            showModal("成功", "ライセンスが有効化されました！\n期限: " + result.new_expiry, [{text:"OK", class:"g-btn-primary"}]);
+                            document.getElementById('license-key').value = "";
+                            loadUserStatus(currentDiscordId);
+                        } else {
+                            showModal("エラー", result.error);
+                        }
+                    } catch (e) { showModal("エラー", "通信エラー"); }
+                    finally { btn.disabled = false; }
+                }}
+            ]);
+        }
+    </script>
+</body>
+
+</html>

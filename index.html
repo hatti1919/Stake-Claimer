@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
-        /* ページ固有のCSS */
         .hero-section {
             margin-top: 60px;
             text-align: center;
@@ -51,7 +50,6 @@
             font-family: 'Courier New', monospace;
         }
 
-        /* 行動理念 & 機能概要のデザイン */
         .content-section {
             width: 85%;
             max-width: 700px;
@@ -332,9 +330,8 @@
     <script>
         function goToPurchase(plan) {
             if(currentUser) window.location.href = `/purchase?plan=${plan}`;
-            else alert("購入するにはログインしてください");
+            else showModal("お知らせ", "購入するにはログインしてください。", [{text:"ログイン", class:"g-btn-primary", onClick:login}]);
         }
-
         window.addEventListener('DOMContentLoaded', () => {
             const texts = ["自分の時間を大切に。", "迅速にコードを取得します。", "スマホ一台で完結。"];
             let count=0, index=0, currentText="", letter="", isDeleting=false;
@@ -347,7 +344,6 @@
                 else if(isDeleting&&letter.length===0){isDeleting=false;count++;speed=500;} 
                 setTimeout(type,speed); 
             })();
-            
             document.querySelectorAll('.faq-question').forEach(q => {
                 q.addEventListener('click', () => {
                     const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
