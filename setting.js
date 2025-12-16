@@ -75,7 +75,7 @@ const FOOTER_HTML = `
 </footer>
 `;
 
-// ★オリジナル共通モーダルHTML
+// 共通モーダルHTML
 const GLOBAL_MODAL_HTML = `
 <div id="global-modal-overlay" class="global-modal-overlay">
     <div class="global-modal-box">
@@ -187,7 +187,7 @@ function showLoginButton() {
     }
 }
 
-// ★ユーザーメニュー (アイコンタップ式)
+// ★ユーザーメニュー設定
 function updateAuthUI(user) {
     const container = document.getElementById('auth-container');
     if (container) {
@@ -195,11 +195,11 @@ function updateAuthUI(user) {
             <div style="position:relative;">
                 <img src="${user.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleUserMenu()">
                 <div id="user-menu" class="dropdown-menu">
-                    <a href="/dashboard" class="menu-item" style="border-bottom:1px solid #333; font-weight:bold; color:#00E701;">
-                        <i class="fa-solid fa-gauge-high"></i> ダッシュボード
-                    </a>
                     <a href="/history" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> 購入履歴</a>
                     <a href="/contact" class="menu-item"><i class="fa-solid fa-envelope"></i> お問い合わせ</a>
+                    
+                    <a href="/dashboard" class="menu-item"><i class="fa-solid fa-gauge-high"></i> ダッシュボード</a>
+                    
                     <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;">
                         <i class="fa-solid fa-right-from-bracket"></i> ログアウト
                     </div>
@@ -300,7 +300,7 @@ window.markAsRead = async (notifId, userId) => {
     } catch (e) { }
 };
 
-// --- ★共通モーダル表示関数 ---
+// 共通モーダル表示関数
 window.showModal = (title, message, buttons = []) => {
     const overlay = document.getElementById('global-modal-overlay');
     const mTitle = document.getElementById('g-modal-title');

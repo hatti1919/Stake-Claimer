@@ -20,23 +20,29 @@ class handler(BaseHTTPRequestHandler):
             SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+            # 1. コード検証
             code_res = supabase.table('codes').select('*').eq('code', license_key).eq('is_used', False).execute()
-            
             if not code_res.data:
                 raise Exception("無効なライセンスキー、または既に使用されています。")
 
             code_data = code_res.data[0]
             add_days = int(code_data['days'])
 
+            # 2. 現在のユーザー情報を取得
             user_res = supabase.table('users').select('*').eq('discord_id', discord_id).execute()
             
             now_utc = datetime.datetime.now(datetime.timezone.utc)
             new_expires_at = None
 
+            # 期限計算
             if user_res.data:
                 current_expires_str = user_res.data[0]['expires_at']
-                current_expires = datetime.datetime.fromisoformat(current_expires_str.replace('Z', '+00:00'))
-                
+                # 文字列パース時のエラー回避
+                try:
+                    current_expires = datetime.datetime.fromisoformat(current_expires_str.replace('Z', '+00:00'))
+                except:
+                    current_expires = now_utc # パース失敗時は現在時刻扱い
+
                 if current_expires > now_utc:
                     new_expires_at = current_expires + datetime.timedelta(days=add_days)
                 else:
@@ -44,16 +50,21 @@ class handler(BaseHTTPRequestHandler):
             else:
                 new_expires_at = now_utc + datetime.timedelta(days=add_days)
             
+            # 3. データ更新
+            # コードを使用済みにする
             supabase.table('codes').update({'is_used': True}).eq('code', license_key).execute()
             
+            # ユーザー情報を更新 (on_conflictを指定して確実に上書き)
             upsert_data = {
                 'discord_id': discord_id,
                 'expires_at': new_expires_at.isoformat(),
                 'plan_name': f"{add_days}Day Plan",
                 'is_active': True
             }
-            supabase.table('users').upsert(upsert_data).execute()
+            # ★ここが重要: on_conflict='discord_id' を追加
+            supabase.table('users').upsert(upsert_data, on_conflict='discord_id').execute()
 
+            # 表示用にJST変換
             jst_tz = datetime.timezone(datetime.timedelta(hours=9))
             new_expiry_jst = new_expires_at.astimezone(jst_tz).strftime('%Y-%m-%d %H:%M')
 

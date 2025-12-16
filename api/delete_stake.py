@@ -10,7 +10,7 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(content_len))
             
             discord_id = str(data.get('discord_id'))
-            target_id = data.get('id')
+            target_id = data.get('id') # stake_accountsテーブルのID
 
             if not discord_id or not target_id:
                 raise Exception("IDが不足しています")
@@ -19,9 +19,11 @@ class handler(BaseHTTPRequestHandler):
             SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
             supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+            # 自分の所有するアカウントIDであることを確認して削除
             res = supabase.table('stake_accounts').delete().eq('id', target_id).eq('discord_id', discord_id).execute()
             
             if not res.data:
+                # 削除対象がなかった（ID間違い or 他人のID）
                 raise Exception("削除に失敗しました。対象が見つかりません。")
 
             self.send_response(200)
