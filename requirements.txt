@@ -2,3 +2,4 @@ requests
 supabase
 discord.py
 pytz
+tls_client

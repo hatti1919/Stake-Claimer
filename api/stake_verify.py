@@ -1,13 +1,13 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-import requests
+import tls_client
 from supabase import create_client
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
-            # 1. リクエストボディの取得
+            # 1. リクエストボディの読み込み
             content_len = int(self.headers.get('Content-Length'))
             req_body = json.loads(self.rfile.read(content_len))
             
@@ -17,11 +17,16 @@ class handler(BaseHTTPRequestHandler):
             if not discord_id or not api_key:
                 raise Exception("APIキーが入力されていません")
 
-            # 2. Stake APIでの検証 (ご提示のロジックを統合)
-            # Vercel環境用に requests を使用しますが、ヘッダーやクエリは提示コードに準拠
-            
+            # 2. Stake APIでの検証 (tls_client使用)
+            # Cloudflare回避のため、Safari iOS 16として振る舞うセッションを作成
+            session = tls_client.Session(
+                client_identifier="safari_ios_16_0",
+                random_tls_extension_order=True
+            )
+
             url = "https://stake.com/_api/graphql"
             
+            # ユーザー提供のヘッダー構成 (一部固定値で補完)
             headers = {
                 "Accept": "*/*",
                 "Content-Type": "application/json",
@@ -37,7 +42,10 @@ class handler(BaseHTTPRequestHandler):
                 "X-Operation-Type": "query"
             }
             
-            # クエリ定義
+            cookies = {
+                "cf_clearance": "" # 必要であれば設定、通常は空でもTokenが強ければ通ることがある
+            }
+
             payload = {
                 "operationName": "GetUserInfo",
                 "query": """query GetUserInfo {
@@ -51,30 +59,26 @@ class handler(BaseHTTPRequestHandler):
 
             # リクエスト送信
             try:
-                response = requests.post(
+                response = session.post(
                     url,
                     json=payload,
                     headers=headers,
-                    timeout=15
+                    cookies=cookies,
+                    timeout_seconds=15
                 )
             except Exception as e:
-                raise Exception(f"Stake APIへの接続に失敗しました: {str(e)}")
+                raise Exception(f"Stake APIへの接続エラー: {str(e)}")
 
-            if response.status_code != 200:
-                # 403等はCloudflare等の影響の可能性あり
-                raise Exception(f"Stake API Error (Status: {response.status_code})")
-
+            # レスポンスチェック
             try:
                 data = response.json()
             except:
-                raise Exception(f"Invalid JSON response (Status: {response.status_code})")
+                raise Exception(f"Invalid JSON (Status: {response.status_code})")
 
-            # エラーチェック
             if data.get("errors"):
                 error_msg = data["errors"][0].get("message", "Unknown API Error")
                 raise Exception(f"API Error: {error_msg}")
 
-            # ユーザー情報の取得確認
             if not (data.get("data") and data["data"].get("user")):
                 raise Exception("無効なAPIキーです (User Not Found)")
 
@@ -92,7 +96,7 @@ class handler(BaseHTTPRequestHandler):
             if not user_check.data:
                  raise Exception("ユーザーが見つかりません。先にログインしてください。")
 
-            # api_token と stake_username を更新
+            # 情報を更新
             update_data = {
                 'api_token': api_key,
                 'stake_username': stake_username
