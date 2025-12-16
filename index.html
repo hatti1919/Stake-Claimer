@@ -218,6 +218,35 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Discordボタン用スタイル */
+        .discord-invite-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #5865F2;
+            /* Discord公式カラー */
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 16px 50px;
+            border-radius: 50px;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+        }
+
+        .discord-invite-btn:hover {
+            background-color: #4752C4;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
+            color: #fff;
+        }
+
+        .discord-invite-btn i {
+            font-size: 1.6rem;
+        }
     </style>
 </head>
 
@@ -329,8 +358,12 @@
     <script src="/setting.js"></script>
     <script>
         function goToPurchase(plan) {
-            if(currentUser) window.location.href = `/purchase?plan=${plan}`;
-            else showModal("お知らせ", "購入するにはログインしてください。", [{text:"ログイン", class:"g-btn-primary", onClick:login}]);
+            // setting.jsで設定された currentUser をチェック
+            if(currentUser) {
+                window.location.href = `/purchase?plan=${plan}`;
+            } else {
+                showModal("お知らせ", "購入するにはログインしてください。", [{text:"ログイン", class:"g-btn-primary", onClick:login}]);
+            }
         }
         window.addEventListener('DOMContentLoaded', () => {
             const texts = ["自分の時間を大切に。", "迅速にコードを取得します。", "スマホ一台で完結。"];
