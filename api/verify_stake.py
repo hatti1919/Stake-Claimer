@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-import tls_client
+from curl_cffi import requests
 from supabase import create_client
 
 class handler(BaseHTTPRequestHandler):
@@ -17,33 +17,30 @@ class handler(BaseHTTPRequestHandler):
             if not discord_id or not api_key:
                 raise Exception("APIキーが入力されていません")
 
-            # 2. Stake APIでの検証 (tls_client使用)
-            # Cloudflare回避のため、Safari iOS 16として振る舞うセッションを作成
-            session = tls_client.Session(
-                client_identifier="safari_ios_16_0",
-                random_tls_extension_order=True
-            )
-
+            # 2. Stake APIでの検証
             url = "https://stake.com/_api/graphql"
             
-            # ユーザー提供のヘッダー構成 (一部固定値で補完)
+            # tomato1212.yml の値を使用
+            # UA: Mozilla/5.0 ... Chrome/129.0.0.0 ... Edg/129.0.0.0
+            # CHUA: "Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129"
+            
             headers = {
-                "Accept": "*/*",
                 "Content-Type": "application/json",
                 "Origin": "https://stake.com",
                 "Referer": "https://stake.com/",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0",
                 "Sec-Ch-Ua": '"Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
                 "Sec-Ch-Ua-Mobile": "?0",
                 "Sec-Ch-Ua-Platform": '"Windows"',
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0",
                 "X-Access-Token": api_key,
                 "X-Language": "ja",
                 "X-Operation-Name": "GetUserInfo",
                 "X-Operation-Type": "query"
             }
             
+            # tomato1212.yml の cf_clearance を使用
             cookies = {
-                "cf_clearance": "GLQ5sNGliHkN_zm9PuD_d.uJC_I6yNvpHhcl7ipAvug-1761108806-1.2.1.1-MOCs6fIrMBbjxZAMuhUlBC2cKxYPWJPrKYTVkf07cQd73aBfFD6pgG.cVMWiadA0mfuJT4JCwkAf5JRQz2tr9uS.rXMVd5j8GLkjILiYRBgEmFsAKmE8zgAUR.jQKP65XDuagxLY6NUhHZTlg2Sktb.EB0BjsTuKuBMBvkXGGyoiKRpdP5xka5Qj0bGu8Di7dRodxBybaTKYcmD6x6K..lYetbo5kKeNPirm9ki2ReA" # 必要であれば設定、通常は空でもTokenが強ければ通ることがある
+                "cf_clearance": "GLQ5sNGliHkN_zm9PuD_d.uJC_I6yNvpHhcl7ipAvug-1761108806-1.2.1.1-MOCs6fIrMBbjxZAMuhUlBC2cKxYPWJPrKYTVkf07cQd73aBfFD6pgG.cVMWiadA0mfuJT4JCwkAf5JRQz2tr9uS.rXMVd5j8GLkjILiYRBgEmFsAKmE8zgAUR.jQKP65XDuagxLY6NUhHZTlg2Sktb.EB0BjsTuKuBMBvkXGGyoiKRpdP5xka5Qj0bGu8Di7dRodxBybaTKYcmD6x6K..lYetbo5kKeNPirm9ki2ReA"
             }
 
             payload = {
@@ -57,23 +54,28 @@ class handler(BaseHTTPRequestHandler):
                 }"""
             }
 
-            # リクエスト送信
+            # curl_cffi でリクエスト送信
+            # impersonate="chrome110" を指定してTLSフィンガープリントを偽装しつつ、ヘッダー等は指定値で上書き
             try:
-                response = session.post(
+                response = requests.post(
                     url,
                     json=payload,
                     headers=headers,
                     cookies=cookies,
-                    timeout_seconds=15
+                    impersonate="chrome110",
+                    timeout=15
                 )
             except Exception as e:
                 raise Exception(f"Stake APIへの接続エラー: {str(e)}")
 
             # レスポンスチェック
+            if response.status_code != 200:
+                 raise Exception(f"Stake API Error (Status: {response.status_code})")
+
             try:
                 data = response.json()
             except:
-                raise Exception(f"Invalid JSON (Status: {response.status_code})")
+                raise Exception(f"Invalid JSON response")
 
             if data.get("errors"):
                 error_msg = data["errors"][0].get("message", "Unknown API Error")
