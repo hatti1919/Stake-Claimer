@@ -32,10 +32,10 @@ class handler(BaseHTTPRequestHandler):
                 "Content-Type": "application/json",
                 "Origin": "https://stake.com",
                 "Referer": "https://stake.com/",
-                "Sec-Ch-Ua": '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
+                "Sec-Ch-Ua": '"Microsoft Edge";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
                 "Sec-Ch-Ua-Mobile": "?0",
                 "Sec-Ch-Ua-Platform": '"Windows"',
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0",
                 "X-Access-Token": api_key,
                 "X-Language": "ja",
                 "X-Operation-Name": "GetUserInfo",
@@ -43,7 +43,7 @@ class handler(BaseHTTPRequestHandler):
             }
             
             cookies = {
-                "cf_clearance": "" # 必要であれば設定、通常は空でもTokenが強ければ通ることがある
+                "cf_clearance": "GLQ5sNGliHkN_zm9PuD_d.uJC_I6yNvpHhcl7ipAvug-1761108806-1.2.1.1-MOCs6fIrMBbjxZAMuhUlBC2cKxYPWJPrKYTVkf07cQd73aBfFD6pgG.cVMWiadA0mfuJT4JCwkAf5JRQz2tr9uS.rXMVd5j8GLkjILiYRBgEmFsAKmE8zgAUR.jQKP65XDuagxLY6NUhHZTlg2Sktb.EB0BjsTuKuBMBvkXGGyoiKRpdP5xka5Qj0bGu8Di7dRodxBybaTKYcmD6x6K..lYetbo5kKeNPirm9ki2ReA" # 必要であれば設定、通常は空でもTokenが強ければ通ることがある
             }
 
             payload = {
