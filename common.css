@@ -1,10 +1,13 @@
-/* common.css */
+/* common.css - 修正版 */
+
+/* --- 基本設定 --- */
 body {
     background-color: #000;
     color: #fff;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding-top: 70px;
+    /* ヘッダーの高さ分 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,7 +15,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ヘッダー */
+/* --- ヘッダー (Sticky Nav) --- */
 .sticky-nav {
     position: fixed;
     top: 0;
@@ -82,6 +85,7 @@ body {
     padding: 2px;
     border-radius: 50%;
     display: none;
+    /* JSで制御 */
     justify-content: center;
     align-items: center;
     border: 1px solid #000;
@@ -93,7 +97,7 @@ body {
     background-color: #333;
 }
 
-/* ログインボタン */
+/* ログインボタン (Nav) */
 .login-btn-nav {
     background-color: #5865F2;
     color: white;
@@ -135,6 +139,7 @@ body {
     border-radius: 10px;
     width: 220px;
     display: none;
+    /* JSで制御 */
     flex-direction: column;
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
@@ -174,6 +179,7 @@ body {
     border: 1px solid #333;
     border-radius: 8px;
     display: none;
+    /* JSで制御 */
     flex-direction: column;
     z-index: 2000;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
@@ -217,7 +223,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* モバイルメニュー */
+/* --- モバイル対応 --- */
 .mobile-menu-btn {
     display: none;
     color: #fff;
@@ -271,7 +277,7 @@ body {
     }
 }
 
-/* フッター */
+/* --- フッター --- */
 .footer-wrapper {
     margin-top: auto;
     width: 100%;
@@ -331,7 +337,8 @@ body {
     font-size: 0.75rem;
 }
 
-/* ★オリジナルモーダル (Global Modal) */
+/* --- グローバルモーダル (共通デザイン) --- */
+/* purchase.html 等で使用するモーダルの基本スタイル */
 .global-modal-overlay {
     position: fixed;
     top: 0;
@@ -435,7 +442,7 @@ body {
     background: #444;
 }
 
-/* ★追加: 共通ボタンスタイル (IndexとCheckoutで使用) */
+/* --- 汎用ボタンスタイル (Index/Checkout用) --- */
 .hero-buttons {
     display: flex;
     justify-content: center;
