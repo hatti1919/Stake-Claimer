@@ -5,151 +5,249 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>購入手続き</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto+Mono:wght@500;700&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
+
     <style>
+        body {
+            /* 全体のフォントを見やすく設定 */
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
         .container {
             width: 90%;
             max-width: 800px;
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
-            padding-bottom: 50px;
+            padding-bottom: 40px;
         }
 
         .page-title {
-            font-size: 2rem;
-            color: #00E701;
-            font-weight: bold;
-            margin-bottom: 40px;
+            font-size: 1.8rem;
+            color: #fff;
+            /* 白にしてスッキリさせる */
+            font-weight: 700;
+            margin-bottom: 25px;
             text-align: center;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
+            letter-spacing: 0.05em;
         }
 
         .section-title {
-            font-size: 1.2rem;
-            margin: 30px 0 15px 0;
-            color: #ccc;
-            border-left: 4px solid #00E701;
-            padding-left: 10px;
+            font-size: 1rem;
+            margin: 25px 0 10px 0;
+            color: #aaa;
+            font-weight: bold;
             text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 緑のバーの代わりにアイコンでアクセント */
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: #00E701;
+            border-radius: 2px;
         }
 
         .selection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 25px;
         }
 
         .select-card {
             background: #111;
-            border: 2px solid #333;
-            border-radius: 10px;
-            padding: 20px;
+            border: 1px solid #333;
+            /* 枠線を細くしてスタイリッシュに */
+            border-radius: 12px;
+            padding: 15px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .select-card:hover {
+            border-color: #555;
+            background: #161616;
+            transform: translateY(-2px);
         }
 
         .select-card.selected {
-            border-color: #00E701;
-            background: rgba(0, 231, 1, 0.1);
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+            border: 2px solid #00E701;
+            /* 選択時は枠線を太く */
+            background: rgba(0, 231, 1, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 231, 1, 0.15);
+            padding: 14px;
+            /* 枠線分調整 */
         }
 
+        /* チェックマークアイコン */
         .select-card.selected::after {
             content: '\f00c';
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -8px;
+            right: -8px;
             background: #00E701;
             color: #000;
-            width: 25px;
-            height: 25px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .plan-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* 価格表示のデザイン変更 */
+        .plan-price {
+            font-family: 'Roboto Mono', monospace;
+            /* 数字専用フォント */
+            color: #00E701;
+            /* 緑色で強調 */
+            font-size: 1.4rem;
+            /* 大きく */
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-top: 5px;
+        }
+
+        .plan-price small {
+            font-size: 0.8rem;
+            color: #888;
+            font-weight: normal;
+            margin-right: 2px;
         }
 
         .select-card.disabled {
-            opacity: 0.4;
+            opacity: 0.5;
             cursor: not-allowed;
-            border-color: #333;
-            background: #0a0a0a;
+            border-color: #222;
+            background: #080808;
             pointer-events: none;
+        }
+
+        .payment-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
         }
 
         .coupon-input {
             width: 100%;
             max-width: 400px;
-            padding: 15px;
+            padding: 12px;
             background: #111;
             border: 1px solid #333;
             color: #fff;
-            border-radius: 8px;
+            border-radius: 50px;
+            /* 丸くして親しみやすく */
             margin-bottom: 20px;
             text-align: center;
             font-size: 1rem;
+            font-family: 'Roboto Mono', monospace;
             box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        .coupon-input:focus {
+            border-color: #00E701;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
         }
 
         .checkout-btn {
             background: #00E701;
             color: #000;
-            font-weight: bold;
-            padding: 15px 30px;
-            border-radius: 30px;
+            font-weight: 800;
+            padding: 15px 40px;
+            border-radius: 50px;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 231, 1, 0.3);
         }
 
         .checkout-btn:hover {
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 231, 1, 0.5);
         }
 
         .checkout-btn:disabled {
-            background: #555;
-            color: #ccc;
+            background: #333;
+            color: #777;
             cursor: not-allowed;
             box-shadow: none;
+            transform: none;
         }
 
+        /* モーダル内の価格表示も見やすく */
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #222;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
-        .price-row:last-child {
-            border-bottom: none;
+        .price-row span:last-child {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
         }
 
         .price-total {
             border-top: 2px solid #333;
-            margin-top: 10px;
-            padding-top: 10px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #00E701;
+            margin-top: 15px;
+            padding-top: 15px;
+            font-size: 1.2rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
         }
 
-        /* チェックボックスのスタイル */
+        .price-total span:last-child {
+            color: #00E701;
+            font-size: 1.6rem;
+            /* 合計金額を大きく */
+            font-weight: 700;
+        }
+
         .tos-container {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #333;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #333;
             text-align: center;
         }
 
@@ -158,66 +256,74 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            color: #ccc;
         }
 
         .tos-checkbox {
-            transform: scale(1.3);
+            width: 18px;
+            height: 18px;
             accent-color: #00E701;
             cursor: pointer;
-        }
-
-        .tos-link {
-            color: #fff;
-            text-decoration: underline;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .tos-link:hover {
-            color: #00E701;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 class="page-title">購入手続き</h1>
+        <h1 class="page-title">購入プランの選択</h1>
 
-        <div class="section-title">プランを選択</div>
+        <div class="section-title">期間を選ぶ</div>
         <div class="selection-grid" id="plan-grid">
             <div class="select-card" onclick="selectPlan(this, '1day')">
-                <div>1 Day</div>
-                <div style="font-family:monospace;color:#aaa;">¥1,200</div>
+                <div class="plan-name">1 Day</div>
+                <div class="plan-price"><small>¥</small>1,200</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1week')">
-                <div>1 Week</div>
-                <div style="font-family:monospace;color:#aaa;">¥3,000</div>
+                <div class="plan-name">1 Week</div>
+                <div class="plan-price"><small>¥</small>3,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '2weeks')">
-                <div>2 Weeks</div>
-                <div style="font-family:monospace;color:#aaa;">¥5,000</div>
+                <div class="plan-name">2 Weeks</div>
+                <div class="plan-price"><small>¥</small>5,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1month')">
-                <div>1 Month</div>
-                <div style="font-family:monospace;color:#aaa;">¥6,800</div>
+                <div class="plan-name">1 Month</div>
+                <div class="plan-price"><small>¥</small>6,800</div>
             </div>
         </div>
 
-        <div class="section-title">支払い方法を選択</div>
+        <div class="section-title">支払い方法</div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled"><span style="color:#ff0033;font-weight:bold;">P</span>
-                PayPay<br><small>Coming Soon</small></div>
-            <div class="select-card disabled"><i class="fa-brands fa-stripe" style="color:#635bff;"></i>
-                Card<br><small>Coming Soon</small></div>
-            <div class="select-card" onclick="selectPayment(this, 'crypto')"><i class="fa-brands fa-bitcoin"
-                    style="color:#f7931a;"></i> 仮想通貨</div>
+            <div class="select-card disabled">
+                <div class="payment-label">
+                    <span style="color:#ff0033; font-weight:900; font-size:1.2rem;">P</span>
+                    <span>PayPay</span>
+                </div>
+                <div style="font-size:0.75rem; color:#666; margin-top:2px;">Coming Soon</div>
+            </div>
+
+            <div class="select-card disabled">
+                <div class="payment-label">
+                    <i class="fa-brands fa-stripe" style="color:#635bff; font-size:1.5rem;"></i>
+                    <span>Card</span>
+                </div>
+                <div style="font-size:0.75rem; color:#666; margin-top:2px;">Coming Soon</div>
+            </div>
+
+            <div class="select-card" onclick="selectPayment(this, 'crypto')">
+                <div class="payment-label">
+                    <i class="fa-brands fa-bitcoin" style="color:#f7931a; font-size:1.8rem; margin-bottom:5px;"></i>
+                    <span>仮想通貨</span>
+                </div>
+            </div>
         </div>
 
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコードをお持ちの方">
         <br>
-        <button class="checkout-btn" onclick="verifyOrder()">決済内容を確認</button>
+        <button class="checkout-btn" onclick="verifyOrder()">
+            <i class="fa-solid fa-cart-shopping" style="margin-right:8px;"></i> 決済内容を確認する
+        </button>
     </div>
 
     <div id="custom-modal-overlay" class="global-modal-overlay">
@@ -230,7 +336,7 @@
 
     <script src="/setting.js"></script>
     <script>
-        // モーダル制御（クラス切り替え方式に修正）
+        // モーダル制御
         function closeModal() {
             document.getElementById('custom-modal-overlay').classList.remove('show');
         }
@@ -245,14 +351,13 @@
             if (buttons.length === 0) {
                 const btn = document.createElement('button');
                 btn.innerText = '閉じる';
-                btn.className = 'g-modal-btn g-btn-secondary'; // common.cssのクラス
+                btn.className = 'g-modal-btn g-btn-secondary'; 
                 btn.onclick = closeModal;
                 actionsDiv.appendChild(btn);
             } else {
                 buttons.forEach(b => {
                     const btn = document.createElement('button');
                     btn.innerText = b.text;
-                    // ボタンクラスをcommon.cssに合わせる
                     let btnClass = 'g-modal-btn';
                     if (b.class.includes('green') || b.class.includes('btn-green')) {
                         btnClass += ' g-btn-primary';
@@ -287,14 +392,14 @@
             if (!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
 
             const btn = document.querySelector('.checkout-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "確認中...";
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 確認中...';
             btn.disabled = true;
 
             try {
                 const coupon = document.getElementById('coupon-code').value;
                 
-                // APIでクーポンチェックと金額計算を行う
+                // APIリクエスト
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -311,12 +416,13 @@
 
                 const discountDisplay = data.coupon_label ? `${data.coupon_label}` : `-¥${data.discount}`;
 
+                // モーダル内のHTML構築
                 const html = `
                     <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
                     <div class="price-row"><span>支払い方法</span><span>仮想通貨</span></div>
                     <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
                     <div class="price-row" style="color:#00E701"><span>割引</span><span>${discountDisplay}</span></div>
-                    <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
+                    <div class="price-row price-total"><span>支払総額</span><span>¥${data.final_price}</span></div>
                     
                     <div class="tos-container">
                         <label class="tos-label">
@@ -328,10 +434,10 @@
                     </div>
                 `;
                 
-                showModal("決済内容の確認", html, [
+                showModal("注文内容の確認", html, [
                     { text: "キャンセル", class: "btn-gray", onClick: closeModal },
                     { 
-                        text: "支払う", 
+                        text: "支払いに進む", 
                         class: "btn-green", 
                         onClick: () => {
                             const chk = document.getElementById('tos-checkbox');
@@ -348,14 +454,13 @@
                 showModal("エラー", e.message, [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
             } finally {
                 if (btn) {
-                    btn.innerText = originalText;
+                    btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
             }
         }
 
         async function createOrder(coupon) {
-            // モーダルボタンのセレクタを修正
             const btn = document.querySelector('.g-btn-primary');
             if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
