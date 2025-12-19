@@ -4,52 +4,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>使用方法</title>
+    <title>使用方法 - Stake Claimer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
+
     <style>
-        .content {
+        /* ページ固有のスタイル設定 */
+        .content-wrapper {
             width: 90%;
             max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 60px;
+        }
+
+        h1.page-title {
+            color: #00E701;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
             margin-top: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 2px;
         }
 
-        .step {
+        /* ステップカードのデザイン */
+        .step-card {
             background: #111;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 40px;
             border: 1px solid #333;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
-        .step-num {
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 15px;
+        }
+
+        .step-badge {
             background: #00E701;
             color: #000;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 15px;
+            border-radius: 6px;
+            font-weight: 900;
+            margin-right: 15px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .step-title {
+            font-size: 1.4rem;
             font-weight: bold;
-            margin-right: 10px;
+            color: #fff;
+            margin: 0;
+        }
+
+        /* 本文テキスト */
+        .step-text {
+            color: #ccc;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        /* リンクテキスト */
+        .link-text {
+            color: #00E701;
+            text-decoration: underline;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .link-text:hover {
+            color: #fff;
+        }
+
+        /* 画像スタイル */
+        .step-img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid #333;
+            margin: 20px 0 30px 0;
+            display: block;
+            background-color: #000;
+        }
+
+        /* 汎用アクションボタン（緑） */
+        .btn-action {
+            display: inline-block;
+            background-color: #00E701;
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
+            margin: 10px 0 20px 0;
+            text-align: center;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
+            color: #000;
+        }
+
+        /* 「今すぐ購入」ボタン（強調版） */
+        .btn-buy-now {
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            background-color: #00E701;
+            color: #000;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+        }
+
+        .btn-buy-now:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(0, 231, 1, 0.6);
+            color: #000;
+        }
+
+        /* STEP 2用 警告ボックス */
+        .alert-box-danger {
+            border: 2px solid #ff4444;
+            background-color: rgba(255, 68, 68, 0.08);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .alert-title {
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .alert-content {
+            color: #ffcccc;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* 補足情報ボックス */
+        .info-box {
+            background: #1a1a1a;
+            border-left: 4px solid #00E701;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        /* オーナーのお願いセクション */
+        .owner-request {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #333;
         }
     </style>
 </head>
 
 <body>
-    <div class="content">
-        <h1 style="color:#00E701; border-bottom:1px solid #333; padding-bottom:15px;">使用方法</h1>
-        <div class="step">
-            <h3><span class="step-num">STEP 1</span>Discordでログイン</h3>
-            <p>トップページのLoginボタンからログインしてください。</p>
+
+    <div class="content-wrapper">
+        <h1 class="page-title">使用方法ガイド</h1>
+
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-badge">STEP 1</span>
+                <h2 class="step-title">ログイン</h2>
+            </div>
+
+            <p class="step-text">
+                ログインボタンをタップしログインをしてください。<br>
+                <a href="#" class="link-text">こちら</a>をクリックしてもログインできます。
+            </p>
+            <p class="step-text">
+                ボタンを押すとサイトに飛ぶので、そのサイトで、ディスコードのアカウントを使用して下記の画像の「認証」というところを押して認証してください。
+            </p>
+
+            <img src="image/step1.png" alt="認証画面" class="step-img">
+
+            <div class="info-box">
+                <i class="fas fa-info-circle" style="color: #00E701; margin-right: 8px;"></i>
+                Discordのアカウントをまだ持っていない方は <a href="https://discord.com/register" target="_blank"
+                    class="link-text">こちら</a> をクリックして作成してください。
+            </div>
         </div>
-        <div class="step">
-            <h3><span class="step-num">STEP 2</span>プラン購入</h3>
-            <p>希望の期間を選択し、仮想通貨で支払いを完了してください。支払いが完了すると自動的にライセンスキーが発行されます。</p>
+
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-badge">STEP 2</span>
+                <h2 class="step-title">購入</h2>
+            </div>
+
+            <p class="step-text">
+                以下の「今すぐ購入」というところをタップしてご希望のプラン、お支払い方法を選択してください。
+            </p>
+
+            <a href="purchase.html" class="btn-buy-now">
+                <i class="fas fa-shopping-cart"></i> 🛒 今すぐ購入
+            </a>
+
+            <p class="step-text">あればクーポンコードを入力してください。</p>
+            <img src="image/step2_1.png" alt="クーポン入力" class="step-img">
+
+            <p class="step-text">そして、「注文へ進む」というボタンをクリックしてください。</p>
+            <img src="image/step2_2.png" alt="注文へ進む" class="step-img">
+
+            <p class="step-text">
+                利用規約に同意するという所にチェックして、「支払う」というボタンをクリックしてください。<br>
+                そうすると、画面が切り替わって、チェックアウトのところに飛ばされると思います。
+            </p>
+            <img src="image/step2_3.png" alt="支払い画面" class="step-img">
+
+            <p class="step-text">
+                「支払う」というボタンをクリックすると外部サイトに飛びますので、ご都合の良い通貨を選択して、お支払いを完了させてください。
+            </p>
+
+            <div class="alert-box-danger">
+                <div class="alert-title">
+                    <i class="fas fa-exclamation-triangle"></i> 注意
+                </div>
+                <p class="alert-content">
+                    残り時間以内に入金をせず、時間切れになって入金をしてしまうとこちらにお金が一切入ってきませんので、保証ができません。<br><br>
+                    <strong>資金の損失につながりますので、すぐに購入できるタイミングでお支払いしてください。</strong><br>
+                    また、これをしてしまってライセンスキーが届かなくても保証は出来かねます。ご了承ください。
+                </p>
+            </div>
+
+            <div class="info-box">
+                また、画面を間違って消してしまった場合でも「購入履歴を確認」からチェックアウトページに飛べます。<br>
+                <a href="history.html" class="link-text">こちら</a> をクリックしても確認できます。
+            </div>
         </div>
-        <div class="step">
-            <h3><span class="step-num">STEP 3</span>Discordで使用</h3>
-            <p>発行されたキーをDiscordサーバー内の指定チャンネルで使用するか、BotにDMで送信してアクティベートしてください。</p>
+
+        <div class="step-card">
+            <div class="step-header">
+                <span class="step-badge">STEP 3</span>
+                <h2 class="step-title">導入</h2>
+            </div>
+
+            <p class="step-text">
+                お支払いが完了いたしますとライセンスキーが発行されます。<br>
+                <span style="font-size: 0.9em; color: #aaa;">※もし支払いを完了したのに発行されない場合は下のボタンからサポートにお問い合わせしてください。</span>
+            </p>
+
+            <div style="text-align: center;">
+                <a href="contact.html" class="btn-action">お問い合わせ</a>
+            </div>
+
+            <p class="step-text">
+                そして「今すぐ利用」と書かれているボタンをタップしてください。
+            </p>
+            <img src="image/step3_1.png" alt="今すぐ利用ボタン" class="step-img">
+
+            <p class="step-text">
+                そうすると、ダッシュボードに飛びます。<br>
+                ダッシュボードに飛びましたら、先ほど購入したライセンスキーを入力してください。
+            </p>
+            <img src="image/step3_2.png" alt="ライセンスキー入力" class="step-img">
+
+            <p class="step-text">
+                ライセンスキーを入力すると権限が付与されると思います。<br>
+                付与されない場合は <a href="contact.html" class="link-text">お問い合わせ</a> してください。
+            </p>
+            <img src="image/step3_3.png" alt="権限付与" class="step-img">
+
+            <p class="step-text">
+                このように出ましたら、権限が付与されました。次にStakeのAPIkeyを入力してください。
+            </p>
+
+            <div style="text-align: center;">
+                <a href="https://stake.com/settings/api" target="_blank" class="btn-action">
+                    API取得する <i class="fas fa-external-link-alt" style="font-size: 0.8em;"></i>
+                </a>
+            </div>
+
+            <p class="step-text">
+                こちらをクリックしていただくとAPIを取得する画面に飛ぶと思います。表示というボタンを押していただいてコピーしてください。
+            </p>
+            <img src="image/step3_4.png" alt="APIキー取得" class="step-img">
+
+            <p class="step-text">
+                それができましたら、先ほど取得したStakeのAPIkeyを入力してください。<br>
+                APIの入力が完了してアカウントが追加されたら、完了です。
+            </p>
         </div>
+
+        <div class="owner-request">
+            <h3 style="color: #fff; margin-bottom: 20px;">オーナーからのお願い</h3>
+            <p class="step-text">購入してください！笑</p>
+            <a href="purchase.html" class="btn-buy-now">
+                <i class="fas fa-shopping-cart"></i> 今すぐ購入する
+            </a>
+        </div>
+
     </div>
+
     <script src="setting.js"></script>
 </body>
 
