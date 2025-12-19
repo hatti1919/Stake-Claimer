@@ -24,170 +24,93 @@
 
         .container {
             width: 90%;
-            max-width: 750px;
-            margin-top: 20px;
+            max-width: 800px;
+            margin-top: 30px;
             text-align: center;
-            padding-bottom: 30px;
+            padding-bottom: 50px;
         }
 
         .page-title {
-            font-size: 1.6rem;
-            color: #fff;
-            font-weight: 700;
-            margin-bottom: 25px;
+            font-size: 2rem;
+            color: #00E701;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
         }
 
         .section-title {
-            font-size: 1rem;
-            margin: 20px 0 10px 0;
-            color: #aaa;
-            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 30px 0 15px 0;
+            color: #ccc;
+            border-left: 4px solid #00E701;
+            padding-left: 10px;
             text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::before {
-            content: '';
-            display: inline-block;
-            width: 4px;
-            height: 16px;
-            background: #00E701;
-            border-radius: 2px;
         }
 
         /* 選択グリッド */
         .selection-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .select-card {
             background: #111;
-            border: 1px solid #333;
+            border: 2px solid #333;
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: 0.2s;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 70px;
             gap: 5px;
-        }
-
-        .select-card:hover {
-            border-color: #555;
-            background: #161616;
-            transform: translateY(-2px);
         }
 
         .select-card.selected {
-            border: 1px solid #00E701;
-            background: rgba(0, 231, 1, 0.05);
-            box-shadow: 0 4px 15px rgba(0, 231, 1, 0.15);
+            border-color: #00E701;
+            background: rgba(0, 231, 1, 0.1);
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
         }
 
         .select-card.selected::after {
-            content: '';
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
             position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
+            top: -10px;
+            right: -10px;
             background: #00E701;
+            color: #000;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
-            box-shadow: 0 0 5px #00E701;
-        }
-
-        .plan-card-content {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0 5px;
-        }
-
-        .select-card.selected .plan-name,
-        .select-card.selected .payment-name {
-            color: #fff;
-        }
-
-        .select-card.selected .plan-price {
-            color: #00E701;
-        }
-
-        .plan-name {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #ddd;
-        }
-
-        .plan-price {
-            font-family: 'Roboto Mono', monospace;
-            color: #aaa;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .payment-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            gap: 5px;
-            width: 100%;
-        }
-
-        /* ロゴ画像の調整 */
-        .payment-logo {
-            height: 24px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        .payment-label-row {
-            display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            color: #ddd;
-            font-size: 1rem;
-        }
-
-        .payment-icon {
-            font-size: 1.3rem;
-        }
-
-        .coming-soon {
-            font-size: 0.75rem;
-            color: #666;
-            font-weight: normal;
+            font-size: 0.8rem;
         }
 
         .select-card.disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            border-color: #333;
             background: #0a0a0a;
-            border-color: #222;
             pointer-events: none;
         }
 
-        /* クーポン入力欄の強調 */
+        /* クーポン入力欄 */
         .coupon-input {
             width: 100%;
-            max-width: 500px;
-            padding: 12px;
+            max-width: 400px;
+            padding: 15px;
             background: #0f1a0f;
             border: 2px solid #00E701;
-            /* 枠線を緑で強調 */
             color: #fff;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -196,30 +119,27 @@
             font-family: 'Roboto Mono', monospace;
             box-sizing: border-box;
             transition: 0.3s;
-            box-shadow: 0 0 10px rgba(0, 231, 1, 0.15);
-            /* 発光エフェクト */
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
         }
 
         .coupon-input:focus {
             background: #000;
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.4);
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
             outline: none;
         }
 
         .checkout-btn {
             background: #00E701;
             color: #000;
-            font-weight: 800;
-            padding: 14px;
-            border-radius: 50px;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 30px;
             border: none;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
             width: 100%;
-            max-width: 400px;
+            max-width: 300px;
             transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 231, 1, 0.2);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -227,65 +147,150 @@
         }
 
         .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 231, 1, 0.4);
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
         }
 
         .checkout-btn:disabled {
-            background: #333;
-            color: #777;
+            background: #555;
+            color: #ccc;
+            cursor: not-allowed;
             box-shadow: none;
-            transform: none;
         }
 
-        /* 注文確認モーダルの中身 */
+        /* ▼▼▼ モーダル調整（極限まで詰める＆横並び矯正） ▼▼▼ */
+        .global-modal-box {
+            padding: 12px 15px !important;
+            /* 余白をさらに削減 */
+            max-width: 350px !important;
+            /* 横幅もスリムに */
+            border: 1px solid #333 !important;
+            /* スクロールさせない */
+            overflow: visible !important;
+        }
+
+        .global-modal-title {
+            font-size: 1.1rem !important;
+            margin-bottom: 5px !important;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #222;
+        }
+
+        .global-modal-body {
+            font-size: 0.9rem !important;
+            margin-bottom: 5px !important;
+            /* ボディ下の余白ほぼなし */
+            line-height: 1.2 !important;
+        }
+
+        /* 注文内容の行 */
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #222;
-            font-size: 1rem;
+            padding: 2px 0;
+            /* 上下2pxで極小に */
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.9rem;
         }
 
         .price-row span:last-child {
             font-family: 'Roboto Mono', monospace;
-            font-weight: 500;
         }
 
         .price-total {
             border-top: 1px solid #333;
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 5px;
+            padding-top: 5px;
             font-size: 1.1rem;
-            color: #fff;
             font-weight: bold;
-        }
-
-        .price-total span:last-child {
             color: #00E701;
-            font-size: 1.3rem;
         }
 
+        /* 利用規約エリア（ここを横並び強制） */
         .tos-container {
-            margin-top: 15px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 5px;
             border-top: 1px dashed #222;
             text-align: center;
-            font-size: 0.8rem;
         }
 
         .tos-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: #bbb;
+            display: flex !important;
+            /* 強制的にフレックス */
+            flex-direction: row !important;
+            /* 横並び */
+            align-items: center !important;
+            /* 垂直中央 */
+            justify-content: center !important;
+            /* 中央寄せ */
+            gap: 6px !important;
+            /* チェックボックスと文字の間隔 */
+            width: 100%;
+            cursor: pointer;
+            white-space: nowrap;
+            /* 改行禁止 */
         }
 
         .tos-checkbox {
+            margin: 0 !important;
+            padding: 0 !important;
+            transform: scale(1.1);
             accent-color: #00E701;
-            transform: scale(0.9);
-            margin: 0;
+            cursor: pointer;
+            /* 高さズレ防止 */
+            position: relative;
+            top: 1px;
+        }
+
+        .tos-text {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1;
+            /* 行高さを詰める */
+        }
+
+        .tos-link {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tos-link:hover {
+            color: #00E701;
+        }
+
+        /* ボタンエリア */
+        .global-modal-actions {
+            margin-top: 10px !important;
+            gap: 10px !important;
+        }
+
+        .g-modal-btn {
+            padding: 6px 20px !important;
+            font-size: 0.85rem !important;
+            min-width: 90px !important;
+            height: auto !important;
+            /* 高さを内容に合わせる */
+        }
+
+        /* PayPay画像 */
+        .payment-logo {
+            height: 22px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .payment-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .coming-soon {
+            font-size: 0.75rem;
+            color: #666;
         }
     </style>
 </head>
@@ -297,63 +302,49 @@
         <div class="section-title">プランを選択</div>
         <div class="selection-grid" id="plan-grid">
             <div class="select-card" onclick="selectPlan(this, '1day')">
-                <div class="plan-card-content">
-                    <span class="plan-name">1 Day</span>
-                    <span class="plan-price">¥1,200</span>
-                </div>
+                <div>1 Day</div>
+                <div style="font-family:monospace;color:#aaa;">¥1,200</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1week')">
-                <div class="plan-card-content">
-                    <span class="plan-name">1 Week</span>
-                    <span class="plan-price">¥3,000</span>
-                </div>
+                <div>1 Week</div>
+                <div style="font-family:monospace;color:#aaa;">¥3,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '2weeks')">
-                <div class="plan-card-content">
-                    <span class="plan-name">2 Weeks</span>
-                    <span class="plan-price">¥5,000</span>
-                </div>
+                <div>2 Weeks</div>
+                <div style="font-family:monospace;color:#aaa;">¥5,000</div>
             </div>
             <div class="select-card" onclick="selectPlan(this, '1month')">
-                <div class="plan-card-content">
-                    <span class="plan-name">1 Month</span>
-                    <span class="plan-price">¥6,800</span>
-                </div>
+                <div>1 Month</div>
+                <div style="font-family:monospace;color:#aaa;">¥6,800</div>
             </div>
         </div>
 
-        <div class="section-title">支払い方法</div>
+        <div class="section-title">支払い方法を選択</div>
         <div class="selection-grid" id="payment-grid">
             <div class="select-card disabled">
                 <div class="payment-content">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/PayPay_logo_2.svg" alt="PayPay"
                         class="payment-logo">
-                    <div class="coming-soon">Coming Soon</div>
+                    <small class="coming-soon">Coming Soon</small>
                 </div>
             </div>
-
             <div class="select-card disabled">
                 <div class="payment-content">
-                    <div class="payment-label-row">
-                        <i class="fa-brands fa-stripe payment-icon" style="color:#635bff;"></i>
-                        <span>Card</span>
-                    </div>
-                    <div class="coming-soon">Coming Soon</div>
+                    <i class="fa-brands fa-stripe" style="color:#635bff; font-size:1.5rem; margin-bottom:2px;"></i>
+                    <div>Card</div>
+                    <small class="coming-soon">Coming Soon</small>
                 </div>
             </div>
-
             <div class="select-card" onclick="selectPayment(this, 'crypto')">
                 <div class="payment-content">
-                    <div class="payment-label-row">
-                        <i class="fa-brands fa-bitcoin payment-icon" style="color:#f7931a;"></i>
-                        <span>仮想通貨</span>
-                    </div>
+                    <i class="fa-brands fa-bitcoin" style="color:#f7931a; font-size:1.5rem; margin-bottom:2px;"></i>
+                    <div>仮想通貨</div>
                 </div>
             </div>
         </div>
 
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコードをお持ちの方">
-
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
+        <br>
         <button class="checkout-btn" onclick="verifyOrder()">
             <i class="fa-solid fa-cart-shopping"></i> 注文へ進む
         </button>
@@ -457,8 +448,8 @@
                     <div class="tos-container">
                         <label class="tos-label">
                             <input type="checkbox" id="tos-checkbox" class="tos-checkbox">
-                            <span>
-                                <a href="/terms" target="_blank" class="tos-link" style="color:#fff;">利用規約</a>に同意
+                            <span class="tos-text">
+                                <a href="/terms" target="_blank" class="tos-link">利用規約</a>に同意する
                             </span>
                         </label>
                     </div>
