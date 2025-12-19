@@ -1,13 +1,10 @@
-/* common.css - 修正版 */
-
-/* --- 基本設定 --- */
+/* common.css */
 body {
     background-color: #000;
     color: #fff;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding-top: 70px;
-    /* ヘッダーの高さ分 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -15,7 +12,7 @@ body {
     overflow-x: hidden;
 }
 
-/* --- ヘッダー (Sticky Nav) --- */
+/* ヘッダー */
 .sticky-nav {
     position: fixed;
     top: 0;
@@ -60,7 +57,7 @@ body {
     color: #00E701;
 }
 
-/* 通知ボタン */
+/* 通知ボタン・バッジ */
 .notification-btn {
     color: #fff;
     font-size: 1.4rem;
@@ -85,7 +82,6 @@ body {
     padding: 2px;
     border-radius: 50%;
     display: none;
-    /* JSで制御 */
     justify-content: center;
     align-items: center;
     border: 1px solid #000;
@@ -97,7 +93,7 @@ body {
     background-color: #333;
 }
 
-/* ログインボタン (Nav) */
+/* ログイン・アバター */
 .login-btn-nav {
     background-color: #5865F2;
     color: white;
@@ -118,7 +114,6 @@ body {
     opacity: 0.8;
 }
 
-/* ユーザーアバター */
 .user-avatar-nav {
     width: 40px;
     height: 40px;
@@ -129,24 +124,35 @@ body {
     background: #111;
 }
 
-/* ドロップダウンメニュー */
-.dropdown-menu {
+/* メニュー・通知ポップアップ */
+.dropdown-menu,
+.notif-popup {
     position: absolute;
     top: 60px;
     right: 0;
     background: #111;
     border: 1px solid #333;
     border-radius: 10px;
-    width: 220px;
     display: none;
-    /* JSで制御 */
     flex-direction: column;
     overflow: hidden;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.9);
     z-index: 2000;
 }
 
-.dropdown-menu.show {
+.dropdown-menu {
+    width: 220px;
+}
+
+.notif-popup {
+    width: 320px;
+    right: -10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.dropdown-menu.show,
+.notif-popup.show {
     display: flex;
 }
 
@@ -169,41 +175,6 @@ body {
     color: #00E701;
 }
 
-/* 通知ポップアップ */
-.notif-popup {
-    position: absolute;
-    top: 60px;
-    right: -10px;
-    width: 320px;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-    display: none;
-    /* JSで制御 */
-    flex-direction: column;
-    z-index: 2000;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.notif-popup::-webkit-scrollbar {
-    width: 6px;
-}
-
-.notif-popup::-webkit-scrollbar-track {
-    background: #111;
-}
-
-.notif-popup::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 3px;
-}
-
-.notif-popup.show {
-    display: flex;
-}
-
 .notif-item {
     padding: 15px;
     border-bottom: 1px solid #222;
@@ -223,7 +194,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* --- モバイル対応 --- */
+/* モバイル用 */
 .mobile-menu-btn {
     display: none;
     color: #fff;
@@ -277,7 +248,7 @@ body {
     }
 }
 
-/* --- フッター --- */
+/* フッター */
 .footer-wrapper {
     margin-top: auto;
     width: 100%;
@@ -297,32 +268,22 @@ body {
     gap: 20px;
 }
 
-.footer-links {
+.footer-links,
+.footer-icons {
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
 }
 
-.footer-links a {
+.footer-links a,
+.footer-icons a {
     color: #888;
     text-decoration: none;
-    font-size: 0.9rem;
     transition: 0.3s;
 }
 
 .footer-links a:hover {
     color: #fff;
-}
-
-.footer-icons {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-icons a {
-    color: #888;
-    font-size: 1.5rem;
-    transition: 0.3s;
 }
 
 .footer-icons a:hover {
@@ -337,8 +298,7 @@ body {
     font-size: 0.75rem;
 }
 
-/* --- グローバルモーダル (共通デザイン) --- */
-/* purchase.html 等で使用するモーダルの基本スタイル */
+/* ★グローバルモーダル (Global Modal) - 共通デザイン */
 .global-modal-overlay {
     position: fixed;
     top: 0;
@@ -442,7 +402,7 @@ body {
     background: #444;
 }
 
-/* --- 汎用ボタンスタイル (Index/Checkout用) --- */
+/* 共通ボタン */
 .hero-buttons {
     display: flex;
     justify-content: center;

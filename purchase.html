@@ -145,6 +145,7 @@
             width: 100%;
         }
 
+        /* ロゴ画像の調整 */
         .payment-logo {
             height: 24px;
             width: auto;
@@ -179,12 +180,14 @@
             pointer-events: none;
         }
 
+        /* クーポン入力欄の強調 */
         .coupon-input {
             width: 100%;
             max-width: 500px;
             padding: 12px;
-            background: #111;
-            border: 1px solid #333;
+            background: #0f1a0f;
+            border: 2px solid #00E701;
+            /* 枠線を緑で強調 */
             color: #fff;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -193,10 +196,14 @@
             font-family: 'Roboto Mono', monospace;
             box-sizing: border-box;
             transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.15);
+            /* 発光エフェクト */
         }
 
         .coupon-input:focus {
-            border-color: #00E701;
+            background: #000;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 231, 1, 0.4);
             outline: none;
         }
 
@@ -231,40 +238,13 @@
             transform: none;
         }
 
-        /* --- モーダル調整 (徹底的に詰める) --- */
-        .global-modal-box {
-            padding: 15px 15px !important;
-            /* 内側の余白を削減 */
-            max-width: 380px !important;
-            /* 幅を狭めて引き締める */
-            border: 1px solid #333 !important;
-        }
-
-        /* タイトル下の余白を極限まで削減 */
-        .global-modal-title {
-            font-size: 1.1rem !important;
-            margin-bottom: 5px !important;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #222;
-        }
-
-        /* 本文エリアの調整 */
-        .global-modal-body {
-            margin-bottom: 10px !important;
-            font-size: 0.9rem !important;
-            line-height: 1.2 !important;
-            /* 行間も詰める */
-        }
-
-        /* 各行の間隔を詰める */
+        /* 注文確認モーダルの中身 */
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 2px 0;
-            /* 上下2pxにしてギュッとさせる */
+            padding: 8px 0;
             border-bottom: 1px solid #222;
-            font-size: 0.9rem;
-            align-items: center;
+            font-size: 1rem;
         }
 
         .price-row span:last-child {
@@ -272,28 +252,23 @@
             font-weight: 500;
         }
 
-        /* 合計金額行 */
         .price-total {
             border-top: 1px solid #333;
-            margin-top: 5px;
-            /* マージン削減 */
-            padding-top: 5px;
-            /* パディング削減 */
-            font-size: 1rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-size: 1.1rem;
             color: #fff;
             font-weight: bold;
         }
 
         .price-total span:last-child {
             color: #00E701;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
 
-        /* 規約エリア */
         .tos-container {
-            margin-top: 8px;
-            /* マージン削減 */
-            padding-top: 5px;
+            margin-top: 15px;
+            padding-top: 10px;
             border-top: 1px dashed #222;
             text-align: center;
             font-size: 0.8rem;
@@ -311,20 +286,6 @@
             accent-color: #00E701;
             transform: scale(0.9);
             margin: 0;
-        }
-
-        /* ボタンエリア */
-        .global-modal-actions {
-            margin-top: 5px !important;
-            /* ボタン上の余白削減 */
-            gap: 10px !important;
-        }
-
-        .g-modal-btn {
-            padding: 6px 20px !important;
-            /* ボタンサイズも少しスリムに */
-            font-size: 0.9rem !important;
-            min-width: 90px !important;
         }
     </style>
 </head>
@@ -365,8 +326,8 @@
         <div class="selection-grid" id="payment-grid">
             <div class="select-card disabled">
                 <div class="payment-content">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/PayPay_logo_2.svg/320px-PayPay_logo_2.svg.png"
-                        alt="PayPay" class="payment-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/PayPay_logo_2.svg" alt="PayPay"
+                        class="payment-logo">
                     <div class="coming-soon">Coming Soon</div>
                 </div>
             </div>
@@ -391,7 +352,7 @@
             </div>
         </div>
 
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコードをお持ちの方">
 
         <button class="checkout-btn" onclick="verifyOrder()">
             <i class="fa-solid fa-cart-shopping"></i> 注文へ進む
@@ -408,7 +369,6 @@
 
     <script src="/setting.js"></script>
     <script>
-        // モーダル制御
         function closeModal() {
             document.getElementById('custom-modal-overlay').classList.remove('show');
         }
