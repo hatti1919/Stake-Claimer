@@ -4,7 +4,7 @@ const CONFIG = {
     // ★サイト共通設定
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app",
+    siteUrl: "https://stake-claimer.com",
     ogImage: "/image/server-logo.jpg",
     themeColor: "#00E701",
 

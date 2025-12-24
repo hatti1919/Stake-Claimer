@@ -10,8 +10,8 @@
 
     <meta property="og:title" content="購入手続き">
     <meta property="og:description" content="今すぐ自動ボナコを購入">
-    <meta property="og:image" content="https://stake-claimer.vercel.app/image/logo.jpg">
-    <meta property="og:url" content="https://stake-claimer.vercel.app/purchase">
+    <meta property="og:image" content="https://stake-claimer.com/image/logo.jpg">
+    <meta property="og:url" content="https://stake-claimer.com/purchase">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#00E701">
     <meta name="twitter:card" content="summary_large_image">
@@ -155,11 +155,26 @@
             gap: 10px;
         }
 
-        /* モーダル内の表示調整 */
+        /* ▼▼▼ モーダル調整（極限まで詰める＆コンパクトに） ▼▼▼ */
         .global-modal-box {
             padding: 12px 15px !important;
             max-width: 350px !important;
+            border: 1px solid #333 !important;
             overflow: visible !important;
+        }
+
+        .global-modal-title {
+            font-size: 1.1rem !important;
+            margin-bottom: 5px !important;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #222;
+        }
+
+        .global-modal-body {
+            font-size: 0.9rem !important;
+            margin-bottom: 5px !important;
+            line-height: 1.2 !important;
+            text-align: left;
         }
 
         .price-row {
@@ -168,6 +183,10 @@
             padding: 2px 0;
             border-bottom: 1px solid #1a1a1a;
             font-size: 0.9rem;
+        }
+
+        .price-row span:last-child {
+            font-family: 'Roboto Mono', monospace;
         }
 
         .price-total {
@@ -188,26 +207,55 @@
 
         .tos-label {
             display: flex !important;
+            flex-direction: row !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 6px !important;
             width: 100%;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .tos-checkbox {
+            margin: 0 !important;
+            padding: 0 !important;
             transform: scale(1.1);
             accent-color: #00E701;
+            cursor: pointer;
+            position: relative;
+            top: 1px;
         }
 
         .tos-text {
             font-size: 0.85rem;
             color: #ccc;
+            line-height: 1;
         }
 
         .tos-link {
             color: #fff;
             text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .global-modal-actions {
+            margin-top: 10px !important;
+            gap: 10px !important;
+        }
+
+        .g-modal-btn {
+            padding: 6px 20px !important;
+            font-size: 0.85rem !important;
+            min-width: 90px !important;
+            height: auto !important;
+        }
+
+        /* Turnstile表示エリア */
+        #cf-turnstile-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            min-height: 65px;
         }
 
         .payment-logo {
@@ -224,12 +272,9 @@
             align-items: center;
         }
 
-        /* Turnstile コンテナ */
-        #cf-turnstile-wrap {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-            min-height: 65px;
+        .coming-soon {
+            font-size: 0.75rem;
+            color: #666;
         }
     </style>
 </head>
@@ -333,6 +378,7 @@
 
                 const discountDisplay = data.coupon_label ? `${data.coupon_label}` : `-¥${data.discount}`;
 
+                // モーダルの中身（IDを付与した空のdivを用意する）
                 const html = `
                     <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
                     <div class="price-row"><span>方法</span><span>仮想通貨</span></div>
@@ -340,8 +386,8 @@
                     <div class="price-row" style="color:#00E701"><span>割引</span><span>${discountDisplay}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
                     
-                    <div id="cf-turnstile-wrap">
-                        <div class="cf-turnstile" data-sitekey="${CONFIG.turnstileSiteKey}" data-theme="dark"></div>
+                    <div id="cf-turnstile-container">
+                        <div id="turnstile-widget"></div>
                     </div>
 
                     <div class="tos-container">
@@ -367,12 +413,23 @@
                                 return showModal("エラー", "利用規約に同意してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
                             }
                             if(!turnstileToken) {
-                                return showModal("認証エラー", "チェックマークを入れて人間であることを確認してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
+                                return showModal("認証エラー", "チェックマークを入れて人間であることを証明してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
                             }
+
                             createOrder(coupon, turnstileToken);
                         }
                     }
                 ]);
+
+                // ★重要: モーダルが表示された後に手動でTurnstileをレンダリングする
+                setTimeout(() => {
+                    if (window.turnstile) {
+                        turnstile.render('#turnstile-widget', {
+                            sitekey: CONFIG.turnstileSiteKey,
+                            theme: 'dark',
+                        });
+                    }
+                }, 100);
 
             } catch (e) {
                 showModal("エラー", e.message, [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
@@ -385,7 +442,7 @@
         }
 
         async function createOrder(coupon, cfToken) {
-            const btn = document.querySelector('#g-modal-actions .g-btn-primary');
+            const btn = document.querySelector('.g-btn-primary');
             if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
                 const res = await fetch('/api/create_order', {

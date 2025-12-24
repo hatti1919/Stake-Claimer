@@ -106,10 +106,6 @@
             transition: 0.3s;
         }
 
-        .custom-select-trigger:hover {
-            border-color: #555;
-        }
-
         .custom-options {
             position: absolute;
             display: block;
@@ -128,7 +124,6 @@
             max-height: 200px;
             overflow-y: auto;
             margin-top: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .custom-select.open .custom-options {
@@ -151,61 +146,13 @@
         .custom-option:hover {
             background-color: #222;
             color: #00E701;
-            padding-left: 20px;
         }
 
-        .custom-option.selected {
-            color: #00E701;
-            background-color: #1a1a1a;
-        }
-
-        .arrow {
-            position: relative;
-            height: 10px;
-            width: 10px;
-        }
-
-        .arrow::before,
-        .arrow::after {
-            content: "";
-            position: absolute;
-            bottom: 0px;
-            width: 2px;
-            height: 100%;
-            transition: all 0.3s;
-            background-color: #888;
-        }
-
-        .arrow::before {
-            left: -3px;
-            transform: rotate(45deg);
-        }
-
-        .arrow::after {
-            left: 3px;
-            transform: rotate(-45deg);
-        }
-
-        .open .arrow::before {
-            left: -3px;
-            transform: rotate(-45deg);
-        }
-
-        .open .arrow::after {
-            left: 3px;
-            transform: rotate(45deg);
-        }
-
-        .open .arrow::before,
-        .open .arrow::after {
-            background-color: #00E701;
-        }
-
-        /* Turnstile配置 */
         .turnstile-wrapper {
             display: flex;
             justify-content: center;
             margin-top: 20px;
+            min-height: 65px;
         }
     </style>
 </head>
@@ -218,8 +165,7 @@
                 <label>カテゴリ</label>
                 <div class="custom-select-wrapper">
                     <div class="custom-select">
-                        <div class="custom-select-trigger">
-                            <span id="selected-subject">カテゴリを選択してください</span>
+                        <div class="custom-select-trigger"><span id="selected-subject">カテゴリを選択してください</span>
                             <div class="arrow"></div>
                         </div>
                         <div class="custom-options">
@@ -232,13 +178,11 @@
                     <input type="hidden" id="subject-value" required>
                 </div>
             </div>
-
             <div class="form-group" id="order-group" style="display:none;">
                 <label>関連オーダーID</label>
                 <div class="custom-select-wrapper">
                     <div class="custom-select" id="order-select-box">
-                        <div class="custom-select-trigger">
-                            <span id="selected-order">選択してください</span>
+                        <div class="custom-select-trigger"><span id="selected-order">選択してください</span>
                             <div class="arrow"></div>
                         </div>
                         <div class="custom-options" id="order-options"></div>
@@ -246,7 +190,6 @@
                     <input type="hidden" id="order-id-value">
                 </div>
             </div>
-
             <div class="form-group">
                 <label>詳細</label>
                 <textarea id="description" required></textarea>
@@ -257,7 +200,7 @@
             </div>
 
             <div class="turnstile-wrapper">
-                <div class="cf-turnstile" id="contact-turnstile" data-sitekey="" data-theme="dark"></div>
+                <div id="contact-turnstile-widget"></div>
             </div>
 
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
@@ -272,48 +215,39 @@
 
         function setupCustomSelects() {
             document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
-                const newTrigger = trigger.cloneNode(true);
-                trigger.parentNode.replaceChild(newTrigger, trigger);
-                newTrigger.addEventListener('click', function(e) {
-                    const parent = this.closest('.custom-select');
+                trigger.onclick = (e) => {
+                    const parent = trigger.closest('.custom-select');
                     document.querySelectorAll('.custom-select').forEach(s => { if (s !== parent) s.classList.remove('open'); });
                     parent.classList.toggle('open');
                     e.stopPropagation();
-                });
+                };
             });
-            document.querySelectorAll('.custom-options .custom-option').forEach(option => setupOptionClick(option));
-        }
-
-        function setupOptionClick(option) {
-            const newOption = option.cloneNode(true);
-            option.parentNode.replaceChild(newOption, option);
-            newOption.addEventListener('click', function() {
-                const wrapper = this.closest('.custom-select-wrapper');
-                const triggerSpan = wrapper.querySelector('.custom-select-trigger span');
-                const hiddenInput = wrapper.querySelector('input[type="hidden"]');
-                const selectDiv = this.closest('.custom-select');
-                
-                selectDiv.querySelectorAll('.custom-option.selected').forEach(el => el.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                triggerSpan.textContent = this.textContent;
-                hiddenInput.value = this.getAttribute('data-value');
-                selectDiv.classList.remove('open');
-                
-                if(hiddenInput.id === 'subject-value') toggleOrderSelect(this.getAttribute('data-value'));
+            document.querySelectorAll('.custom-option').forEach(opt => {
+                opt.onclick = () => {
+                    const wrapper = opt.closest('.custom-select-wrapper');
+                    wrapper.querySelector('.custom-select-trigger span').textContent = opt.textContent;
+                    wrapper.querySelector('input[type="hidden"]').value = opt.getAttribute('data-value');
+                    opt.closest('.custom-select').classList.remove('open');
+                    if(wrapper.querySelector('input').id === 'subject-value') toggleOrderSelect(opt.getAttribute('data-value'));
+                };
             });
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
             setupCustomSelects();
             
-            // TurnstileのサイトキーをCONFIGからセット
-            const tsDiv = document.getElementById('contact-turnstile');
-            if(tsDiv) tsDiv.setAttribute('data-sitekey', CONFIG.turnstileSiteKey);
+            // Turnstileの手動レンダリング
+            setTimeout(() => {
+                if (window.turnstile) {
+                    turnstile.render('#contact-turnstile-widget', {
+                        sitekey: CONFIG.turnstileSiteKey,
+                        theme: 'dark'
+                    });
+                }
+            }, 500);
 
             if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
             const { data: { session } } = await window.supabaseApp.auth.getSession();
-            
             if(session) {
                 currentUserContact = session.user;
                 supabaseAccessToken = session.access_token;
@@ -328,86 +262,51 @@
             try {
                 const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
                 const orders = await res.json();
-                if(!Array.isArray(orders)) return;
                 const container = document.getElementById('order-options');
                 container.innerHTML = "";
-                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(o => {
-                    const span = document.createElement('span');
-                    span.className = 'custom-option';
-                    span.setAttribute('data-value', o.order_id);
+                orders.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).forEach(o => {
+                    const span = document.createElement('span'); span.className = 'custom-option';
                     span.textContent = `${o.order_id} (${o.status})`;
+                    span.onclick = () => {
+                        document.getElementById('selected-order').textContent = span.textContent;
+                        document.getElementById('order-id-value').value = o.order_id;
+                        span.closest('.custom-select').classList.remove('open');
+                    };
                     container.appendChild(span);
-                    setupOptionClick(span);
                 });
             } catch(e){}
         }
 
         function toggleOrderSelect(val) {
-            const group = document.getElementById('order-group');
-            if (val === 'prod' || val === 'err') group.style.display = 'block';
-            else {
-                group.style.display = 'none';
-                document.getElementById('order-id-value').value = "";
-                document.getElementById('selected-order').textContent = "選択してください";
-            }
+            document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
         }
 
-        const processImage = file => new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                    const maxDim = 800; let w = img.width, h = img.height;
-                    if (w > h && w > maxDim) { h *= maxDim/w; w = maxDim; } else if (h > maxDim) { w *= maxDim/h; h = maxDim; }
-                    canvas.width = w; canvas.height = h; ctx.drawImage(img, 0, 0, w, h);
-                    resolve(canvas.toDataURL('image/jpeg', 0.8));
-                };
-            };
-        });
-
-        document.getElementById('contact-form').addEventListener('submit',async(e)=>{
-            e.preventDefault(); 
-            const subjectVal = document.getElementById('subject-value').value;
+        document.getElementById('contact-form').onsubmit = async (e) => {
+            e.preventDefault();
             const turnstileToken = turnstile.getResponse();
+            if(!turnstileToken) return showModal("確認", "チェックマークを入れてください。", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
 
-            if(!subjectVal) return showModal("確認", "カテゴリを選択してください", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
-            if(!turnstileToken) return showModal("認証エラー", "チェックマークを入れてください。", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
-
-            const btn=document.getElementById('submit-btn'); 
-            btn.innerText="送信中..."; btn.disabled=true;
-            
-            const fileInput = document.getElementById('image-file');
-            let imageData = null;
-            if(fileInput.files.length > 0) imageData = await processImage(fileInput.files[0]);
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "送信中..."; btn.disabled = true;
 
             try {
-                const subjectText = document.querySelector(`#subject-value`).parentNode.querySelector('.custom-select-trigger span').textContent;
                 const res = await fetch('/api/contact', {
-                    method: 'POST', 
+                    method: 'POST',
                     headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${supabaseAccessToken}` },
                     body: JSON.stringify({
-                        subject: subjectText, 
+                        subject: document.getElementById('selected-subject').textContent,
                         order_id: document.getElementById('order-id-value').value,
-                        description: document.getElementById('description').value, 
-                        image_data: imageData,
-                        provider_token: currentSessionToken,
+                        description: document.getElementById('description').value,
                         cf_token: turnstileToken
                     })
                 });
-                
-                if(res.ok) { 
-                    showModal("送信完了", "お問い合わせを受け付けました。\nDiscordをご確認ください。", [{text:"トップへ戻る", class:"g-btn-primary", onClick:()=>{window.location.href="/"}}]);
-                } else { 
-                    const err = await res.json();
-                    throw new Error(err.error || "Unknown Error"); 
-                }
-            } catch(e) { 
-                showModal("エラー", "送信に失敗しました。\n" + e.message, [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
-                btn.innerText="送信する"; btn.disabled=false; 
+                if(res.ok) showModal("完了", "送信しました。", [{text:"トップへ", class:"g-btn-primary", onClick:()=>location.href="/"}]);
+                else throw new Error("送信失敗");
+            } catch(e) {
+                showModal("エラー", e.message, [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
+                btn.innerText = "送信する"; btn.disabled = false;
             }
-        });
+        };
     </script>
 </body>
 
