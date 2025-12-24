@@ -14,12 +14,14 @@
         body {
             font-family: 'Noto Sans JP', sans-serif;
             overflow-y: auto;
+            background: #000;
+            color: #fff;
         }
 
         .container {
             width: 90%;
             max-width: 800px;
-            margin-top: 30px;
+            margin: 30px auto;
             text-align: center;
             padding-bottom: 50px;
         }
@@ -91,6 +93,8 @@
         .select-card.disabled {
             opacity: 0.4;
             cursor: not-allowed;
+            border-color: #333;
+            background: #0a0a0a;
             pointer-events: none;
         }
 
@@ -135,30 +139,47 @@
             align-items: center;
         }
 
-        /* モーダル内デザインの微調整（ご要望のサイズ感） */
+        /* ▼▼▼ モーダル極限スリム化（上下感覚を最小に） ▼▼▼ */
         .global-modal-box {
-            padding: 15px 20px !important;
-            max-width: 360px !important;
+            padding: 8px 15px !important;
+            max-width: 340px !important;
+            border: 1px solid #444 !important;
+        }
+
+        .global-modal-title {
+            font-size: 1.0rem !important;
+            margin: 0 !important;
+            padding: 4px 0 !important;
+            border-bottom: 1px solid #222;
+        }
+
+        .global-modal-body {
+            font-size: 0.85rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.0 !important;
         }
 
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #222;
+            padding: 1px 0;
+            border-bottom: 1px solid #1a1a1a;
+            margin: 0 !important;
+            line-height: 1.1;
         }
 
         .price-total {
             border-top: 1px solid #333;
-            margin-top: 10px;
-            padding-top: 10px;
-            font-size: 1.2rem;
+            margin-top: 2px !important;
+            padding-top: 2px !important;
+            font-size: 1.0rem;
             color: #00E701;
             font-weight: bold;
         }
 
         .tos-container {
-            margin-top: 15px;
+            margin-top: 8px;
             text-align: center;
         }
 
@@ -174,29 +195,37 @@
             transform: scale(1.3);
             margin: 0 !important;
             cursor: pointer;
+            accent-color: #00E701;
         }
 
-        /* チェックを大きく */
-
+        /* クラウドフレアの表示エリア */
         #cf-turnstile-container {
-            margin-top: 15px;
+            margin: 8px 0;
             display: flex;
             justify-content: center;
-            min-height: 65px;
+            min-height: 60px;
+            transform: scale(0.85);
+            height: 60px;
         }
 
         .global-modal-actions {
-            margin-top: 20px;
-            gap: 15px;
+            margin-top: 5px !important;
+            gap: 10px !important;
         }
 
         .g-modal-btn {
-            padding: 10px 25px !important;
-            font-size: 1rem !important;
-            min-width: 100px !important;
+            padding: 8px 20px !important;
+            font-size: 0.9rem !important;
+            min-width: 90px !important;
+            border-radius: 6px;
+            font-weight: bold;
         }
 
-        /* ボタンを大きく */
+        .btn-green {
+            background: #00E701;
+            color: #000;
+            border: none;
+        }
     </style>
 </head>
 
@@ -253,8 +282,8 @@
         function selectPayment(el, m) { document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPayment = m; }
 
         async function verifyOrder() {
-            if (!currentUser) return showModal("エラー", "購入するにはログインしてください。");
-            if (!selectedPlan || !selectedPayment) return showModal("エラー", "プランと支払い方法を選択してください。");
+            if (!currentUser) return showModal("エラー", "ログインしてください");
+            if (!selectedPlan || !selectedPayment) return showModal("エラー", "プランと支払い方法を選択してください");
             const btn = document.querySelector('.checkout-btn'), originalText = btn.innerHTML, coupon = document.getElementById('coupon-code').value;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 処理中...'; btn.disabled = true;
             try {
@@ -269,17 +298,17 @@
                     
                     <div class="tos-container">
                         <label class="tos-label"><input type="checkbox" id="tos-checkbox" class="tos-checkbox"> 
-                        <span><a href="/terms" target="_blank" style="color:#fff; text-decoration:underline;">利用規約</a>に同意する</span></label>
+                        <span style="font-size:0.8rem;"><a href="/terms" target="_blank" style="color:#fff; text-decoration:underline;">利用規約</a>に同意する</span></label>
                     </div>
                     <div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>`;
                 
                 showModal("注文確認", html, [
                     { text: "戻る", onClick: closeModal },
-                    { text: "支払う", class: "g-btn-primary", onClick: () => {
+                    { text: "支払う", class: "btn-green", onClick: () => {
                         const chk = document.getElementById('tos-checkbox');
                         const token = turnstile.getResponse();
                         if(!chk || !chk.checked) return alert("利用規約に同意してください。");
-                        if(!token) return alert("「私は人間です」のチェックを入れてください。");
+                        if(!token) return alert("チェックマークをいれてください。");
                         createOrder(coupon, token);
                     }}
                 ]);
@@ -288,7 +317,7 @@
         }
 
         async function createOrder(coupon, cfToken) {
-            const modalBtn = document.querySelector('.g-modal-btn.g-btn-primary');
+            const modalBtn = document.querySelector('.g-modal-btn.btn-green');
             if (modalBtn) { modalBtn.innerText = "処理中..."; modalBtn.disabled = true; }
             try {
                 const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon, cf_token: cfToken }) });
