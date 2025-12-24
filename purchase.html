@@ -5,48 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>購入手続き</title>
-
-    <link rel="icon" href="/image/logo.jpg">
-
-    <meta property="og:title" content="購入手続き">
-    <meta property="og:description" content="今すぐ自動ボナコを購入">
-    <meta property="og:image" content="https://stake-claimer.com/image/logo.jpg">
-    <meta property="og:url" content="https://stake-claimer.com/purchase">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#00E701">
-    <meta name="twitter:card" content="summary_large_image">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto+Mono:wght@500;700&display=swap"
-        rel="stylesheet">
-
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
-
     <style>
         body {
             font-family: 'Noto Sans JP', sans-serif;
-            overflow-y: auto;
+            background: #000;
+            color: #fff;
         }
 
         .container {
             width: 90%;
             max-width: 800px;
-            margin-top: 30px;
+            margin: 30px auto;
             text-align: center;
-            padding-bottom: 50px;
         }
 
         .page-title {
             font-size: 2rem;
             color: #00E701;
-            font-weight: bold;
-            margin-bottom: 40px;
-            text-align: center;
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
@@ -64,7 +42,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin-bottom: 30px;
         }
 
         .select-card {
@@ -73,45 +50,11 @@
             border-radius: 10px;
             padding: 20px;
             cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
         }
 
         .select-card.selected {
             border-color: #00E701;
             background: rgba(0, 231, 1, 0.1);
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
-        }
-
-        .select-card.selected::after {
-            content: '\f00c';
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #00E701;
-            color: #000;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.8rem;
-        }
-
-        .select-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: #333;
-            background: #0a0a0a;
-            pointer-events: none;
         }
 
         .coupon-input {
@@ -122,19 +65,7 @@
             border: 2px solid #00E701;
             color: #fff;
             border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1rem;
-            font-family: 'Roboto Mono', monospace;
-            box-sizing: border-box;
-            transition: 0.3s;
-            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
-        }
-
-        .coupon-input:focus {
-            background: #000;
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
-            outline: none;
+            margin: 20px 0;
         }
 
         .checkout-btn {
@@ -148,133 +79,83 @@
             cursor: pointer;
             width: 100%;
             max-width: 300px;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
-        /* ▼▼▼ モーダル調整（極限まで詰める＆コンパクトに） ▼▼▼ */
+        /* ▼▼▼ モーダル極限スリム化デザイン ▼▼▼ */
         .global-modal-box {
-            padding: 12px 15px !important;
-            max-width: 350px !important;
+            padding: 6px 10px !important;
+            max-width: 310px !important;
             border: 1px solid #333 !important;
-            overflow: visible !important;
         }
 
         .global-modal-title {
-            font-size: 1.1rem !important;
-            margin-bottom: 5px !important;
-            padding-bottom: 5px;
+            font-size: 0.95rem !important;
+            margin: 0 !important;
+            padding: 4px 0 !important;
             border-bottom: 1px solid #222;
         }
 
         .global-modal-body {
-            font-size: 0.9rem !important;
-            margin-bottom: 5px !important;
-            line-height: 1.2 !important;
-            text-align: left;
+            font-size: 0.8rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.0 !important;
         }
 
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 2px 0;
+            padding: 0px 0;
             border-bottom: 1px solid #1a1a1a;
-            font-size: 0.9rem;
-        }
-
-        .price-row span:last-child {
-            font-family: 'Roboto Mono', monospace;
+            margin: 0 !important;
         }
 
         .price-total {
             border-top: 1px solid #333;
-            margin-top: 5px;
-            padding-top: 5px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            margin-top: 1px !important;
+            padding-top: 1px !important;
+            font-size: 0.95rem;
             color: #00E701;
-        }
-
-        .tos-container {
-            margin-top: 8px;
-            padding-top: 5px;
-            border-top: 1px dashed #222;
-            text-align: center;
-        }
-
-        .tos-label {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 6px !important;
-            width: 100%;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .tos-checkbox {
-            margin: 0 !important;
-            padding: 0 !important;
-            transform: scale(1.1);
-            accent-color: #00E701;
-            cursor: pointer;
-            position: relative;
-            top: 1px;
-        }
-
-        .tos-text {
-            font-size: 0.85rem;
-            color: #ccc;
-            line-height: 1;
-        }
-
-        .tos-link {
-            color: #fff;
-            text-decoration: underline;
             font-weight: bold;
         }
 
-        .global-modal-actions {
-            margin-top: 10px !important;
-            gap: 10px !important;
-        }
-
-        .g-modal-btn {
-            padding: 6px 20px !important;
-            font-size: 0.85rem !important;
-            min-width: 90px !important;
-            height: auto !important;
-        }
-
-        /* Turnstile表示エリア */
         #cf-turnstile-container {
             display: flex;
             justify-content: center;
-            margin: 10px 0;
+            margin: 1px 0;
             min-height: 65px;
+            transform: scale(0.8);
         }
 
-        .payment-logo {
-            height: 22px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-            margin-bottom: 2px;
+        .tos-container {
+            margin: 1px 0 0 0 !important;
+            padding: 1px 0 !important;
+            border-top: 1px dashed #222;
         }
 
-        .payment-content {
+        .tos-label {
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 0.75rem;
         }
 
-        .coming-soon {
-            font-size: 0.75rem;
-            color: #666;
+        .tos-checkbox {
+            transform: scale(0.85);
+            margin: 0 !important;
+            cursor: pointer;
+        }
+
+        .global-modal-actions {
+            margin-top: 4px !important;
+            gap: 6px !important;
+        }
+
+        .g-modal-btn {
+            padding: 3px 12px !important;
+            font-size: 0.75rem !important;
+            min-width: 75px !important;
         }
     </style>
 </head>
@@ -282,7 +163,6 @@
 <body>
     <div class="container">
         <h1 class="page-title">購入手続き</h1>
-
         <div class="section-title">プランを選択</div>
         <div class="selection-grid" id="plan-grid">
             <div class="select-card" onclick="selectPlan(this, '1day')">
@@ -302,182 +182,59 @@
                 <div style="font-family:monospace;color:#aaa;">¥6,800</div>
             </div>
         </div>
-
         <div class="section-title">支払い方法を選択</div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled">
-                <div class="payment-content">
-                    <img src="image/paypay.png" alt="PayPay" class="payment-logo">
-                    <div>PayPay</div>
-                    <small class="coming-soon">Coming Soon</small>
-                </div>
-            </div>
-            <div class="select-card disabled">
-                <div class="payment-content">
-                    <i class="fa-brands fa-stripe" style="color:#635bff; font-size:1.5rem; margin-bottom:2px;"></i>
-                    <div>Card</div>
-                    <small class="coming-soon">Coming Soon</small>
-                </div>
-            </div>
             <div class="select-card" onclick="selectPayment(this, 'crypto')">
-                <div class="payment-content">
-                    <i class="fa-brands fa-bitcoin" style="color:#f7931a; font-size:1.5rem; margin-bottom:2px;"></i>
-                    <div>仮想通貨</div>
-                </div>
+                <div>仮想通貨</div>
             </div>
         </div>
-
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
-        <br>
-        <button class="checkout-btn" onclick="verifyOrder()">
-            <i class="fa-solid fa-cart-shopping"></i> 注文へ進む
-        </button>
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)"><br>
+        <button class="checkout-btn" onclick="verifyOrder()"><i class="fa-solid fa-cart-shopping"></i> 注文へ進む</button>
     </div>
-
     <script src="/setting.js"></script>
     <script>
         let selectedPlan = null, selectedPayment = null;
-
-        function selectPlan(el, plan) {
-            document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedPlan = plan;
-        }
-
-        function selectPayment(el, method) {
-            document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedPayment = method;
-        }
+        function selectPlan(el, plan) { document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPlan = plan; }
+        function selectPayment(el, method) { document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPayment = method; }
 
         async function verifyOrder() {
-            if (!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
-            if (!selectedPlan) return showModal("エラー", "プランを選択してください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
-            if (!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
-
-            const btn = document.querySelector('.checkout-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 処理中...';
-            btn.disabled = true;
-
+            if (!currentUser) return showModal("エラー", "ログインしてください");
+            if (!selectedPlan || !selectedPayment) return showModal("エラー", "プランと支払い方法を選択してください");
+            const coupon = document.getElementById('coupon-code').value;
             try {
-                const coupon = document.getElementById('coupon-code').value;
-                const res = await fetch('/api/create_order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon })
-                });
-
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.error || `サーバーエラー (${res.status})`);
-                }
-
+                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon }) });
                 const data = await res.json();
-                if (data.error) throw new Error(data.error);
-
-                const discountDisplay = data.coupon_label ? `${data.coupon_label}` : `-¥${data.discount}`;
-
-                // モーダルの中身（IDを付与した空のdivを用意する）
                 const html = `
                     <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
-                    <div class="price-row"><span>方法</span><span>仮想通貨</span></div>
                     <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
-                    <div class="price-row" style="color:#00E701"><span>割引</span><span>${discountDisplay}</span></div>
+                    <div class="price-row" style="color:#00E701"><span>割引</span><span>${data.coupon_label || '-¥'+data.discount}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
-                    
-                    <div id="cf-turnstile-container">
-                        <div id="turnstile-widget"></div>
-                    </div>
-
-                    <div class="tos-container">
-                        <label class="tos-label">
-                            <input type="checkbox" id="tos-checkbox" class="tos-checkbox">
-                            <span class="tos-text">
-                                <a href="/terms" target="_blank" class="tos-link">利用規約</a>に同意する
-                            </span>
-                        </label>
-                    </div>
+                    <div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>
+                    <div class="tos-container"><label class="tos-label"><input type="checkbox" id="tos-checkbox" class="tos-checkbox"> 規約に同意</label></div>
                 `;
-                
                 showModal("注文確認", html, [
-                    { text: "戻る", class: "g-btn-secondary", onClick: closeModal },
-                    { 
-                        text: "支払う", 
-                        class: "g-btn-primary", 
-                        onClick: () => {
-                            const chk = document.getElementById('tos-checkbox');
-                            const turnstileToken = turnstile.getResponse();
-
-                            if(!chk || !chk.checked) {
-                                return showModal("エラー", "利用規約に同意してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
-                            }
-                            if(!turnstileToken) {
-                                return showModal("認証エラー", "チェックマークを入れて人間であることを証明してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
-                            }
-
-                            createOrder(coupon, turnstileToken);
-                        }
-                    }
+                    { text: "戻る", onClick: closeModal },
+                    { text: "支払う", class: "g-btn-primary", onClick: () => {
+                        const token = turnstile.getResponse();
+                        if(!document.getElementById('tos-checkbox').checked || !token) return alert("規約同意とチェックが必要です");
+                        createOrder(coupon, token);
+                    }}
                 ]);
-
-                // ★重要: モーダルが表示された後に手動でTurnstileをレンダリングする
                 setTimeout(() => {
-                    if (window.turnstile) {
-                        turnstile.render('#turnstile-widget', {
-                            sitekey: CONFIG.turnstileSiteKey,
-                            theme: 'dark',
-                        });
+                    if (window.turnstile && window.TURNSTILE_SITE_KEY) {
+                        turnstile.render('#turnstile-widget', { sitekey: window.TURNSTILE_SITE_KEY, theme: 'dark' });
                     }
-                }, 100);
-
-            } catch (e) {
-                showModal("エラー", e.message, [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
-            } finally {
-                if (btn) {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            }
+                }, 50);
+            } catch (e) { showModal("エラー", "通信失敗"); }
         }
 
         async function createOrder(coupon, cfToken) {
-            const btn = document.querySelector('.g-btn-primary');
-            if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
-                const res = await fetch('/api/create_order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'create', 
-                        user_id: currentUser.id, 
-                        email: currentUser.email, 
-                        plan_id: selectedPlan, 
-                        coupon_code: coupon,
-                        cf_token: cfToken
-                    })
-                });
-                
-                if (!res.ok) {
-                    const txt = await res.text();
-                    throw new Error(txt);
-                }
-
+                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon, cf_token: cfToken }) });
                 const data = await res.json();
                 if (data.order_id) window.location.href = `/checkout/${data.order_id}`;
-                else throw new Error(data.error || "注文ID取得エラー");
-                
-            } catch (e) {
-                showModal("エラー", "注文作成に失敗しました:\n" + e.message, [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
-            }
+            } catch (e) { showModal("エラー", "注文失敗"); }
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const p = params.get('plan');
-            const map = { '1day': 0, '1week': 1, '2weeks': 2, '1month': 3 };
-            if (p && map[p] !== undefined) selectPlan(document.querySelectorAll('#plan-grid .select-card')[map[p]], p);
-        });
     </script>
 </body>
 

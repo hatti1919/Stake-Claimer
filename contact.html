@@ -5,59 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contact</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
     <style>
         .container {
             width: 90%;
             max-width: 600px;
-            margin-top: 30px;
-            margin-bottom: 50px;
-        }
-
-        h1 {
-            color: #00E701;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
-            font-size: 2rem;
+            margin: 30px auto;
         }
 
         .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #ccc;
+            margin-bottom: 20px;
         }
 
         input,
         textarea {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             background: #111;
             border: 1px solid #333;
             color: #fff;
             border-radius: 8px;
-            box-sizing: border-box;
             font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: #00E701;
-        }
-
-        textarea {
-            height: 150px;
-            resize: vertical;
         }
 
         .submit-btn {
@@ -66,92 +36,21 @@
             background: #00E701;
             color: #000;
             font-weight: bold;
-            border: none;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 1.2rem;
-            margin-top: 20px;
+            border: none;
+            font-size: 1.1rem;
             transition: 0.3s;
         }
 
-        .submit-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #555;
+        .submit-btn:hover {
+            box-shadow: 0 0 15px #00E701;
         }
 
-        .custom-select-wrapper {
-            position: relative;
-            user-select: none;
-        }
-
-        .custom-select {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .custom-select-trigger {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            font-size: 1rem;
-            color: #fff;
-            background: #111;
-            border: 1px solid #333;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .custom-options {
-            position: absolute;
-            display: block;
-            top: 100%;
-            left: 0;
-            right: 0;
-            border: 1px solid #333;
-            border-top: none;
-            background: #111;
-            transition: all 0.3s;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            z-index: 10;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 5px;
-        }
-
-        .custom-select.open .custom-options {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: all;
-        }
-
-        .custom-option {
-            position: relative;
-            display: block;
-            padding: 12px 15px;
-            font-size: 1rem;
-            color: #ccc;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 1px solid #222;
-        }
-
-        .custom-option:hover {
-            background-color: #222;
-            color: #00E701;
-        }
-
-        .turnstile-wrapper {
+        #turnstile-wrap {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
+            margin: 20px 0;
             min-height: 65px;
         }
     </style>
@@ -161,130 +60,29 @@
     <div class="container">
         <h1>お問い合わせ</h1>
         <form id="contact-form">
-            <div class="form-group">
-                <label>カテゴリ</label>
-                <div class="custom-select-wrapper">
-                    <div class="custom-select">
-                        <div class="custom-select-trigger"><span id="selected-subject">カテゴリを選択してください</span>
-                            <div class="arrow"></div>
-                        </div>
-                        <div class="custom-options">
-                            <span class="custom-option" data-value="pay">支払いについて</span>
-                            <span class="custom-option" data-value="prod">商品について</span>
-                            <span class="custom-option" data-value="err">エラー・不具合</span>
-                            <span class="custom-option" data-value="other">その他</span>
-                        </div>
-                    </div>
-                    <input type="hidden" id="subject-value" required>
-                </div>
+            <div class="form-group"><input type="text" id="subject" placeholder="件名（カテゴリ）" required></div>
+            <div class="form-group"><textarea id="description" placeholder="お問い合わせ内容をご記入ください" required
+                    style="height:150px;"></textarea></div>
+            <div id="turnstile-wrap">
+                <div id="contact-widget"></div>
             </div>
-            <div class="form-group" id="order-group" style="display:none;">
-                <label>関連オーダーID</label>
-                <div class="custom-select-wrapper">
-                    <div class="custom-select" id="order-select-box">
-                        <div class="custom-select-trigger"><span id="selected-order">選択してください</span>
-                            <div class="arrow"></div>
-                        </div>
-                        <div class="custom-options" id="order-options"></div>
-                    </div>
-                    <input type="hidden" id="order-id-value">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>詳細</label>
-                <textarea id="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label>画像添付 (任意)</label>
-                <input type="file" id="image-file" accept="image/*">
-            </div>
-
-            <div class="turnstile-wrapper">
-                <div id="contact-turnstile-widget"></div>
-            </div>
-
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
         </form>
     </div>
-
     <script src="setting.js"></script>
     <script>
-        let currentUserContact = null;
-        let supabaseAccessToken = null;
-        let currentSessionToken = null;
-
-        function setupCustomSelects() {
-            document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
-                trigger.onclick = (e) => {
-                    const parent = trigger.closest('.custom-select');
-                    document.querySelectorAll('.custom-select').forEach(s => { if (s !== parent) s.classList.remove('open'); });
-                    parent.classList.toggle('open');
-                    e.stopPropagation();
-                };
-            });
-            document.querySelectorAll('.custom-option').forEach(opt => {
-                opt.onclick = () => {
-                    const wrapper = opt.closest('.custom-select-wrapper');
-                    wrapper.querySelector('.custom-select-trigger span').textContent = opt.textContent;
-                    wrapper.querySelector('input[type="hidden"]').value = opt.getAttribute('data-value');
-                    opt.closest('.custom-select').classList.remove('open');
-                    if(wrapper.querySelector('input').id === 'subject-value') toggleOrderSelect(opt.getAttribute('data-value'));
-                };
-            });
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            setupCustomSelects();
-            
-            // Turnstileの手動レンダリング
+        window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                if (window.turnstile) {
-                    turnstile.render('#contact-turnstile-widget', {
-                        sitekey: CONFIG.turnstileSiteKey,
-                        theme: 'dark'
-                    });
+                if (window.turnstile && window.TURNSTILE_SITE_KEY) {
+                    turnstile.render('#contact-widget', { sitekey: window.TURNSTILE_SITE_KEY, theme: 'dark' });
                 }
             }, 500);
-
-            if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            if(session) {
-                currentUserContact = session.user;
-                supabaseAccessToken = session.access_token;
-                currentSessionToken = session.provider_token;
-                loadOrders();
-            } else {
-                showModal("エラー", "ログインしてください", [{text:"OK", class:"g-btn-primary", onClick:()=>{window.location.href="/"}}]);
-            }
         });
-
-        async function loadOrders() {
-            try {
-                const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
-                const orders = await res.json();
-                const container = document.getElementById('order-options');
-                container.innerHTML = "";
-                orders.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).forEach(o => {
-                    const span = document.createElement('span'); span.className = 'custom-option';
-                    span.textContent = `${o.order_id} (${o.status})`;
-                    span.onclick = () => {
-                        document.getElementById('selected-order').textContent = span.textContent;
-                        document.getElementById('order-id-value').value = o.order_id;
-                        span.closest('.custom-select').classList.remove('open');
-                    };
-                    container.appendChild(span);
-                });
-            } catch(e){}
-        }
-
-        function toggleOrderSelect(val) {
-            document.getElementById('order-group').style.display = (val === 'prod' || val === 'err') ? 'block' : 'none';
-        }
 
         document.getElementById('contact-form').onsubmit = async (e) => {
             e.preventDefault();
-            const turnstileToken = turnstile.getResponse();
-            if(!turnstileToken) return showModal("確認", "チェックマークを入れてください。", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
+            const token = turnstile.getResponse();
+            if(!token) return showModal("エラー", "チェックボックスをクリックしてください");
 
             const btn = document.getElementById('submit-btn');
             btn.innerText = "送信中..."; btn.disabled = true;
@@ -292,19 +90,23 @@
             try {
                 const res = await fetch('/api/contact', {
                     method: 'POST',
-                    headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${supabaseAccessToken}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.supabaseApp.auth.session()?.access_token}` },
                     body: JSON.stringify({
-                        subject: document.getElementById('selected-subject').textContent,
-                        order_id: document.getElementById('order-id-value').value,
+                        subject: document.getElementById('subject').value,
                         description: document.getElementById('description').value,
-                        cf_token: turnstileToken
+                        cf_token: token
                     })
                 });
-                if(res.ok) showModal("完了", "送信しました。", [{text:"トップへ", class:"g-btn-primary", onClick:()=>location.href="/"}]);
-                else throw new Error("送信失敗");
+                if(res.ok) {
+                    showModal("送信完了", "チケットを作成しました。Discordをご確認ください。", [{text:"OK", onClick:()=>location.href="/"}]);
+                } else {
+                    const d = await res.json();
+                    throw new Error(d.error || "送信に失敗しました");
+                }
             } catch(e) {
-                showModal("エラー", e.message, [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
+                showModal("エラー", e.message);
                 btn.innerText = "送信する"; btn.disabled = false;
+                turnstile.reset('#contact-widget');
             }
         };
     </script>
