@@ -35,7 +35,7 @@ const HEADER_HTML = `
             </div>
         </div>
         <div class="nav-divider"></div>
-        <div id="auth-container"><button class="login-btn-nav"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</button></div>
+        <div id="auth-container"><button class="login-btn-nav" style="opacity:0.6;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</button></div>
     </div>
 </nav>
 <div id="mobile-nav" class="mobile-nav-overlay">
@@ -48,8 +48,16 @@ const HEADER_HTML = `
 const FOOTER_HTML = `
 <footer class="footer-wrapper">
     <div class="footer-content">
-        <div class="footer-links"><a href="/terms">利用規約</a><a href="/law">特定商取引法に基づく表記</a><a href="/usage">使用方法</a><a href="/">ホームに戻る</a></div>
-        <div class="footer-icons"><a href="${CONFIG.discordInviteUrl}" target="_blank"><i class="fa-brands fa-discord"></i></a><a href="${CONFIG.twitterUrl}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a></div>
+        <div class="footer-links">
+            <a href="/terms">利用規約</a>
+            <a href="/law">特定商取引法に基づく表記</a>
+            <a href="/usage">使用方法</a>
+            <a href="/">ホームに戻る</a>
+        </div>
+        <div class="footer-icons">
+            <a href="${CONFIG.discordInviteUrl}" target="_blank"><i class="fa-brands fa-discord"></i></a>
+            <a href="${CONFIG.twitterUrl}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
     </div>
     <div class="footer-copyright">© ${CONFIG.siteName}</div>
 </footer>`;
@@ -92,10 +100,10 @@ function handleLoginSuccess(session) {
             <div style="position:relative;">
                 <img src="${currentUser.user_metadata.avatar_url}" class="user-avatar-nav" onclick="toggleUserMenu()">
                 <div id="user-menu" class="dropdown-menu">
-                    <a href="/history" class="menu-item">購入履歴</a>
-                    <a href="/contact" class="menu-item">お問い合わせ</a>
-                    <a href="/dashboard" class="menu-item">ダッシュボード</a>
-                    <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;">ログアウト</div>
+                    <a href="/history" class="menu-item"><i class="fa-solid fa-clock-rotate-left" style="color:#00E701; margin-right:8px;"></i>購入履歴</a>
+                    <a href="/contact" class="menu-item"><i class="fa-solid fa-envelope" style="color:#00E701; margin-right:8px;"></i>お問い合わせ</a>
+                    <a href="/dashboard" class="menu-item"><i class="fa-solid fa-gauge-high" style="color:#00E701; margin-right:8px;"></i>ダッシュボード</a>
+                    <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>ログアウト</div>
                 </div>
             </div>`;
     }
@@ -118,8 +126,11 @@ window.showModal = (title, message, buttons = []) => {
         const btn = document.createElement('button'); btn.className = 'g-modal-btn g-btn-secondary'; btn.innerText = '閉じる'; btn.onclick = closeModal; a.appendChild(btn);
     } else {
         buttons.forEach(opt => {
-            const btn = document.createElement('button'); btn.className = `g-modal-btn ${opt.class || 'g-btn-secondary'}`;
-            btn.innerText = opt.text; btn.onclick = opt.onClick; a.appendChild(btn);
+            const btn = document.createElement('button');
+            btn.className = `g-modal-btn ${opt.class || 'g-btn-secondary'}`;
+            btn.innerText = opt.text;
+            btn.onclick = opt.onClick;
+            a.appendChild(btn);
         });
     }
     o.classList.add('show');
