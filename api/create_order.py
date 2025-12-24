@@ -102,7 +102,7 @@ class handler(BaseHTTPRequestHandler):
                 "orderId": order_id,
                 "email": email,
                 "description": f"StakeClaimer: {plans[plan_id]['label']}",
-                "returnUrl": f"https://stake-claimer.vercel.app/checkout/{order_id}" 
+                "returnUrl": f"https://stake-claimer.com/checkout/{order_id}" 
             }
             
             oxa_res = requests.post("https://api.oxapay.com/merchants/request", json=payload).json()

@@ -5,26 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>購入手続き</title>
+    <link rel="icon" href="/image/logo.jpg">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
         body {
             font-family: 'Noto Sans JP', sans-serif;
-            background: #000;
-            color: #fff;
+            overflow-y: auto;
         }
 
         .container {
             width: 90%;
             max-width: 800px;
-            margin: 30px auto;
+            margin-top: 30px;
             text-align: center;
+            padding-bottom: 50px;
         }
 
         .page-title {
             font-size: 2rem;
             color: #00E701;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
@@ -42,6 +47,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
+            margin-bottom: 30px;
         }
 
         .select-card {
@@ -50,11 +56,45 @@
             border-radius: 10px;
             padding: 20px;
             cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
         .select-card.selected {
             border-color: #00E701;
             background: rgba(0, 231, 1, 0.1);
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+        }
+
+        .select-card.selected::after {
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #00E701;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .select-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #333;
+            background: #0a0a0a;
+            pointer-events: none;
         }
 
         .coupon-input {
@@ -65,7 +105,13 @@
             border: 2px solid #00E701;
             color: #fff;
             border-radius: 8px;
-            margin: 20px 0;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1rem;
+            font-family: 'Roboto Mono', monospace;
+            box-sizing: border-box;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
         }
 
         .checkout-btn {
@@ -79,24 +125,48 @@
             cursor: pointer;
             width: 100%;
             max-width: 300px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        /* ▼▼▼ モーダル極限スリム化デザイン ▼▼▼ */
+        .payment-logo {
+            height: 22px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .payment-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .coming-soon {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        /* モーダルスリム化 */
         .global-modal-box {
-            padding: 6px 10px !important;
-            max-width: 310px !important;
+            padding: 4px 8px !important;
+            max-width: 300px !important;
             border: 1px solid #333 !important;
         }
 
         .global-modal-title {
-            font-size: 0.95rem !important;
+            font-size: 0.9rem !important;
             margin: 0 !important;
-            padding: 4px 0 !important;
+            padding: 2px 0 !important;
             border-bottom: 1px solid #222;
         }
 
         .global-modal-body {
-            font-size: 0.8rem !important;
+            font-size: 0.75rem !important;
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.0 !important;
@@ -105,7 +175,7 @@
         .price-row {
             display: flex;
             justify-content: space-between;
-            padding: 0px 0;
+            padding: 1px 0;
             border-bottom: 1px solid #1a1a1a;
             margin: 0 !important;
         }
@@ -114,7 +184,7 @@
             border-top: 1px solid #333;
             margin-top: 1px !important;
             padding-top: 1px !important;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #00E701;
             font-weight: bold;
         }
@@ -122,13 +192,13 @@
         #cf-turnstile-container {
             display: flex;
             justify-content: center;
-            margin: 1px 0;
-            min-height: 65px;
-            transform: scale(0.8);
+            margin: 0px;
+            min-height: 60px;
+            transform: scale(0.7);
         }
 
         .tos-container {
-            margin: 1px 0 0 0 !important;
+            margin: 0 !important;
             padding: 1px 0 !important;
             border-top: 1px dashed #222;
         }
@@ -138,24 +208,23 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
 
         .tos-checkbox {
-            transform: scale(0.85);
+            transform: scale(0.8);
             margin: 0 !important;
-            cursor: pointer;
         }
 
         .global-modal-actions {
-            margin-top: 4px !important;
-            gap: 6px !important;
+            margin-top: 2px !important;
+            gap: 4px !important;
         }
 
         .g-modal-btn {
-            padding: 3px 12px !important;
-            font-size: 0.75rem !important;
-            min-width: 75px !important;
+            padding: 2px 10px !important;
+            font-size: 0.7rem !important;
+            min-width: 70px !important;
         }
     </style>
 </head>
@@ -184,19 +253,33 @@
         </div>
         <div class="section-title">支払い方法を選択</div>
         <div class="selection-grid" id="payment-grid">
+            <div class="select-card disabled">
+                <div class="payment-content"><img src="image/paypay.png" class="payment-logo">
+                    <div>PayPay</div><small class="coming-soon">Coming Soon</small>
+                </div>
+            </div>
+            <div class="select-card disabled">
+                <div class="payment-content"><i class="fa-brands fa-stripe"
+                        style="color:#635bff; font-size:1.5rem;"></i>
+                    <div>Card</div><small class="coming-soon">Coming Soon</small>
+                </div>
+            </div>
             <div class="select-card" onclick="selectPayment(this, 'crypto')">
-                <div>仮想通貨</div>
+                <div class="payment-content"><i class="fa-brands fa-bitcoin"
+                        style="color:#f7931a; font-size:1.5rem;"></i>
+                    <div>仮想通貨</div>
+                </div>
             </div>
         </div>
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)"><br>
-        <button class="checkout-btn" onclick="verifyOrder()"><i class="fa-solid fa-cart-shopping"></i> 注文へ進む</button>
+        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
+        <br><button class="checkout-btn" onclick="verifyOrder()"><i class="fa-solid fa-cart-shopping"></i>
+            注文へ進む</button>
     </div>
     <script src="/setting.js"></script>
     <script>
         let selectedPlan = null, selectedPayment = null;
-        function selectPlan(el, plan) { document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPlan = plan; }
-        function selectPayment(el, method) { document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPayment = method; }
-
+        function selectPlan(el, p) { document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPlan = p; }
+        function selectPayment(el, m) { document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPayment = m; }
         async function verifyOrder() {
             if (!currentUser) return showModal("エラー", "ログインしてください");
             if (!selectedPlan || !selectedPayment) return showModal("エラー", "プランと支払い方法を選択してください");
@@ -210,8 +293,7 @@
                     <div class="price-row" style="color:#00E701"><span>割引</span><span>${data.coupon_label || '-¥'+data.discount}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
                     <div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>
-                    <div class="tos-container"><label class="tos-label"><input type="checkbox" id="tos-checkbox" class="tos-checkbox"> 規約に同意</label></div>
-                `;
+                    <div class="tos-container"><label class="tos-label"><input type="checkbox" id="tos-checkbox" class="tos-checkbox">規約に同意</label></div>`;
                 showModal("注文確認", html, [
                     { text: "戻る", onClick: closeModal },
                     { text: "支払う", class: "g-btn-primary", onClick: () => {
@@ -220,19 +302,14 @@
                         createOrder(coupon, token);
                     }}
                 ]);
-                setTimeout(() => {
-                    if (window.turnstile && window.TURNSTILE_SITE_KEY) {
-                        turnstile.render('#turnstile-widget', { sitekey: window.TURNSTILE_SITE_KEY, theme: 'dark' });
-                    }
-                }, 50);
-            } catch (e) { showModal("エラー", "通信失敗"); }
+                setTimeout(() => { if (window.turnstile && window.TURNSTILE_SITE_KEY) turnstile.render('#turnstile-widget', { sitekey: window.TURNSTILE_SITE_KEY, theme: 'dark' }); }, 50);
+            } catch (e) { showModal("エラー", "失敗しました"); }
         }
-
-        async function createOrder(coupon, cfToken) {
+        async function createOrder(coupon, token) {
             try {
-                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon, cf_token: cfToken }) });
+                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon, cf_token: token }) });
                 const data = await res.json();
-                if (data.order_id) window.location.href = `/checkout/${data.order_id}`;
+                if (data.order_id) location.href = `/checkout/${data.order_id}`;
             } catch (e) { showModal("エラー", "注文失敗"); }
         }
     </script>
