@@ -2,8 +2,8 @@
 const CONFIG = {
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.com",
-    ogImage: "/image/logo.jpg",
+    siteUrl: "https://stake-claimer.vercel.app",
+    ogImage: "/image/server-logo.jpg",
     themeColor: "#00E701",
     discordInviteUrl: "https://discord.gg/ueVedsjved",
     twitterUrl: "https://x.com/Stake_hatti"
@@ -22,9 +22,9 @@ const HEADER_HTML = `
     </div>
     <div class="nav-right">
         <div style="position:relative;">
-            <div class="notification-btn" onclick="toggleNotifPopup()">
+            <div class="notification-btn" onclick="toggleNotifPopup()" style="color: white;">
                 <i class="fa-solid fa-bell"></i>
-                <span class="badge" id="notif-badge"></span>
+                <span class="badge" id="notif-badge" style="display:none; background: #ff4444; color: white;"></span>
             </div>
             <div id="notif-popup" class="notif-popup">
                 <div style="padding:15px; border-bottom:1px solid #222; font-weight:bold; color:#00E701; display:flex; justify-content:space-between; position:sticky; top:0; background:#111; z-index:10; align-items:center;">
@@ -107,6 +107,40 @@ function handleLoginSuccess(session) {
                 </div>
             </div>`;
     }
+    checkNotifications(currentUser.id);
+}
+
+async function checkNotifications(userId) {
+    try {
+        const res = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ user_id: userId, action: 'get' }) });
+        const notifs = await res.json();
+        const badge = document.getElementById('notif-badge');
+        const list = document.getElementById('notif-list');
+
+        if (!Array.isArray(notifs)) return;
+
+        const unreadCount = notifs.filter(n => !n.is_read).length;
+        if (badge) {
+            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+            badge.innerText = unreadCount;
+        }
+
+        if (list) {
+            if (notifs.length > 0) {
+                list.innerHTML = "";
+                notifs.forEach(n => {
+                    const icon = n.type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#00E701"></i>' : '<i class="fa-solid fa-circle-info" style="color:#00AAFF"></i>';
+                    list.innerHTML += `
+                        <div class="notif-item" style="opacity:${n.is_read ? '0.5' : '1'}">
+                            <div style="display:flex; gap:10px;">${icon}<b>${n.title}</b></div>
+                            <div style="font-size:0.85rem; color:#ccc; margin-top:4px;">${n.message.replace(/\n/g, '<br>')}</div>
+                        </div>`;
+                });
+            } else {
+                list.innerHTML = '<div class="notif-empty">通知はありません</div>';
+            }
+        }
+    } catch (e) { }
 }
 
 function showLoginButton() {
@@ -120,7 +154,7 @@ window.showModal = (title, message, buttons = []) => {
     const o = document.getElementById('global-modal-overlay'), t = document.getElementById('g-modal-title'), b = document.getElementById('g-modal-body'), a = document.getElementById('g-modal-actions');
     if (!o) return;
     t.innerText = title;
-    b.innerHTML = message;
+    b.innerHTML = message; // チェックボックスなどのHTMLを表示可能にする
     a.innerHTML = '';
     if (buttons.length === 0) {
         const btn = document.createElement('button'); btn.className = 'g-modal-btn g-btn-secondary'; btn.innerText = '閉じる'; btn.onclick = closeModal; a.appendChild(btn);

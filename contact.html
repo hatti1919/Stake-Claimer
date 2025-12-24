@@ -46,6 +46,17 @@
             box-sizing: border-box;
             font-size: 1rem;
             outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #00E701;
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
         }
 
         .submit-btn {
@@ -62,7 +73,7 @@
             transition: 0.3s;
         }
 
-        /* 復元：オリジナルセレクトメニューのスタイル */
+        /* ▼▼▼ 復元：オリジナルカスタムセレクトメニュー ▼▼▼ */
         .custom-select-wrapper {
             position: relative;
             user-select: none;
@@ -102,6 +113,7 @@
             visibility: hidden;
             border-radius: 0 0 8px 8px;
             max-height: 200px;
+            /* ★ここが重要：多すぎる場合にスクロール */
             overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
@@ -130,7 +142,7 @@
             background: #1a1a1a;
         }
 
-        /* 矢印アニメーション */
+        /* 矢印アイコン */
         .arrow {
             position: relative;
             height: 10px;
