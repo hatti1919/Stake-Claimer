@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Contact</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
     <style>
@@ -79,7 +80,6 @@
             background: #555;
         }
 
-        /* セレクトボックス用CSS */
         .custom-select-wrapper {
             position: relative;
             user-select: none;
@@ -148,10 +148,6 @@
             border-bottom: 1px solid #222;
         }
 
-        .custom-option:last-child {
-            border-bottom: none;
-        }
-
         .custom-option:hover {
             background-color: #222;
             color: #00E701;
@@ -204,6 +200,13 @@
         .open .arrow::after {
             background-color: #00E701;
         }
+
+        /* Turnstile配置 */
+        .turnstile-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -252,6 +255,11 @@
                 <label>画像添付 (任意)</label>
                 <input type="file" id="image-file" accept="image/*">
             </div>
+
+            <div class="turnstile-wrapper">
+                <div class="cf-turnstile" id="contact-turnstile" data-sitekey="" data-theme="dark"></div>
+            </div>
+
             <button type="submit" class="submit-btn" id="submit-btn">送信する</button>
         </form>
     </div>
@@ -262,31 +270,18 @@
         let supabaseAccessToken = null;
         let currentSessionToken = null;
 
-        // セレクトボックス設定
         function setupCustomSelects() {
             document.querySelectorAll('.custom-select-trigger').forEach(trigger => {
                 const newTrigger = trigger.cloneNode(true);
                 trigger.parentNode.replaceChild(newTrigger, trigger);
-                
                 newTrigger.addEventListener('click', function(e) {
                     const parent = this.closest('.custom-select');
-                    document.querySelectorAll('.custom-select').forEach(s => { 
-                        if (s !== parent) s.classList.remove('open'); 
-                    });
+                    document.querySelectorAll('.custom-select').forEach(s => { if (s !== parent) s.classList.remove('open'); });
                     parent.classList.toggle('open');
                     e.stopPropagation();
                 });
             });
-
             document.querySelectorAll('.custom-options .custom-option').forEach(option => setupOptionClick(option));
-
-            window.addEventListener('click', function(e) {
-                if (!e.target.closest('.custom-select')) {
-                    document.querySelectorAll('.custom-select').forEach(select => {
-                        select.classList.remove('open');
-                    });
-                }
-            });
         }
 
         function setupOptionClick(option) {
@@ -311,6 +306,11 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             setupCustomSelects();
+            
+            // TurnstileのサイトキーをCONFIGからセット
+            const tsDiv = document.getElementById('contact-turnstile');
+            if(tsDiv) tsDiv.setAttribute('data-sitekey', CONFIG.turnstileSiteKey);
+
             if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
             const { data: { session } } = await window.supabaseApp.auth.getSession();
             
@@ -320,8 +320,7 @@
                 currentSessionToken = session.provider_token;
                 loadOrders();
             } else {
-                // 共通モダール(showModal)を使用
-                showModal("エラー", "ログインしてください", [{text:"OK", class:"g-btn-secondary", onClick:()=>{window.location.href="/"}}]);
+                showModal("エラー", "ログインしてください", [{text:"OK", class:"g-btn-primary", onClick:()=>{window.location.href="/"}}]);
             }
         });
 
@@ -329,14 +328,10 @@
             try {
                 const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
                 const orders = await res.json();
-                
                 if(!Array.isArray(orders)) return;
-
-                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 const container = document.getElementById('order-options');
                 container.innerHTML = "";
-                
-                orders.forEach(o => {
+                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(o => {
                     const span = document.createElement('span');
                     span.className = 'custom-option';
                     span.setAttribute('data-value', o.order_id);
@@ -349,9 +344,8 @@
 
         function toggleOrderSelect(val) {
             const group = document.getElementById('order-group');
-            if (val === 'prod' || val === 'err') {
-                group.style.display = 'block';
-            } else {
+            if (val === 'prod' || val === 'err') group.style.display = 'block';
+            else {
                 group.style.display = 'none';
                 document.getElementById('order-id-value').value = "";
                 document.getElementById('selected-order').textContent = "選択してください";
@@ -376,7 +370,10 @@
         document.getElementById('contact-form').addEventListener('submit',async(e)=>{
             e.preventDefault(); 
             const subjectVal = document.getElementById('subject-value').value;
+            const turnstileToken = turnstile.getResponse();
+
             if(!subjectVal) return showModal("確認", "カテゴリを選択してください", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
+            if(!turnstileToken) return showModal("認証エラー", "チェックマークを入れてください。", [{text:"閉じる", class:"g-btn-secondary", onClick:closeModal}]);
 
             const btn=document.getElementById('submit-btn'); 
             btn.innerText="送信中..."; btn.disabled=true;
@@ -387,26 +384,21 @@
 
             try {
                 const subjectText = document.querySelector(`#subject-value`).parentNode.querySelector('.custom-select-trigger span').textContent;
-                
                 const res = await fetch('/api/contact', {
                     method: 'POST', 
-                    headers: {
-                        'Content-Type':'application/json',
-                        'Authorization': `Bearer ${supabaseAccessToken}`
-                    },
+                    headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${supabaseAccessToken}` },
                     body: JSON.stringify({
                         subject: subjectText, 
                         order_id: document.getElementById('order-id-value').value,
                         description: document.getElementById('description').value, 
                         image_data: imageData,
-                        provider_token: currentSessionToken 
+                        provider_token: currentSessionToken,
+                        cf_token: turnstileToken
                     })
                 });
                 
                 if(res.ok) { 
-                    showModal("送信完了", "お問い合わせを受け付けました。\nDiscordをご確認ください。", [
-                        {text:"トップへ戻る", class:"g-btn-primary", onClick:()=>{window.location.href="/"}}
-                    ]);
+                    showModal("送信完了", "お問い合わせを受け付けました。\nDiscordをご確認ください。", [{text:"トップへ戻る", class:"g-btn-primary", onClick:()=>{window.location.href="/"}}]);
                 } else { 
                     const err = await res.json();
                     throw new Error(err.error || "Unknown Error"); 

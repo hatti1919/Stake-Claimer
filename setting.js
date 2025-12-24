@@ -10,7 +10,9 @@ const CONFIG = {
 
     // SNSリンク
     discordInviteUrl: "https://discord.gg/ueVedsjved",
-    twitterUrl: "https://x.com/Stake_hatti"
+    twitterUrl: "https://x.com/Stake_hatti",
+
+    turnstilesitekey: "0x4AAAAAACI40UVssMImP7IY"
 };
 
 let currentUser = null;

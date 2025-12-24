@@ -8,7 +8,6 @@
 
     <link rel="icon" href="/image/logo.jpg">
 
-
     <meta property="og:title" content="購入手続き">
     <meta property="og:description" content="今すぐ自動ボナコを購入">
     <meta property="og:image" content="https://stake-claimer.vercel.app/image/logo.jpg">
@@ -24,6 +23,7 @@
         rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
 
@@ -60,7 +60,6 @@
             text-align: left;
         }
 
-        /* 選択グリッド */
         .selection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -115,7 +114,6 @@
             pointer-events: none;
         }
 
-        /* クーポン入力欄 */
         .coupon-input {
             width: 100%;
             max-width: 400px;
@@ -157,54 +155,19 @@
             gap: 10px;
         }
 
-        .checkout-btn:hover {
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
-        }
-
-        .checkout-btn:disabled {
-            background: #555;
-            color: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        /* ▼▼▼ モーダル調整（極限まで詰める＆横並び矯正） ▼▼▼ */
+        /* モーダル内の表示調整 */
         .global-modal-box {
             padding: 12px 15px !important;
-            /* 余白をさらに削減 */
             max-width: 350px !important;
-            /* 横幅もスリムに */
-            border: 1px solid #333 !important;
-            /* スクロールさせない */
             overflow: visible !important;
         }
 
-        .global-modal-title {
-            font-size: 1.1rem !important;
-            margin-bottom: 5px !important;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #222;
-        }
-
-        .global-modal-body {
-            font-size: 0.9rem !important;
-            margin-bottom: 5px !important;
-            /* ボディ下の余白ほぼなし */
-            line-height: 1.2 !important;
-        }
-
-        /* 注文内容の行 */
         .price-row {
             display: flex;
             justify-content: space-between;
             padding: 2px 0;
-            /* 上下2pxで極小に */
             border-bottom: 1px solid #1a1a1a;
             font-size: 0.9rem;
-        }
-
-        .price-row span:last-child {
-            font-family: 'Roboto Mono', monospace;
         }
 
         .price-total {
@@ -216,7 +179,6 @@
             color: #00E701;
         }
 
-        /* 利用規約エリア（ここを横並び強制） */
         .tos-container {
             margin-top: 8px;
             padding-top: 5px;
@@ -226,65 +188,28 @@
 
         .tos-label {
             display: flex !important;
-            /* 強制的にフレックス */
-            flex-direction: row !important;
-            /* 横並び */
             align-items: center !important;
-            /* 垂直中央 */
             justify-content: center !important;
-            /* 中央寄せ */
             gap: 6px !important;
-            /* チェックボックスと文字の間隔 */
             width: 100%;
             cursor: pointer;
-            white-space: nowrap;
-            /* 改行禁止 */
         }
 
         .tos-checkbox {
-            margin: 0 !important;
-            padding: 0 !important;
             transform: scale(1.1);
             accent-color: #00E701;
-            cursor: pointer;
-            /* 高さズレ防止 */
-            position: relative;
-            top: 1px;
         }
 
         .tos-text {
             font-size: 0.85rem;
             color: #ccc;
-            line-height: 1;
-            /* 行高さを詰める */
         }
 
         .tos-link {
             color: #fff;
             text-decoration: underline;
-            font-weight: bold;
-            transition: 0.3s;
         }
 
-        .tos-link:hover {
-            color: #00E701;
-        }
-
-        /* ボタンエリア */
-        .global-modal-actions {
-            margin-top: 10px !important;
-            gap: 10px !important;
-        }
-
-        .g-modal-btn {
-            padding: 6px 20px !important;
-            font-size: 0.85rem !important;
-            min-width: 90px !important;
-            height: auto !important;
-            /* 高さを内容に合わせる */
-        }
-
-        /* PayPay画像 */
         .payment-logo {
             height: 22px;
             width: auto;
@@ -299,9 +224,12 @@
             align-items: center;
         }
 
-        .coming-soon {
-            font-size: 0.75rem;
-            color: #666;
+        /* Turnstile コンテナ */
+        #cf-turnstile-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            min-height: 65px;
         }
     </style>
 </head>
@@ -334,8 +262,7 @@
         <div class="selection-grid" id="payment-grid">
             <div class="select-card disabled">
                 <div class="payment-content">
-                    <img src="image/paypay.png" alt="PayPay"
-                        class="payment-logo">
+                    <img src="image/paypay.png" alt="PayPay" class="payment-logo">
                     <div>PayPay</div>
                     <small class="coming-soon">Coming Soon</small>
                 </div>
@@ -362,51 +289,8 @@
         </button>
     </div>
 
-    <div id="custom-modal-overlay" class="global-modal-overlay">
-        <div class="global-modal-box">
-            <div id="modal-title" class="global-modal-title"></div>
-            <div id="modal-body" class="global-modal-body"></div>
-            <div id="modal-actions" class="global-modal-actions"></div>
-        </div>
-    </div>
-
     <script src="/setting.js"></script>
     <script>
-        function closeModal() {
-            document.getElementById('custom-modal-overlay').classList.remove('show');
-        }
-
-        window.showModal = (title, content, buttons = []) => {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-body').innerHTML = content;
-            
-            const actionsDiv = document.getElementById('modal-actions');
-            actionsDiv.innerHTML = '';
-            
-            if (buttons.length === 0) {
-                const btn = document.createElement('button');
-                btn.innerText = '閉じる';
-                btn.className = 'g-modal-btn g-btn-secondary'; 
-                btn.onclick = closeModal;
-                actionsDiv.appendChild(btn);
-            } else {
-                buttons.forEach(b => {
-                    const btn = document.createElement('button');
-                    btn.innerText = b.text;
-                    let btnClass = 'g-modal-btn';
-                    if (b.class.includes('green') || b.class.includes('btn-green')) {
-                        btnClass += ' g-btn-primary';
-                    } else {
-                        btnClass += ' g-btn-secondary';
-                    }
-                    btn.className = btnClass;
-                    btn.onclick = b.onClick;
-                    actionsDiv.appendChild(btn);
-                });
-            }
-            document.getElementById('custom-modal-overlay').classList.add('show');
-        }
-
         let selectedPlan = null, selectedPayment = null;
 
         function selectPlan(el, plan) {
@@ -422,9 +306,9 @@
         }
 
         async function verifyOrder() {
-            if (!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
-            if (!selectedPlan) return showModal("エラー", "プランを選択してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
-            if (!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+            if (!currentUser) return showModal("エラー", "購入するにはログインしてください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
+            if (!selectedPlan) return showModal("エラー", "プランを選択してください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
+            if (!selectedPayment) return showModal("エラー", "支払い方法を選択してください。", [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
 
             const btn = document.querySelector('.checkout-btn');
             const originalText = btn.innerHTML;
@@ -433,7 +317,6 @@
 
             try {
                 const coupon = document.getElementById('coupon-code').value;
-                
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -457,6 +340,10 @@
                     <div class="price-row" style="color:#00E701"><span>割引</span><span>${discountDisplay}</span></div>
                     <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
                     
+                    <div id="cf-turnstile-wrap">
+                        <div class="cf-turnstile" data-sitekey="${CONFIG.turnstileSiteKey}" data-theme="dark"></div>
+                    </div>
+
                     <div class="tos-container">
                         <label class="tos-label">
                             <input type="checkbox" id="tos-checkbox" class="tos-checkbox">
@@ -468,23 +355,27 @@
                 `;
                 
                 showModal("注文確認", html, [
-                    { text: "戻る", class: "btn-gray", onClick: closeModal },
+                    { text: "戻る", class: "g-btn-secondary", onClick: closeModal },
                     { 
                         text: "支払う", 
-                        class: "btn-green", 
+                        class: "g-btn-primary", 
                         onClick: () => {
                             const chk = document.getElementById('tos-checkbox');
+                            const turnstileToken = turnstile.getResponse();
+
                             if(!chk || !chk.checked) {
-                                alert("利用規約に同意してください。");
-                                return;
+                                return showModal("エラー", "利用規約に同意してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
                             }
-                            createOrder(coupon);
+                            if(!turnstileToken) {
+                                return showModal("認証エラー", "チェックマークを入れて人間であることを確認してください。", [{ text: "戻る", class: "g-btn-secondary", onClick: verifyOrder }]);
+                            }
+                            createOrder(coupon, turnstileToken);
                         }
                     }
                 ]);
 
             } catch (e) {
-                showModal("エラー", e.message, [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+                showModal("エラー", e.message, [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
             } finally {
                 if (btn) {
                     btn.innerHTML = originalText;
@@ -493,14 +384,21 @@
             }
         }
 
-        async function createOrder(coupon) {
-            const btn = document.querySelector('.g-btn-primary');
+        async function createOrder(coupon, cfToken) {
+            const btn = document.querySelector('#g-modal-actions .g-btn-primary');
             if (btn) { btn.innerText = "処理中..."; btn.disabled = true; }
             try {
                 const res = await fetch('/api/create_order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon })
+                    body: JSON.stringify({ 
+                        action: 'create', 
+                        user_id: currentUser.id, 
+                        email: currentUser.email, 
+                        plan_id: selectedPlan, 
+                        coupon_code: coupon,
+                        cf_token: cfToken
+                    })
                 });
                 
                 if (!res.ok) {
@@ -513,7 +411,7 @@
                 else throw new Error(data.error || "注文ID取得エラー");
                 
             } catch (e) {
-                showModal("エラー", "注文作成に失敗しました:\n" + e.message, [{ text: "閉じる", class: "btn-gray", onClick: closeModal }]);
+                showModal("エラー", "注文作成に失敗しました:\n" + e.message, [{ text: "閉じる", class: "g-btn-secondary", onClick: closeModal }]);
             }
         }
 
