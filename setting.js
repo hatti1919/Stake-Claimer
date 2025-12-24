@@ -2,8 +2,8 @@
 const CONFIG = {
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app",
-    ogImage: "/image/server-logo.jpg",
+    siteUrl: "https://stake-claimer.com",
+    ogImage: "/image/logo.jpg",
     themeColor: "#00E701",
     discordInviteUrl: "https://discord.gg/ueVedsjved",
     twitterUrl: "https://x.com/Stake_hatti"
