@@ -31,7 +31,7 @@ const HEADER_HTML = `
                     <span><i class="fa-solid fa-inbox"></i> お知らせ</span>
                     <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666; font-size:1.2rem;">&times;</span>
                 </div>
-                <div id="notif-list"><div class="notif-empty">読み込み中...</div></div>
+                <div id="notif-list"><div class="notif-empty">通知はありません</div></div>
             </div>
         </div>
         <div class="nav-divider"></div>
@@ -110,16 +110,17 @@ function handleLoginSuccess(session) {
     checkNotifications(currentUser.id);
 }
 
+// 通知・既読システム
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ user_id: userId, action: 'get' }) });
         const notifs = await res.json();
-        const badge = document.getElementById('notif-badge');
-        const list = document.getElementById('notif-list');
-
         if (!Array.isArray(notifs)) return;
 
+        const badge = document.getElementById('notif-badge');
+        const list = document.getElementById('notif-list');
         const unreadCount = notifs.filter(n => !n.is_read).length;
+
         if (badge) {
             badge.style.display = unreadCount > 0 ? 'flex' : 'none';
             badge.innerText = unreadCount;
@@ -129,32 +130,44 @@ async function checkNotifications(userId) {
             if (notifs.length > 0) {
                 list.innerHTML = "";
                 notifs.forEach(n => {
+                    const isRead = n.is_read;
                     const icon = n.type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#00E701"></i>' : '<i class="fa-solid fa-circle-info" style="color:#00AAFF"></i>';
+                    const readBtn = isRead
+                        ? `<span style="font-size:0.7rem; color:#555;">既読</span>`
+                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="font-size:0.75rem; color:#00E701; cursor:pointer; text-decoration:underline;">既読にする</span>`;
+
                     list.innerHTML += `
-                        <div class="notif-item" style="opacity:${n.is_read ? '0.5' : '1'}">
-                            <div style="display:flex; gap:10px;">${icon}<b>${n.title}</b></div>
-                            <div style="font-size:0.85rem; color:#ccc; margin-top:4px;">${n.message.replace(/\n/g, '<br>')}</div>
+                        <div class="notif-item" id="notif-${n.id}" style="opacity:${isRead ? '0.5' : '1'};">
+                            <div style="display:flex; gap:10px; align-items:center;">${icon}<b>${n.title}</b></div>
+                            <div style="font-size:0.85rem; color:#ccc; margin-top:5px;">${n.message.replace(/\n/g, '<br>')}</div>
+                            <div style="text-align:right; margin-top:8px;">${readBtn}</div>
                         </div>`;
                 });
-            } else {
-                list.innerHTML = '<div class="notif-empty">通知はありません</div>';
-            }
+            } else { list.innerHTML = '<div class="notif-empty">通知はありません</div>'; }
         }
     } catch (e) { }
 }
 
-function showLoginButton() {
-    const c = document.getElementById('auth-container');
-    if (c) c.innerHTML = `<button onclick="login()" class="login-btn-nav">Login</button>`;
-}
-async function login() { await window.supabaseApp.auth.signInWithOAuth({ provider: 'discord' }); }
-async function logout() { await window.supabaseApp.auth.signOut(); location.href = "/"; }
+window.markAsRead = async (id, userId) => {
+    try {
+        const btn = document.getElementById(`btn-read-${id}`);
+        if (btn) { btn.innerText = "既読"; btn.style.color = "#555"; btn.onclick = null; }
+        document.getElementById(`notif-${id}`)?.style.setProperty('opacity', '0.5');
+
+        await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action: 'read', id: id, user_id: userId }) });
+        const badge = document.getElementById('notif-badge');
+        if (badge) {
+            let count = parseInt(badge.innerText) - 1;
+            if (count > 0) badge.innerText = count; else badge.style.display = 'none';
+        }
+    } catch (e) { }
+};
 
 window.showModal = (title, message, buttons = []) => {
     const o = document.getElementById('global-modal-overlay'), t = document.getElementById('g-modal-title'), b = document.getElementById('g-modal-body'), a = document.getElementById('g-modal-actions');
     if (!o) return;
     t.innerText = title;
-    b.innerHTML = message; // チェックボックスなどのHTMLを表示可能にする
+    b.innerHTML = message;
     a.innerHTML = '';
     if (buttons.length === 0) {
         const btn = document.createElement('button'); btn.className = 'g-modal-btn g-btn-secondary'; btn.innerText = '閉じる'; btn.onclick = closeModal; a.appendChild(btn);
@@ -162,9 +175,7 @@ window.showModal = (title, message, buttons = []) => {
         buttons.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = `g-modal-btn ${opt.class || 'g-btn-secondary'}`;
-            btn.innerText = opt.text;
-            btn.onclick = opt.onClick;
-            a.appendChild(btn);
+            btn.innerText = opt.text; btn.onclick = opt.onClick; a.appendChild(btn);
         });
     }
     o.classList.add('show');

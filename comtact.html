@@ -46,17 +46,6 @@
             box-sizing: border-box;
             font-size: 1rem;
             outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus,
-        textarea:focus {
-            border-color: #00E701;
-        }
-
-        textarea {
-            height: 150px;
-            resize: vertical;
         }
 
         .submit-btn {
@@ -73,16 +62,10 @@
             transition: 0.3s;
         }
 
-        /* ▼▼▼ 復元：オリジナルカスタムセレクトメニュー ▼▼▼ */
+        /* ▼▼▼ 独自セレクトメニュー（ボックス型・スクロール対応） ▼▼▼ */
         .custom-select-wrapper {
             position: relative;
             user-select: none;
-        }
-
-        .custom-select {
-            position: relative;
-            display: flex;
-            flex-direction: column;
         }
 
         .custom-select-trigger {
@@ -97,10 +80,6 @@
             transition: 0.3s;
         }
 
-        .custom-select-trigger:hover {
-            border-color: #555;
-        }
-
         .custom-options {
             position: absolute;
             top: 100%;
@@ -112,8 +91,7 @@
             opacity: 0;
             visibility: hidden;
             border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            /* ★ここが重要：多すぎる場合にスクロール */
+            max-height: 240px;
             overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
@@ -123,26 +101,41 @@
             visibility: visible;
         }
 
+        /* カテゴリのタイトル */
+        .opt-group-title {
+            padding: 8px 15px;
+            font-size: 0.75rem;
+            color: #00E701;
+            background: #000;
+            font-weight: bold;
+            border-bottom: 1px solid #222;
+        }
+
+        /* 選択アイテム（ボックス囲い） */
         .custom-option {
             padding: 12px 15px;
             cursor: pointer;
-            border-bottom: 1px solid #222;
+            border: 1px solid #222;
+            margin: 4px;
+            border-radius: 4px;
             transition: 0.2s;
             color: #ccc;
+            background: #1a1a1a;
+            display: block;
         }
 
         .custom-option:hover {
+            border-color: #00E701;
             color: #00E701;
-            background: #222;
             padding-left: 20px;
         }
 
         .custom-option.selected {
+            border-color: #00E701;
             color: #00E701;
             background: #1a1a1a;
         }
 
-        /* 矢印アイコン */
         .arrow {
             position: relative;
             height: 10px;
@@ -178,11 +171,6 @@
             transform: rotate(45deg);
         }
 
-        .open .arrow::before,
-        .open .arrow::after {
-            background-color: #00E701;
-        }
-
         #turnstile-wrap {
             display: flex;
             justify-content: center;
@@ -203,8 +191,10 @@
                             <div class="arrow"></div>
                         </div>
                         <div class="custom-options">
+                            <div class="opt-group-title">全般</div>
                             <span class="custom-option" data-value="pay">支払いについて</span>
                             <span class="custom-option" data-value="prod">商品について</span>
+                            <div class="opt-group-title">トラブル</div>
                             <span class="custom-option" data-value="err">エラー・不具合</span>
                             <span class="custom-option" data-value="other">その他</span>
                         </div>
@@ -241,14 +231,19 @@
                 document.querySelectorAll('.custom-select').forEach(s => { if(s!==p) s.classList.remove('open'); });
                 p.classList.toggle('open'); e.stopPropagation();
             });
-            document.querySelectorAll('.custom-option').forEach(o => o.onclick = () => {
-                const w = o.closest('.custom-select-wrapper');
-                w.querySelector('.custom-select-trigger span').innerText = o.innerText;
-                w.querySelector('input[type="hidden"]').value = o.getAttribute('data-value');
-                o.closest('.custom-select').classList.remove('open');
-                if(w.querySelector('input').id === 'subject-value') toggleOrderSelect(o.getAttribute('data-value'));
+            // 動的要素のため、グローバルでクリックを拾う設定
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('custom-option')) {
+                    const o = e.target;
+                    const w = o.closest('.custom-select-wrapper');
+                    w.querySelector('.custom-select-trigger span').innerText = o.innerText;
+                    w.querySelector('input[type="hidden"]').value = o.getAttribute('data-value');
+                    o.closest('.custom-select').classList.remove('open');
+                    if(w.querySelector('input').id === 'subject-value') toggleOrderSelect(o.getAttribute('data-value'));
+                } else if (!e.target.closest('.custom-select')) {
+                    document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open'));
+                }
             });
-            window.onclick = () => document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open'));
         }
 
         function toggleOrderSelect(v) { document.getElementById('order-group').style.display = (v==='prod'||v==='err') ? 'block' : 'none'; }
@@ -266,10 +261,10 @@
             try {
                 const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: currentUserContact.id }) });
                 const orders = await res.json();
-                const container = document.getElementById('order-options'); container.innerHTML = "";
+                const container = document.getElementById('order-options'); container.innerHTML = '<div class="opt-group-title">過去の注文</div>';
                 orders.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).forEach(o => {
                     const s = document.createElement('span'); s.className = 'custom-option'; s.innerText = `${o.order_id} (${o.status})`;
-                    s.onclick = () => { document.getElementById('selected-order').innerText = s.innerText; document.getElementById('order-id-value').value = o.order_id; s.closest('.custom-select').classList.remove('open'); };
+                    s.setAttribute('data-value', o.order_id);
                     container.appendChild(s);
                 });
             } catch(e){}
