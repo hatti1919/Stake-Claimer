@@ -2,8 +2,8 @@
 const CONFIG = {
     siteName: "Stake Bonus Claimer",
     siteDescription: "Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。",
-    siteUrl: "https://stake-claimer.vercel.app",
-    ogImage: "/image/server-logo.jpg",
+    siteUrl: "https://stake-claimer.com",
+    ogImage: "/image/logo.jpg",
     themeColor: "#00E701",
     discordInviteUrl: "https://discord.gg/ueVedsjved",
     twitterUrl: "https://x.com/Stake_hatti"
@@ -31,7 +31,7 @@ const HEADER_HTML = `
                     <span><i class="fa-solid fa-inbox"></i> お知らせ</span>
                     <span onclick="toggleNotifPopup()" style="cursor:pointer; color:#666; font-size:1.2rem;">&times;</span>
                 </div>
-                <div id="notif-list"><div class="notif-empty">通知はありません</div></div>
+                <div id="notif-list"><div class="notif-empty">読み込み中...</div></div>
             </div>
         </div>
         <div class="nav-divider"></div>
@@ -103,14 +103,14 @@ function handleLoginSuccess(session) {
                     <a href="/history" class="menu-item"><i class="fa-solid fa-clock-rotate-left" style="color:#00E701; margin-right:8px;"></i>購入履歴</a>
                     <a href="/contact" class="menu-item"><i class="fa-solid fa-envelope" style="color:#00E701; margin-right:8px;"></i>お問い合わせ</a>
                     <a href="/dashboard" class="menu-item"><i class="fa-solid fa-gauge-high" style="color:#00E701; margin-right:8px;"></i>ダッシュボード</a>
-                    <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>ログアウト</div>
+                    <div class="menu-item" onclick="logout()" style="color:#ff4444; border-top:1px solid #333; cursor:pointer;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>ログアウト</div>
                 </div>
             </div>`;
     }
     checkNotifications(currentUser.id);
 }
 
-// 通知・既読システム
+// 既読・通知システム
 async function checkNotifications(userId) {
     try {
         const res = await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ user_id: userId, action: 'get' }) });
@@ -132,15 +132,15 @@ async function checkNotifications(userId) {
                 notifs.forEach(n => {
                     const isRead = n.is_read;
                     const icon = n.type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#00E701"></i>' : '<i class="fa-solid fa-circle-info" style="color:#00AAFF"></i>';
-                    const readBtn = isRead
-                        ? `<span style="font-size:0.7rem; color:#555;">既読</span>`
-                        : `<span id="btn-read-${n.id}" onclick="markAsRead('${n.id}', '${userId}')" style="font-size:0.75rem; color:#00E701; cursor:pointer; text-decoration:underline;">既読にする</span>`;
+                    const readAction = isRead ? '<span style="color:#555;font-size:0.7rem;">既読</span>' : `<span onclick="markAsRead('${n.id}','${userId}')" style="color:#00E701;font-size:0.7rem;cursor:pointer;text-decoration:underline;">既読にする</span>`;
 
                     list.innerHTML += `
-                        <div class="notif-item" id="notif-${n.id}" style="opacity:${isRead ? '0.5' : '1'};">
-                            <div style="display:flex; gap:10px; align-items:center;">${icon}<b>${n.title}</b></div>
-                            <div style="font-size:0.85rem; color:#ccc; margin-top:5px;">${n.message.replace(/\n/g, '<br>')}</div>
-                            <div style="text-align:right; margin-top:8px;">${readBtn}</div>
+                        <div class="notif-item" id="notif-${n.id}" style="opacity:${isRead ? '0.5' : '1'}">
+                            <div style="display:flex; justify-content:space-between;">
+                                <div style="display:flex; gap:8px;">${icon}<b>${n.title}</b></div>
+                                ${readAction}
+                            </div>
+                            <div style="font-size:0.8rem; color:#ccc; margin-top:5px;">${n.message.replace(/\n/g, '<br>')}</div>
                         </div>`;
                 });
             } else { list.innerHTML = '<div class="notif-empty">通知はありません</div>'; }
@@ -150,25 +150,29 @@ async function checkNotifications(userId) {
 
 window.markAsRead = async (id, userId) => {
     try {
-        const btn = document.getElementById(`btn-read-${id}`);
-        if (btn) { btn.innerText = "既読"; btn.style.color = "#555"; btn.onclick = null; }
-        document.getElementById(`notif-${id}`)?.style.setProperty('opacity', '0.5');
-
         await fetch('/api/notifications', { method: 'POST', body: JSON.stringify({ action: 'read', id: id, user_id: userId }) });
-        const badge = document.getElementById('notif-badge');
-        if (badge) {
-            let count = parseInt(badge.innerText) - 1;
-            if (count > 0) badge.innerText = count; else badge.style.display = 'none';
-        }
+        checkNotifications(userId);
     } catch (e) { }
+};
+
+function showLoginButton() {
+    const c = document.getElementById('auth-container');
+    if (c) c.innerHTML = `<button onclick="login()" class="login-btn-nav">Login</button>`;
+}
+
+window.login = async () => { await window.supabaseApp.auth.signInWithOAuth({ provider: 'discord' }); };
+
+window.logout = async () => {
+    if (window.supabaseApp) {
+        await window.supabaseApp.auth.signOut();
+        window.location.href = "/";
+    }
 };
 
 window.showModal = (title, message, buttons = []) => {
     const o = document.getElementById('global-modal-overlay'), t = document.getElementById('g-modal-title'), b = document.getElementById('g-modal-body'), a = document.getElementById('g-modal-actions');
     if (!o) return;
-    t.innerText = title;
-    b.innerHTML = message;
-    a.innerHTML = '';
+    t.innerText = title; b.innerHTML = message; a.innerHTML = '';
     if (buttons.length === 0) {
         const btn = document.createElement('button'); btn.className = 'g-modal-btn g-btn-secondary'; btn.innerText = '閉じる'; btn.onclick = closeModal; a.appendChild(btn);
     } else {
