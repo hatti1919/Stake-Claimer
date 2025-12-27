@@ -159,11 +159,13 @@
         </div>
         <div class="section-title" data-i18n="payment_select"></div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled" style="opacity:.4;pointer-events:none">PayPay / カード<br><small>Soon</small>
-            </div>
+            <div class="select-card disabled" style="opacity:.4;pointer-events:none"><span
+                    data-i18n="pay_paypay"></span><br><small data-i18n="pay_soon"></small></div>
+            <div class="select-card disabled" style="opacity:.4;pointer-events:none"><span
+                    data-i18n="pay_card"></span><br><small data-i18n="pay_soon"></small></div>
             <div class="select-card" onclick="selectPayment(this,'crypto')"><i class="fa-brands fa-bitcoin"
                     style="color:#f7931a;font-size:1.5rem"></i>
-                <div>仮想通貨</div>
+                <div data-i18n="pay_crypto"></div>
             </div>
         </div>
         <input type="text" id="coupon-code" class="coupon-input" data-i18n-placeholder="coupon_placeholder">
@@ -183,7 +185,7 @@
             try{
                 const res=await fetch('/api/create_order',{method:'POST',body:JSON.stringify({action:'check_coupon',user_id:currentUser.id,plan_id:sPlan,coupon_code:coupon})});
                 const d=await res.json();
-                const html=`<div class="price-row"><span>${t('confirm_plan')}</span><span>${d.plan_name}</span></div><div class="price-row"><span>${t('confirm_method')}</span><span>Crypto</span></div><div class="price-row"><span>${t('confirm_price')}</span><span>¥${d.original_price}</span></div><div class="price-row" style="color:#00E701"><span>${t('confirm_discount')}</span><span>${d.coupon_label||'-¥'+d.discount}</span></div><div class="price-row price-total"><span>${t('confirm_total')}</span><span>¥${d.final_price}</span></div><div style="margin-top:8px;text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><input type="checkbox" id="tos-chk" style="accent-color:#00E701"> <span style="font-size:.8rem">${t('tos_agree_text')} <a href="/terms" target="_blank" style="color:#fff;text-decoration:underline">${t('tos_agree_link')}</a>${currentLang==='ja'?'に同意する':''}</span></label></div><div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>`;
+                const html=`<div class="price-row"><span>${t('confirm_plan')}</span><span>${d.plan_name}</span></div><div class="price-row"><span>定価</span><span>¥${d.original_price}</span></div><div class="price-row price-total"><span>支払額</span><span>¥${d.final_price}</span></div><div style="margin-top:8px;text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><input type="checkbox" id="tos-chk" style="accent-color:#00E701"> <span style="font-size:.8rem">${t('tos_agree_text')} <a href="/terms" target="_blank" style="color:#fff;text-decoration:underline">${t('tos_agree_link')}</a>${currentLang==='ja'?'に同意する':''}</span></label></div><div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>`;
                 showModal(t('modal_confirm_title'),html,[{text:t('confirm_back'),onClick:closeModal},{text:t('confirm_pay'),class:"btn-green",onClick:()=>{const chk=document.getElementById('tos-chk'),tok=turnstile.getResponse();if(!chk||!chk.checked)return alert("Agree to terms.");if(!tok)return alert("Captcha.");createOrder(coupon,tok)}}]);
                 setTimeout(()=>{if(window.turnstile)turnstile.render('#turnstile-widget',{sitekey:window.TURNSTILE_SITE_KEY,theme:'dark'})},50);
             }catch(e){showModal(t('modal_err'),"Fail");}finally{btn.innerHTML=orig;btn.disabled=false}
