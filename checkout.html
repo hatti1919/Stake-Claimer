@@ -119,7 +119,7 @@
         .reload-btn {
             background: #333;
             color: #fff;
-            border: 1px solid #444;
+            border: 1px solid #555;
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -169,11 +169,11 @@
     </div>
     <script src="/setting.js"></script>
     <script>
-        const oid = location.pathname.split('/').pop(); document.getElementById('disp-oid').innerText = oid; let cInt;
-        window.addEventListener('DOMContentLoaded', async () => { if (!window.supabaseApp) await new Promise(r => setTimeout(r, 1000)); const { data: { session } } = await window.supabaseApp.auth.getSession(); if (session) { try { const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) }); const os = await res.json(); const t = os.find(o => o.order_id === oid); if (t) { document.getElementById('disp-plan').innerText = t.plan_type.toUpperCase(); document.getElementById('disp-amount').innerText = "¥" + t.final_amount; if (t.status === 'paid') showS(t.license_key); else { document.getElementById('pay-link').href = t.pay_url; startP(session.user.id); startT(t.created_at) } } } catch (e) { } } });
-        function startP(uid) { setInterval(async () => { try { const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: oid, user_id: uid }) }); const d = await res.json(); if (d.status === 'paid') showS(d.license_key) } catch (e) { } }, 3000) }
-        function startT(cStr) { const expire = new Date(cStr).getTime() + (60 * 60 * 1000); function up() { const diff = expire - new Date().getTime(); if (diff <= 0) { clearInterval(cInt); location.reload(); return } const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((diff % (1000 * 60)) / 1000); document.getElementById('timer').innerText = `${t('timer_label')}: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` } up(); cInt = setInterval(up, 1000) }
-        function showS(k) { document.getElementById('pending-view').style.display = 'none'; document.getElementById('success-view').style.display = 'flex'; document.getElementById('license-key').innerText = k }
+        const path = window.location.pathname.split('/'); let oid = path.pop() || path.pop();
+        window.addEventListener('DOMContentLoaded',async()=>{if(!window.supabaseApp)await new Promise(r=>setTimeout(r,1000));const {data:{session}}=await window.supabaseApp.auth.getSession();if(session){try{const res=await fetch('/api/history',{method:'POST',body:JSON.stringify({user_id:session.user.id})});const os=await res.json();const t=os.find(o=>o.order_id===oid);if(t){document.getElementById('disp-oid').innerText=oid;document.getElementById('disp-plan').innerText=t.plan_type.toUpperCase();document.getElementById('disp-amount').innerText="¥"+t.final_amount;if(t.status==='paid')showS(t.license_key);else{document.getElementById('pay-link').href=t.pay_url;startP(session.user.id);startT(t.created_at)}}}catch(e){}}});
+        function startP(uid){setInterval(async()=>{try{const res=await fetch('/api/check_order',{method:'POST',body:JSON.stringify({order_id:oid,user_id:uid})});const d=await res.json();if(d.status==='paid')showS(d.license_key)}catch(e){}},3000)}
+        function startT(cStr){const expire=new Date(cStr).getTime()+(60*60*1000);function up(){const diff=expire-new Date().getTime();if(diff<=0){clearInterval(cInt);return}const m=Math.floor((diff%(1000*60*60))/(1000*60)),s=Math.floor((diff%(1000*60))/1000);document.getElementById('timer').innerText=`${t('timer_label')}: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`}up();cInt=setInterval(up,1000)}
+        function showS(k){document.getElementById('pending-view').style.display='none';document.getElementById('success-view').style.display='flex';document.getElementById('license-key').innerText=k}
     </script>
 </body>
 
