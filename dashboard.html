@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ダッシュボード</title>
+    <title data-i18n="dash_title">Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
@@ -13,7 +13,7 @@
             width: 90%;
             max-width: 800px;
             margin-top: 30px;
-            margin-bottom: 50px;
+            margin-bottom: 50px
         }
 
         .card {
@@ -22,7 +22,7 @@
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .5)
         }
 
         .section-title {
@@ -31,13 +31,13 @@
             margin-bottom: 20px;
             border-left: 4px solid #00E701;
             padding-left: 10px;
-            font-weight: bold;
+            font-weight: bold
         }
 
         .status-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 20px
         }
 
         .status-item {
@@ -45,53 +45,45 @@
             padding: 15px;
             border-radius: 10px;
             text-align: center;
-            border: 1px solid #222;
+            border: 1px solid #222
         }
 
         .status-label {
             color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-size: .9rem;
+            margin-bottom: 5px
         }
 
         .status-value {
             font-size: 1.2rem;
             font-weight: bold;
-            color: #fff;
+            color: #fff
         }
 
         .active-badge {
             display: inline-block;
-            background: rgba(0, 231, 1, 0.15);
+            background: rgba(0, 231, 1, .15);
             color: #00E701;
             padding: 2px 10px;
             border-radius: 15px;
-            font-size: 0.8rem;
-            border: 1px solid #00E701;
+            font-size: .8rem;
+            border: 1px solid #00E701
         }
 
         .expired-badge {
-            background: rgba(255, 68, 68, 0.15);
+            background: rgba(255, 68, 68, .15);
             color: #ff4444;
-            border: 1px solid #ff4444;
-        }
-
-        /* アカウントリスト */
-        .account-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
+            border: 1px solid #ff4444
         }
 
         .account-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 102, 255, 0.1);
+            background: rgba(0, 102, 255, .1);
             border: 1px solid #0066ff;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 8px
         }
 
         .acc-info {
@@ -99,12 +91,12 @@
             align-items: center;
             gap: 10px;
             color: #fff;
-            font-weight: bold;
+            font-weight: bold
         }
 
         .acc-icon {
             color: #0066ff;
-            font-size: 1.2rem;
+            font-size: 1.2rem
         }
 
         .del-btn {
@@ -114,18 +106,14 @@
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .del-btn:hover {
-            background: #cc0000;
+            font-size: .8rem
         }
 
         .input-group {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 10px
         }
 
         .key-input {
@@ -137,7 +125,7 @@
             border-radius: 8px;
             font-size: 1rem;
             font-family: monospace;
-            min-width: 250px;
+            min-width: 250px
         }
 
         .action-btn {
@@ -148,242 +136,63 @@
             padding: 15px 30px;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .action-btn:hover {
-            opacity: 0.8;
-            transform: translateY(-2px);
-        }
-
-        .action-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .stake-btn {
-            background: #0066ff;
-            color: #fff;
-        }
-
-        .limit-info {
-            text-align: right;
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 5px;
+            transition: .3s
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 style="border-bottom: 2px solid #333; padding-bottom:15px; margin-bottom:30px;">
-            <i class="fa-solid fa-gauge-high" style="color:#00E701;"></i> ダッシュボード
-        </h1>
-
+        <h1 style="border-bottom:2px solid #333;padding-bottom:15px;margin-bottom:30px"><i
+                class="fa-solid fa-gauge-high" style="color:#00E701"></i> <span data-i18n="dash_title"></span></h1>
         <div class="card">
-            <div class="section-title">現在のステータス</div>
-            <div id="loading-status" style="text-align:center; color:#666;">読み込み中...</div>
-            <div id="status-content" class="status-grid" style="display:none;">
+            <div class="section-title" data-i18n="status_title"></div>
+            <div id="loading-status" style="text-align:center;color:#666" data-i18n="notif_loading"></div>
+            <div id="status-content" class="status-grid" style="display:none">
                 <div class="status-item">
-                    <div class="status-label">現在のプラン</div>
+                    <div class="status-label" data-i18n="plan_label"></div>
                     <div class="status-value" id="disp-plan">---</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">状態</div>
+                    <div class="status-label" data-i18n="state_label"></div>
                     <div class="status-value" id="disp-badge">---</div>
                 </div>
-                <div class="status-item" style="grid-column: 1 / -1;">
-                    <div class="status-label">有効期限</div>
-                    <div class="status-value" id="disp-date" style="font-family:monospace; color:#00E701;">---</div>
+                <div class="status-item" style="grid-column:1/-1">
+                    <div class="status-label" data-i18n="expiry_label"></div>
+                    <div class="status-value" id="disp-date" style="font-family:monospace;color:#00E701">---</div>
                 </div>
             </div>
         </div>
-
-        <div class="card" style="border-color: #0066ff;">
-            <div class="section-title" style="color: #0066ff; border-left-color: #0066ff;">Stake アカウント連携</div>
-
+        <div class="card" style="border-color:#0066ff">
+            <div class="section-title" style="color:#0066ff;border-left-color:#0066ff" data-i18n="stake_link_title">
+            </div>
             <div id="account-list-area" class="account-list"></div>
-            <div class="limit-info">登録済み: <span id="acc-count">0</span> / 上限: <span id="acc-limit">1</span></div>
-
-            <div id="add-account-form" style="margin-top: 20px; border-top: 1px solid #333; padding-top: 20px;">
-                <p style="color:#ccc; font-size:0.9rem; margin-bottom:10px;">新しいアカウントを追加:</p>
-                <div class="input-group">
-                    <input type="password" id="stake-api-key" class="key-input" placeholder="Stake API Key (例: c4f...)"
-                        autocomplete="off">
-                    <button class="action-btn stake-btn" onclick="verifyStakeKey()">連携する</button>
+            <div style="text-align:right;color:#888;font-size:.9rem;margin-top:5px"><span
+                    data-i18n="linked_acc_label"></span>: <span id="acc-count">0</span> / <span
+                    data-i18n="limit_label"></span>: <span id="acc-limit">1</span></div>
+            <div id="add-form" style="margin-top:20px;border-top:1px solid #333;padding-top:20px">
+                <div class="input-group"><input type="password" id="stake-api-key" class="key-input"
+                        data-i18n-placeholder="add_acc_placeholder" autocomplete="off"><button class="action-btn"
+                        style="background:#0066ff;color:#fff" onclick="verifyStakeKey()" data-i18n="link_btn"></button>
                 </div>
             </div>
-            <div id="limit-reached-msg"
-                style="display:none; text-align:center; color:#ff4444; margin-top:20px; font-weight:bold;">
-                アカウント上限に達しています。これ以上追加できません。
-            </div>
+            <div id="limit-msg" style="display:none;text-align:center;color:#ff4444;margin-top:20px;font-weight:bold"
+                data-i18n="limit_reached"></div>
         </div>
-
         <div class="card">
-            <div class="section-title">ライセンスキーを有効化</div>
-            <div class="input-group">
-                <input type="text" id="license-key" class="key-input" placeholder="XXXXX-XXXXX-XXXXX-DAYS">
-                <button class="action-btn" onclick="activateLicense()">有効化する</button>
-            </div>
+            <div class="section-title" data-i18n="license_activate_title"></div>
+            <div class="input-group"><input type="text" id="license-key" class="key-input"
+                    data-i18n-placeholder="license_placeholder"><button class="action-btn" onclick="activateLicense()"
+                    data-i18n="activate_btn"></button></div>
         </div>
     </div>
-
     <script src="/setting.js"></script>
     <script>
-        // setting.jsで設定される window.currentDiscordId を使用する想定ですが、
-        // 念のためローカル変数としても初期化しておきます。
-        let currentDiscordId = null;
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
-            
-            // Supabaseセッション確認
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            
-            if(session) {
-                // setting.jsのロジックと同様にIDを取得
-                currentDiscordId = session.user.user_metadata.provider_id || session.user.id;
-                loadUserStatus(currentDiscordId);
-            } else {
-                showModal("エラー", "ログインしてください", [{text:"OK", class:"g-btn-secondary", onClick:()=>window.location.href="/"}]);
-            }
-        });
-
-        async function loadUserStatus(discordId) {
-            try {
-                const res = await fetch('/api/user_status', { 
-                    method: 'POST', body: JSON.stringify({ discord_id: discordId }) 
-                });
-                const data = await res.json();
-
-                document.getElementById('loading-status').style.display = 'none';
-                document.getElementById('status-content').style.display = 'grid';
-
-                document.getElementById('disp-plan').innerText = data.active ? data.plan_name : "未加入";
-                document.getElementById('disp-badge').innerHTML = data.active 
-                    ? '<span class="active-badge active-badge">有効</span>' 
-                    : '<span class="active-badge expired-badge">無効</span>';
-                document.getElementById('disp-date').innerText = data.active ? new Date(data.expires_at).toLocaleString('ja-JP') : "---";
-
-                const listArea = document.getElementById('account-list-area');
-                listArea.innerHTML = "";
-                const accounts = data.linked_accounts || []; // Python側で1件だけのリストにして返してくる
-                const limit = data.account_limit || 1;
-
-                document.getElementById('acc-count').innerText = accounts.length;
-                document.getElementById('acc-limit').innerText = limit;
-
-                if (accounts.length > 0) {
-                    accounts.forEach(acc => {
-                        const div = document.createElement('div');
-                        div.className = 'account-item';
-                        // ID引数なしで deleteAccount を呼ぶように変更
-                        div.innerHTML = `
-                            <div class="acc-info">
-                                <i class="fa-solid fa-user-tag acc-icon"></i>
-                                <span>${acc.username}</span>
-                            </div>
-                            <button class="del-btn" onclick="deleteAccount()">解除</button>
-                        `;
-                        listArea.appendChild(div);
-                    });
-                } else {
-                    listArea.innerHTML = '<div style="text-align:center; color:#666;">連携されたアカウントはありません</div>';
-                }
-
-                if (accounts.length >= limit) {
-                    document.getElementById('add-account-form').style.display = 'none';
-                    document.getElementById('limit-reached-msg').style.display = 'block';
-                } else {
-                    document.getElementById('add-account-form').style.display = 'block';
-                    document.getElementById('limit-reached-msg').style.display = 'none';
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        async function verifyStakeKey() {
-            const key = document.getElementById('stake-api-key').value.trim();
-            if (!key) return showModal("エラー", "APIキーを入力してください");
-            
-            const btn = document.querySelector('.stake-btn');
-            btn.innerText = "確認中..."; btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/verify_stake', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ discord_id: currentDiscordId, api_key: key })
-                });
-                const result = await res.json();
-
-                if (res.ok) {
-                    showModal("成功", "連携しました！\nユーザー: " + result.stake_username, [{text:"OK", class:"g-btn-primary"}]);
-                    document.getElementById('stake-api-key').value = "";
-                    loadUserStatus(currentDiscordId);
-                } else {
-                    showModal("エラー", result.error || "連携に失敗しました");
-                }
-            } catch(e) { showModal("エラー", "通信エラーが発生しました"); } 
-            finally { btn.innerText = "連携する"; btn.disabled = false; }
-        }
-
-        // アカウント削除（連携解除）処理
-        // 引数IDを廃止し、現在のユーザーの連携情報を削除するAPIを呼び出します
-        async function deleteAccount() {
-            showModal("確認", "本当にアカウント連携を解除しますか？", [
-                {text:"キャンセル", class:"g-btn-secondary"},
-                {text:"解除する", class:"g-btn-primary", onClick: async () => {
-                    closeModal();
-                    try {
-                        const res = await fetch('/api/delete_stake', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ discord_id: currentDiscordId }) // ID指定なし
-                        });
-                        const data = await res.json();
-                        
-                        if(res.ok) {
-                            showModal("完了", "連携を解除しました。", [{text:"OK", class:"g-btn-primary"}]);
-                            loadUserStatus(currentDiscordId);
-                        } else {
-                            showModal("エラー", data.error || "解除に失敗しました");
-                        }
-                    } catch(e){ showModal("エラー", "通信エラー"); }
-                }}
-            ]);
-        }
-        
-        async function activateLicense() {
-            const code = document.getElementById('license-key').value.trim();
-            if (!code) return showModal("エラー", "キーを入力してください");
-            
-            showModal("確認", "このライセンスキーを適用しますか？", [
-                {text:"キャンセル", class:"g-btn-secondary"},
-                {text:"適用する", class:"g-btn-primary", onClick: async () => {
-                    closeModal();
-                    const btn = document.querySelector('.action-btn');
-                    btn.disabled = true;
-                    try {
-                        const res = await fetch('/api/activate', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ discord_id: currentDiscordId, license_key: code })
-                        });
-                        const result = await res.json();
-                        if (res.ok) {
-                            showModal("成功", "ライセンスが有効化されました！\n期限: " + result.new_expiry, [{text:"OK", class:"g-btn-primary"}]);
-                            document.getElementById('license-key').value = "";
-                            loadUserStatus(currentDiscordId);
-                        } else {
-                            showModal("エラー", result.error);
-                        }
-                    } catch (e) { showModal("エラー", "通信エラー"); }
-                    finally { btn.disabled = false; }
-                }}
-            ]);
-        }
+        let dId=null; window.addEventListener('DOMContentLoaded',async()=>{if(!window.supabaseApp)await new Promise(r=>setTimeout(r,1000));const {data:{session}}=await window.supabaseApp.auth.getSession();if(session){dId=session.user.user_metadata.provider_id||session.user.id;loadStatus(dId)}else{showModal(t('modal_err'),t('modal_login_req'),[{text:"OK",onClick:()=>location.href="/"}])}});
+        async function loadStatus(id){try{const res=await fetch('/api/user_status',{method:'POST',body:JSON.stringify({discord_id:id})});const d=await res.json();document.getElementById('loading-status').style.display='none';document.getElementById('status-content').style.display='grid';document.getElementById('disp-plan').innerText=d.active?d.plan_name:(currentLang==='ja'?"未加入":"None");document.getElementById('disp-badge').innerHTML=d.active?`<span class="active-badge">${t('active_status')}</span>`:`<span class="active-badge expired-badge">${t('inactive_status')}</span>`;document.getElementById('disp-date').innerText=d.active?new Date(d.expires_at).toLocaleString():"---";const l=document.getElementById('account-list-area');l.innerHTML="";const accs=d.linked_accounts||[];document.getElementById('acc-count').innerText=accs.length;document.getElementById('acc-limit').innerText=d.account_limit||1;if(accs.length>0){accs.forEach(a=>{l.innerHTML+=`<div class="account-item"><div class="acc-info"><i class="fa-solid fa-user-tag acc-icon"></i><span>${a.username}</span></div><button class="del-btn" onclick="delAcc()">${t('delete_btn')}</button></div>`})}else{l.innerHTML=`<div style="text-align:center;color:#666">${currentLang==='ja'?'未連携':'None'}</div>`}if(accs.length>=(d.account_limit||1)){document.getElementById('add-form').style.display='none';document.getElementById('limit-msg').style.display='block'}else{document.getElementById('add-form').style.display='block';document.getElementById('limit-msg').style.display='none'}}catch(e){}}
+        async function verifyStakeKey(){const k=document.getElementById('stake-api-key').value;if(!k)return;const btn=document.querySelector('.action-btn');btn.disabled=true;try{const res=await fetch('/api/verify_stake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({discord_id:dId,api_key:k})});if(res.ok){loadStatus(dId)}else{const d=await res.json();showModal(t('modal_err'),d.error)}}catch(e){}finally{btn.disabled=false}}
+        function delAcc(){showModal("Confirm",t('delete_confirm'),[{text:"Cancel"},{text:t('delete_btn'),class:"g-btn-primary",onClick:async()=>{closeModal();await fetch('/api/delete_stake',{method:'POST',body:JSON.stringify({discord_id:dId})});loadStatus(dId)}}])}
+        async function activateLicense(){const k=document.getElementById('license-key').value;if(!k)return;try{const res=await fetch('/api/activate',{method:'POST',body:JSON.stringify({discord_id:dId,license_key:k})});if(res.ok){showModal("OK","Activated!");loadStatus(dId)}else{const d=await res.json();showModal(t('modal_err'),d.error)}}catch(e){}}
     </script>
 </body>
 

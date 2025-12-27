@@ -4,18 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>購入手続き</title>
-    <link rel="icon" href="/image/logo.jpg">
+    <title data-i18n="purchase_title">購入手続き</title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
         body {
-            font-family: 'Noto Sans JP', sans-serif;
-            overflow-y: auto;
             background: #000;
-            color: #fff;
+            color: #fff
         }
 
         .container {
@@ -23,7 +20,7 @@
             max-width: 800px;
             margin: 30px auto;
             text-align: center;
-            padding-bottom: 50px;
+            padding-bottom: 50px
         }
 
         .page-title {
@@ -32,7 +29,7 @@
             font-weight: bold;
             margin-bottom: 40px;
             border-bottom: 2px solid #333;
-            padding-bottom: 20px;
+            padding-bottom: 20px
         }
 
         .section-title {
@@ -41,14 +38,14 @@
             color: #ccc;
             border-left: 4px solid #00E701;
             padding-left: 10px;
-            text-align: left;
+            text-align: left
         }
 
         .selection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 30px
         }
 
         .select-card {
@@ -57,19 +54,19 @@
             border-radius: 10px;
             padding: 20px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: .2s;
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 5px
         }
 
         .select-card.selected {
             border-color: #00E701;
-            background: rgba(0, 231, 1, 0.1);
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+            background: rgba(0, 231, 1, .1);
+            box-shadow: 0 0 15px rgba(0, 231, 1, .3)
         }
 
         .select-card.selected::after {
@@ -87,15 +84,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 0.8rem;
-        }
-
-        .select-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: #333;
-            background: #0a0a0a;
-            pointer-events: none;
+            font-size: .8rem
         }
 
         .coupon-input {
@@ -108,6 +97,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             text-align: center;
+            box-sizing: border-box
         }
 
         .checkout-btn {
@@ -124,40 +114,13 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 10px
         }
 
-        .payment-logo {
-            height: 22px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .payment-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* ▼▼▼ モーダル極限スリム化（上下感覚を最小に） ▼▼▼ */
         .global-modal-box {
             padding: 8px 15px !important;
             max-width: 340px !important;
-            border: 1px solid #444 !important;
-        }
-
-        .global-modal-title {
-            font-size: 1.0rem !important;
-            margin: 0 !important;
-            padding: 4px 0 !important;
-            border-bottom: 1px solid #222;
-        }
-
-        .global-modal-body {
-            font-size: 0.85rem !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.0 !important;
+            border: 1px solid #444 !important
         }
 
         .price-row {
@@ -165,166 +128,77 @@
             justify-content: space-between;
             padding: 1px 0;
             border-bottom: 1px solid #1a1a1a;
-            margin: 0 !important;
-            line-height: 1.1;
+            line-height: 1.1
         }
 
         .price-total {
             border-top: 1px solid #333;
             margin-top: 2px !important;
             padding-top: 2px !important;
-            font-size: 1.0rem;
+            font-size: 1rem;
             color: #00E701;
-            font-weight: bold;
+            font-weight: bold
         }
 
-        .tos-container {
-            margin-top: 8px;
-            text-align: center;
-        }
-
-        .tos-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .tos-checkbox {
-            transform: scale(1.3);
-            margin: 0 !important;
-            cursor: pointer;
-            accent-color: #00E701;
-        }
-
-        /* クラウドフレアの表示エリア */
         #cf-turnstile-container {
             margin: 8px 0;
             display: flex;
             justify-content: center;
-            min-height: 60px;
-            transform: scale(0.85);
-            height: 60px;
-        }
-
-        .global-modal-actions {
-            margin-top: 5px !important;
-            gap: 10px !important;
-        }
-
-        .g-modal-btn {
-            padding: 8px 20px !important;
-            font-size: 0.9rem !important;
-            min-width: 90px !important;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .btn-green {
-            background: #00E701;
-            color: #000;
-            border: none;
+            transform: scale(.85);
+            height: 60px
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 class="page-title">購入手続き</h1>
-        <div class="section-title">プランを選択</div>
+        <h1 class="page-title" data-i18n="purchase_title"></h1>
+        <div class="section-title" data-i18n="plan_select"></div>
         <div class="selection-grid" id="plan-grid">
-            <div class="select-card" onclick="selectPlan(this, '1day')">
-                <div>1 Day</div>
-                <div style="font-family:monospace;color:#aaa;">¥1,200</div>
+            <div class="select-card" onclick="selectPlan(this,'1day')">1 Day <div
+                    style="font-family:monospace;color:#aaa">¥1,200</div>
             </div>
-            <div class="select-card" onclick="selectPlan(this, '1week')">
-                <div>1 Week</div>
-                <div style="font-family:monospace;color:#aaa;">¥3,000</div>
+            <div class="select-card" onclick="selectPlan(this,'1week')">1 Week <div
+                    style="font-family:monospace;color:#aaa">¥3,000</div>
             </div>
-            <div class="select-card" onclick="selectPlan(this, '2weeks')">
-                <div>2 Weeks</div>
-                <div style="font-family:monospace;color:#aaa;">¥5,000</div>
+            <div class="select-card" onclick="selectPlan(this,'2weeks')">2 Weeks <div
+                    style="font-family:monospace;color:#aaa">¥5,000</div>
             </div>
-            <div class="select-card" onclick="selectPlan(this, '1month')">
-                <div>1 Month</div>
-                <div style="font-family:monospace;color:#aaa;">¥6,800</div>
+            <div class="select-card" onclick="selectPlan(this,'1month')">1 Month <div
+                    style="font-family:monospace;color:#aaa">¥6,800</div>
             </div>
         </div>
-        <div class="section-title">支払い方法を選択</div>
+        <div class="section-title" data-i18n="payment_select"></div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled">
-                <div class="payment-content"><img src="image/paypay.png" class="payment-logo">
-                    <div>PayPay</div><small>Coming Soon</small>
-                </div>
-            </div>
-            <div class="select-card disabled">
-                <div class="payment-content"><i class="fa-brands fa-stripe"
-                        style="color:#635bff; font-size:1.5rem;"></i>
-                    <div>Card</div><small>Coming Soon</small>
-                </div>
-            </div>
-            <div class="select-card" onclick="selectPayment(this, 'crypto')">
-                <div class="payment-content"><i class="fa-brands fa-bitcoin"
-                        style="color:#f7931a; font-size:1.5rem;"></i>
-                    <div>仮想通貨</div>
-                </div>
+            <div class="select-card disabled" style="opacity:.4;pointer-events:none">PayPay<br><small>Soon</small></div>
+            <div class="select-card" onclick="selectPayment(this,'crypto')"><i class="fa-brands fa-bitcoin"
+                    style="color:#f7931a;font-size:1.5rem"></i>
+                <div>Cryptocurrency</div>
             </div>
         </div>
-        <input type="text" id="coupon-code" class="coupon-input" placeholder="クーポンコード (任意)">
-        <br><button class="checkout-btn" onclick="verifyOrder()"><i class="fa-solid fa-cart-shopping"></i>
-            注文へ進む</button>
+        <input type="text" id="coupon-code" class="coupon-input" data-i18n-placeholder="coupon_placeholder">
+        <br><button class="checkout-btn" onclick="verifyOrder()"><i class="fa-solid fa-cart-shopping"></i> <span
+                data-i18n="checkout_btn"></span></button>
     </div>
     <script src="/setting.js"></script>
     <script>
-        let selectedPlan = null, selectedPayment = null;
-        function selectPlan(el, p) { document.querySelectorAll('#plan-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPlan = p; }
-        function selectPayment(el, m) { document.querySelectorAll('#payment-grid .select-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedPayment = m; }
-
-        async function verifyOrder() {
-            if (!currentUser) return showModal("エラー", "ログインしてください");
-            if (!selectedPlan || !selectedPayment) return showModal("エラー", "プランと支払い方法を選択してください");
-            const btn = document.querySelector('.checkout-btn'), originalText = btn.innerHTML, coupon = document.getElementById('coupon-code').value;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 処理中...'; btn.disabled = true;
-            try {
-                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'check_coupon', user_id: currentUser.id, plan_id: selectedPlan, coupon_code: coupon }) });
-                const data = await res.json();
-                const html = `
-                    <div class="price-row"><span>プラン</span><span>${data.plan_name}</span></div>
-                    <div class="price-row"><span>方法</span><span>仮想通貨</span></div>
-                    <div class="price-row"><span>定価</span><span>¥${data.original_price}</span></div>
-                    <div class="price-row" style="color:#00E701"><span>割引</span><span>${data.coupon_label || '-¥'+data.discount}</span></div>
-                    <div class="price-row price-total"><span>支払額</span><span>¥${data.final_price}</span></div>
-                    
-                    <div class="tos-container">
-                        <label class="tos-label"><input type="checkbox" id="tos-checkbox" class="tos-checkbox"> 
-                        <span style="font-size:0.8rem;"><a href="/terms" target="_blank" style="color:#fff; text-decoration:underline;">利用規約</a>に同意する</span></label>
-                    </div>
-                    <div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>`;
-                
-                showModal("注文確認", html, [
-                    { text: "戻る", onClick: closeModal },
-                    { text: "支払う", class: "btn-green", onClick: () => {
-                        const chk = document.getElementById('tos-checkbox');
-                        const token = turnstile.getResponse();
-                        if(!chk || !chk.checked) return alert("利用規約に同意してください。");
-                        if(!token) return alert("チェックマークをいれてください。");
-                        createOrder(coupon, token);
-                    }}
-                ]);
-                setTimeout(() => { if (window.turnstile && window.TURNSTILE_SITE_KEY) turnstile.render('#turnstile-widget', { sitekey: window.TURNSTILE_SITE_KEY, theme: 'dark' }); }, 50);
-            } catch (e) { showModal("エラー", "通信失敗"); } finally { btn.innerHTML = originalText; btn.disabled = false; }
+        let sPlan=null,sPay=null;
+        function selectPlan(el,p){document.querySelectorAll('#plan-grid .select-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');sPlan=p}
+        function selectPayment(el,m){document.querySelectorAll('#payment-grid .select-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');sPay=m}
+        async function verifyOrder(){
+            if(!currentUser)return showModal(t('modal_err'),t('modal_login_req'));
+            if(!sPlan||!sPay)return showModal(t('modal_err'),"Please select plan and payment.");
+            const btn=document.querySelector('.checkout-btn'),orig=btn.innerHTML,coupon=document.getElementById('coupon-code').value;
+            btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>...';btn.disabled=true;
+            try{
+                const res=await fetch('/api/create_order',{method:'POST',body:JSON.stringify({action:'check_coupon',user_id:currentUser.id,plan_id:sPlan,coupon_code:coupon})});
+                const d=await res.json();
+                const html=`<div class="price-row"><span>${t('confirm_plan')}</span><span>${d.plan_name}</span></div><div class="price-row"><span>${t('confirm_method')}</span><span>Crypto</span></div><div class="price-row"><span>${t('confirm_price')}</span><span>¥${d.original_price}</span></div><div class="price-row" style="color:#00E701"><span>${t('confirm_discount')}</span><span>${d.coupon_label||'-¥'+d.discount}</span></div><div class="price-row price-total"><span>${t('confirm_total')}</span><span>¥${d.final_price}</span></div><div style="margin-top:8px;text-align:center"><label style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px"><input type="checkbox" id="tos-chk" style="accent-color:#00E701"> <span style="font-size:.8rem">${t('tos_agree_text')} <a href="/terms" target="_blank" style="color:#fff;text-decoration:underline">${t('tos_agree_link')}</a>${currentLang==='ja'?'に同意する':''}</span></label></div><div id="cf-turnstile-container"><div id="turnstile-widget"></div></div>`;
+                showModal(t('modal_confirm_title'),html,[{text:t('confirm_back'),onClick:closeModal},{text:t('confirm_pay'),class:"btn-green",onClick:()=>{const chk=document.getElementById('tos-chk'),tok=turnstile.getResponse();if(!chk||!chk.checked)return alert("Agree to terms.");if(!tok)return alert("Captcha.");createOrder(coupon,tok)}}]);
+                setTimeout(()=>{if(window.turnstile)turnstile.render('#turnstile-widget',{sitekey:window.TURNSTILE_SITE_KEY,theme:'dark'})},50);
+            }catch(e){showModal(t('modal_err'),"Fail");}finally{btn.innerHTML=orig;btn.disabled=false}
         }
-
-        async function createOrder(coupon, cfToken) {
-            const modalBtn = document.querySelector('.g-modal-btn.btn-green');
-            if (modalBtn) { modalBtn.innerText = "処理中..."; modalBtn.disabled = true; }
-            try {
-                const res = await fetch('/api/create_order', { method: 'POST', body: JSON.stringify({ action: 'create', user_id: currentUser.id, email: currentUser.email, plan_id: selectedPlan, coupon_code: coupon, cf_token: cfToken }) });
-                const d = await res.json();
-                if (d.order_id) location.href = `/checkout/${d.order_id}`; else throw new Error(d.error);
-            } catch (e) { showModal("エラー", e.message); }
-        }
+        async function createOrder(coupon,tok){try{const res=await fetch('/api/create_order',{method:'POST',body:JSON.stringify({action:'create',user_id:currentUser.id,email:currentUser.email,plan_id:sPlan,coupon_code:coupon,cf_token:tok})});const d=await res.json();if(d.order_id)location.href=`/checkout/${d.order_id}`;else throw new Error(d.error)}catch(e){showModal(t('modal_err'),e.message)}}
     </script>
 </body>
 

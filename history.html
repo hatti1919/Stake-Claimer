@@ -4,23 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>購入履歴</title>
+    <title data-i18n="history_title"></title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
         .container {
             width: 90%;
             max-width: 800px;
-            margin-top: 30px;
+            margin-top: 30px
         }
 
         .filter-buttons {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 5px;
+            overflow-x: auto
         }
 
         .filter-btn {
@@ -29,17 +27,13 @@
             color: #ccc;
             padding: 8px 16px;
             border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.2s;
-            font-size: 0.9rem;
+            cursor: pointer
         }
 
         .filter-btn.active {
             background: #00E701;
             color: #000;
-            border-color: #00E701;
-            font-weight: bold;
+            font-weight: bold
         }
 
         .history-card {
@@ -51,128 +45,29 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .history-card:hover {
-            border-color: #00E701;
-            transform: translateY(-2px);
-        }
-
-        .h-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .h-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .h-plan {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 4px;
-        }
-
-        .h-id {
-            font-family: monospace;
-            color: #666;
-            font-size: 0.8rem;
-        }
-
-        .h-date {
-            color: #555;
-            font-size: 0.75rem;
-            margin-top: 2px;
-        }
-
-        .h-status-text {
-            font-weight: bold;
-            font-size: 0.9rem;
+            cursor: pointer
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1 style="border-bottom:1px solid #333; padding-bottom:15px; color:#00E701;">購入履歴</h1>
-
+        <h1 style="border-bottom:1px solid #333;padding-bottom:15px;color:#00E701" data-i18n="history_title"></h1>
         <div class="filter-buttons">
-            <button class="filter-btn active" onclick="filterHistory('all', this)">全て</button>
-            <button class="filter-btn" onclick="filterHistory('paid', this)">🟢 完了</button>
-            <button class="filter-btn" onclick="filterHistory('pending', this)">🟡 確認中</button>
-            <button class="filter-btn" onclick="filterHistory('expired', this)">🔴 キャンセル</button>
+            <button class="filter-btn active" onclick="fH('all',this)" data-i18n="filter_all"></button><button
+                class="filter-btn" onclick="fH('paid',this)" data-i18n="filter_paid"></button>
+            <button class="filter-btn" onclick="fH('pending',this)" data-i18n="filter_pending"></button><button
+                class="filter-btn" onclick="fH('expired',this)" data-i18n="filter_expired"></button>
         </div>
-
         <div id="history-list">
-            <p style="text-align:center;color:#666; margin-top:50px;">読み込み中...</p>
+            <p style="text-align:center;color:#666" data-i18n="notif_loading"></p>
         </div>
     </div>
-
     <script src="/setting.js"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', async () => {
-            if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            if(session) {
-                loadHistory(session.user.id);
-            } else {
-                document.getElementById('history-list').innerHTML = "<p style='text-align:center;'>ログインしてください</p>";
-            }
-        });
-
-        async function loadHistory(userId) {
-            const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({user_id:userId}) });
-            const orders = await res.json();
-            const list = document.getElementById('history-list'); list.innerHTML = "";
-            
-            if(orders.length === 0) { list.innerHTML = "<p style='text-align:center;'>履歴はありません</p>"; return; }
-
-            orders.forEach(o => {
-                let icon, statusText, color;
-                if(o.status === 'paid') {
-                    icon = '🟢'; statusText = '完了'; color = '#00E701';
-                } else if(o.status === 'pending') {
-                    icon = '🟡'; statusText = '確認中'; color = '#ffd700';
-                } else { 
-                    icon = '🔴'; statusText = 'キャンセル'; color = '#ff4444';
-                }
-
-                const d = document.createElement('div');
-                d.className = `history-card item-${o.status}`;
-                d.onclick = () => window.location.href = `/checkout/${o.order_id}`;
-                
-                d.innerHTML = `
-                    <div class="h-info">
-                        <div style="font-size:1.5rem;">${icon}</div>
-                        <div class="h-details">
-                            <div class="h-plan">${o.plan_type.toUpperCase()} PLAN</div>
-                            <div class="h-id">ID: ${o.order_id}</div>
-                            <div class="h-date">${new Date(o.created_at).toLocaleString('ja-JP')}</div>
-                        </div>
-                    </div>
-                    <div class="h-status-text" style="color:${color}">${statusText} ></div>
-                `;
-                list.appendChild(d);
-            });
-        }
-
-        function filterHistory(type, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const items = document.querySelectorAll('.history-card');
-            items.forEach(item => {
-                if (type === 'all') {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = item.classList.contains(`item-${type}`) ? 'flex' : 'none';
-                }
-            });
-        }
+        window.addEventListener('DOMContentLoaded',async()=>{if(!window.supabaseApp)await new Promise(r=>setTimeout(r,1000));const {data:{session}}=await window.supabaseApp.auth.getSession();if(session)loadH(session.user.id);else document.getElementById('history-list').innerHTML="Login required."});
+        async function loadH(uid){const res=await fetch('/api/history',{method:'POST',body:JSON.stringify({user_id:uid})});const os=await res.json();const l=document.getElementById('history-list');l.innerHTML="";if(os.length===0){l.innerHTML=`<p style="text-align:center" data-i18n="history_empty">${t('history_empty')}</p>`;return}os.forEach(o=>{const d=document.createElement('div');d.className=`history-card item-${o.status}`;d.onclick=()=>location.href=`/checkout/${o.order_id}`;let txt,clr;if(o.status==='paid'){txt=currentLang==='ja'?'完了':'Done';clr='#00E701'}else if(o.status==='pending'){txt=currentLang==='ja'?'確認中':'Pending';clr='#ffd700'}else{txt=currentLang==='ja'?'キャンセル':'Cancelled';clr='#ff4444'}d.innerHTML=`<div><b>${o.plan_type.toUpperCase()} PLAN</b><br><small>ID: ${o.order_id}</small></div><div style="color:${clr}">${txt} ></div>`;l.appendChild(d)})}
+        function fH(t,b){document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.history-card').forEach(i=>{i.style.display=(t==='all'||i.classList.contains(`item-${t}`))?'flex':'none'})}
     </script>
 </body>
 

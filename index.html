@@ -4,18 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stake Bonus Claimer - 自動ボナコ</title>
-
+    <title>Stake Bonus Claimer</title>
     <link rel="icon" href="/image/logo.jpg">
-
-    <meta property="og:title" content="Stake Bonus Claimer">
+    <meta name="description" content="Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。">
     <meta property="og:description" content="Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。">
+    <meta property="og:title" content="Stake Bonus Claimer">
     <meta property="og:image" content="https://stake-claimer.com/image/logo.jpg">
     <meta property="og:url" content="https://stake-claimer.com">
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#00E701">
     <meta name="twitter:card" content="summary_large_image">
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
@@ -23,23 +21,14 @@
         .hero-section {
             margin-top: 60px;
             text-align: center;
-            width: 90%;
-            max-width: 800px;
-            margin-bottom: 40px;
+            margin-bottom: 40px
         }
 
         .logo-img {
             width: 180px;
-            height: auto;
             border-radius: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
-        }
-
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1)
         }
 
         .typing-container {
@@ -47,19 +36,18 @@
             margin-bottom: 30px;
             font-size: 1rem;
             color: #bbb;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', monospace
         }
 
         .content-section {
             width: 85%;
             max-width: 700px;
-            text-align: center;
             margin: 30px auto;
             padding: 40px;
             border: 1px solid #333;
             border-radius: 20px;
             background: linear-gradient(145deg, #111, #000);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .5)
         }
 
         .section-title {
@@ -67,29 +55,21 @@
             color: #00E701;
             margin-bottom: 25px;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 1px
         }
 
         .section-text {
             font-size: 1rem;
             line-height: 2.2;
             color: #ddd;
-            text-align: left;
+            text-align: left
         }
 
         .highlight-text {
             color: #fff;
             font-weight: bold;
             border-bottom: 2px solid #00E701;
-            padding-bottom: 2px;
-        }
-
-        .plans-scroll-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            padding: 10px 0 40px 0;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 50px;
+            padding-bottom: 2px
         }
 
         .plans-container {
@@ -97,53 +77,23 @@
             gap: 20px;
             padding: 0 20px;
             width: max-content;
-            margin: 0 auto;
+            margin: 0 auto
         }
 
         .plan-card {
             background: #000;
-            color: #fff;
+            border: 2px solid #333;
             border-radius: 16px;
             padding: 25px 20px;
             width: 240px;
             text-align: center;
-            border: 2px solid #333;
             cursor: pointer;
-            transition: 0.3s;
+            transition: .3s
         }
 
         .plan-card:hover {
             transform: translateY(-5px);
-            border-color: #00E701;
-        }
-
-        .plan-cyan {
-            border-color: #00ffff;
-        }
-
-        .plan-green {
-            border-color: #00ff00;
-        }
-
-        .plan-blue {
-            border-color: #2979ff;
-        }
-
-        .plan-red {
-            border-color: #ff0055;
-        }
-
-        .plan-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .plan-price {
-            font-size: 1.6rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-family: monospace;
+            border-color: #00E701
         }
 
         .buy-label {
@@ -152,15 +102,16 @@
             padding: 10px 0;
             border-radius: 8px;
             background: #1a1a1a;
-            color: white;
+            color: #fff;
             font-weight: bold;
+            margin-top: 15px
         }
 
         .faq-section {
             width: 90%;
             max-width: 800px;
             margin: 20px auto 50px auto;
-            padding-bottom: 50px;
+            padding-bottom: 50px
         }
 
         .faq-title {
@@ -169,63 +120,59 @@
             margin-bottom: 30px;
             border-left: 5px solid #00E701;
             padding-left: 15px;
-            text-align: left;
+            text-align: left
         }
 
         .faq-item {
             border-bottom: 1px solid #333;
-            margin-bottom: 10px;
+            margin-bottom: 10px
         }
 
         .faq-question {
             padding: 15px 10px;
-            font-size: 1rem;
-            font-weight: bold;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: 0.3s;
+            transition: .3s
         }
 
         .faq-question.active {
-            color: #00E701;
+            color: #00E701
         }
 
         .faq-icon {
             font-size: 1.2rem;
             color: #fff;
-            transition: transform 0.3s ease;
+            transition: transform .3s ease
         }
 
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height .3s ease-out;
             padding: 0 10px;
             color: #ccc;
             line-height: 1.6;
-            font-size: 0.9rem;
+            font-size: .9rem
         }
 
         .fade-up {
             opacity: 0;
             transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transition: opacity .8s ease-out, transform .8s ease-out
         }
 
         .fade-up.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0)
         }
 
-        /* Discordボタン用スタイル */
         .discord-invite-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             background-color: #5865F2;
-            /* Discord公式カラー */
             color: #fff;
             text-decoration: none;
             font-size: 1.2rem;
@@ -233,160 +180,118 @@
             padding: 16px 50px;
             border-radius: 50px;
             gap: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+            transition: all .3s ease;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4)
         }
 
         .discord-invite-btn:hover {
             background-color: #4752C4;
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
-            color: #fff;
+            color: #fff
         }
 
-        .discord-invite-btn i {
-            font-size: 1.6rem;
+        .lang-selector-nav {
+            background: #111;
+            color: #00E701;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: .8rem;
+            cursor: pointer;
+            margin-right: 10px;
+            outline: none
         }
     </style>
 </head>
 
 <body>
-    <div class="hero-section fade-up">
-        <img src="image/logo.jpg" alt="Logo" class="logo-img">
+    <div class="hero-section fade-up"><img src="image/logo.jpg" class="logo-img">
         <h1>Stake Bonus Claimer</h1>
         <div class="typing-container"><span class="text"></span><span class="cursor">|</span></div>
     </div>
-
     <div class="content-section fade-up">
-        <div class="section-title">私たちの行動理念</div>
-        <div class="section-text">
-            ボーナスコードはランダムに落ちてきます。仕事中に降ってきたら、取れなくてイライラしますよね？<br><br>
-            私たちは複雑な作業はすべて自動化し、<span class="highlight-text">「シンプルかつ迅速」</span>に結果を提供します。<br><br>
-            また、システム導入の手順は<span class="highlight-text">完全に確立されています。</span><br>
-            専門的な知識がなくても、安心してスムーズにご利用いただける環境を整えています。<br><br>
-            最先端のスピードと信頼を、あなたの手に。
-        </div>
+        <div class="section-title" data-i18n="philosophy_title">私たちの行動理念</div>
+        <div class="section-text" data-i18n="philosophy_text"></div>
     </div>
-
-    <div class="content-section fade-up" style="margin-top: 40px;">
-        <div class="section-title">機能概要</div>
-        <div class="section-text">
-            <strong>🚀 常時起動は一切不要</strong><br>
-            既存の自動化ツールは、PCを24時間つけっぱなしにする必要がありましたが、本ツールはその常識を覆しました。<br><br>
-            <strong>📱 スマホだけで完結</strong><br>
-            設定はすべてブラウザ上で完了します。あなたのスマホやPCの電源を切っても、クラウド上のシステムが24時間365日、あなたの代わりにコードを取得し続けます。<br><br>
-            高価なPCも、面倒な環境構築も必要ありません。
-        </div>
+    <div class="content-section fade-up">
+        <div class="section-title" data-i18n="feature_title">機能概要</div>
+        <div class="section-text" data-i18n="feature_text"></div>
     </div>
-
-    <div class="content-section fade-up"
-        style="margin-top: 40px; background: transparent; border: none; box-shadow: none; padding: 0;">
-        <a href="https://discord.gg/ueVedsjved" target="_blank" class="discord-invite-btn">
-            <i class="fa-brands fa-discord"></i> サーバーに参加
-        </a>
-    </div>
-
-    <div class="plans-scroll-wrapper fade-up">
+    <div class="content-section fade-up" style="background:transparent;border:none;box-shadow:none;padding:0"><a
+            href="https://discord.gg/ueVedsjved" target="_blank" class="discord-invite-btn"><i
+                class="fa-brands fa-discord"></i> <span data-i18n="join_server">サーバーに参加</span></a></div>
+    <div style="width:100%;overflow-x:auto;padding-bottom:40px;margin-top:50px">
         <div class="plans-container">
-            <div class="plan-card plan-cyan" onclick="goToPurchase('1day')">
-                <div>
-                    <div class="plan-title">1 Day</div>
-                    <div class="plan-price">¥1,200</div>
-                </div><span class="buy-label">購入する</span>
+            <div class="plan-card" style="border-color:#00ffff" onclick="goToPurchase('1day')">
+                <div><b>1 Day</b>
+                    <div style="font-size:1.6rem;font-family:monospace">¥1,200</div>
+                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
             </div>
-            <div class="plan-card plan-green" onclick="goToPurchase('1week')">
-                <div>
-                    <div class="plan-title">1 Week</div>
-                    <div class="plan-price">¥3,000</div>
-                </div><span class="buy-label">購入する</span>
+            <div class="plan-card" style="border-color:#00ff00" onclick="goToPurchase('1week')">
+                <div><b>1 Week</b>
+                    <div style="font-size:1.6rem;font-family:monospace">¥3,000</div>
+                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
             </div>
-            <div class="plan-card plan-blue" onclick="goToPurchase('2weeks')">
-                <div>
-                    <div class="plan-title">2 Weeks</div>
-                    <div class="plan-price">¥5,000</div>
-                </div><span class="buy-label">購入する</span>
+            <div class="plan-card" style="border-color:#2979ff" onclick="goToPurchase('2weeks')">
+                <div><b>2 Weeks</b>
+                    <div style="font-size:1.6rem;font-family:monospace">¥5,000</div>
+                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
             </div>
-            <div class="plan-card plan-red" onclick="goToPurchase('1month')">
-                <div>
-                    <div class="plan-title">1 Month</div>
-                    <div class="plan-price">¥6,800</div>
-                </div><span class="buy-label">購入する</span>
+            <div class="plan-card" style="border-color:#ff0055" onclick="goToPurchase('1month')">
+                <div><b>1 Month</b>
+                    <div style="font-size:1.6rem;font-family:monospace">¥6,800</div>
+                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
             </div>
         </div>
     </div>
-
     <div class="faq-section fade-up">
-        <div class="faq-title">よくある質問</div>
+        <div class="faq-title" data-i18n="faq_title">よくある質問</div>
         <div class="faq-item">
-            <div class="faq-question">支払い方法は何がありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q1">支払い方法は？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>PayPay、クレジットカード、仮想通貨に対応しています。</p>
+                <p data-i18n="a1"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">導入は難しいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q2">導入は難しい？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>いいえ、スマホのみで完結し、数分で設定可能です。専門知識は不要です。</p>
+                <p data-i18n="a2"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">サポートはどの時間でも対応していますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q3">サポート時間は？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>ほぼ、即答できると思います。</p>
+                <p data-i18n="a3"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">プランの延長などはどうすればいいですか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q4">プラン延長は？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>ライセンスを追加購入してもらう形になります。</p>
+                <p data-i18n="a4"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">アカウントの凍結リスクはありますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q5">凍結リスクは？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>基本的にないです。</p>
+                <p data-i18n="a5"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question">ボーナスコードは全て取れますか？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q6">全て取れる？<i class="fa-solid fa-plus faq-icon"></i></div>
             <div class="faq-answer">
-                <p>ほとんど取れますが、リミットの低いものだと取れない時があります。</p>
+                <p data-i18n="a6"></p>
             </div>
         </div>
     </div>
-
     <script src="/setting.js"></script>
     <script>
-        function goToPurchase(plan) {
-            // setting.jsで設定された currentUser をチェック
-            if(currentUser) {
-                window.location.href = `/purchase?plan=${plan}`;
-            } else {
-                showModal("お知らせ", "購入するにはログインしてください。", [{text:"ログイン", class:"g-btn-primary", onClick:login}]);
-            }
-        }
-        window.addEventListener('DOMContentLoaded', () => {
-            const texts = ["自分の時間を大切に。", "迅速にコードを取得します。", "スマホ一台で完結。"];
-            let count=0, index=0, currentText="", letter="", isDeleting=false;
-            (function type() { 
-                if(count===texts.length)count=0; currentText=texts[count]; 
-                letter=isDeleting?currentText.slice(0,--index):currentText.slice(0,++index); 
-                const el=document.querySelector(".typing-container .text"); if(el)el.textContent=letter;
-                let speed=isDeleting?50:100; 
-                if(!isDeleting&&letter.length===currentText.length){speed=2000;isDeleting=true;}
-                else if(isDeleting&&letter.length===0){isDeleting=false;count++;speed=500;} 
-                setTimeout(type,speed); 
-            })();
-            document.querySelectorAll('.faq-question').forEach(q => {
-                q.addEventListener('click', () => {
-                    const item = q.parentElement; const a = item.querySelector('.faq-answer'); const i = q.querySelector('.faq-icon');
-                    q.classList.toggle('active');
-                    if (q.classList.contains('active')) { a.style.maxHeight = a.scrollHeight + "px"; i.classList.remove('fa-plus'); i.classList.add('fa-minus'); i.style.transform = "rotate(135deg)"; }
-                    else { a.style.maxHeight = null; i.classList.remove('fa-minus'); i.classList.add('fa-plus'); i.style.transform = "rotate(0deg)"; }
-                });
-            });
-            const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:0.1});
-            document.querySelectorAll('.fade-up').forEach(e=>obs.observe(e));
+        function goToPurchase(plan){if(currentUser)location.href=`/purchase?plan=${plan}`;else showModal(t('modal_err'),t('modal_login_req'),[{text:t('login_btn'),class:"g-btn-primary",onClick:login}]);}
+        window.addEventListener('DOMContentLoaded',()=>{
+            const ts=[t('hero_desc1'),t('hero_desc2'),t('hero_desc3')];let c=0,i=0,del=false;
+            (function ty(){const cur=ts[c%ts.length];const l=del?cur.slice(0,--i):cur.slice(0,++i);const el=document.querySelector(".text");if(el)el.textContent=l;let s=del?50:100;if(!del&&l.length===cur.length){s=2000;del=true}else if(del&&l.length===0){del=false;c++;s=500}setTimeout(ty,s)})();
+            document.querySelectorAll('.faq-question').forEach(q=>{q.onclick=()=>{const a=q.nextElementSibling,ic=q.querySelector('.faq-icon');q.classList.toggle('active');if(q.classList.contains('active')){a.style.maxHeight=a.scrollHeight+"px";ic.className='fa-solid fa-minus faq-icon';ic.style.transform="rotate(135deg)"}else{a.style.maxHeight=null;ic.className='fa-solid fa-plus faq-icon';ic.style.transform="rotate(0deg)"}}});
+            const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.1});document.querySelectorAll('.fade-up').forEach(e=>obs.observe(e));
         });
     </script>
 </body>

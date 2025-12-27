@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お支払い</title>
+    <title data-i18n="payment_title"></title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
         .split-container {
@@ -15,7 +14,7 @@
             max-width: 1000px;
             width: 95%;
             margin: 40px auto;
-            gap: 20px;
+            gap: 20px
         }
 
         .left-col,
@@ -26,7 +25,7 @@
             border: 1px solid #333;
             padding: 30px;
             border-radius: 15px;
-            box-sizing: border-box;
+            box-sizing: border-box
         }
 
         .right-col {
@@ -34,7 +33,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
+            text-align: center
         }
 
         h2 {
@@ -42,7 +41,7 @@
             border-bottom: 1px solid #333;
             padding-bottom: 15px;
             margin-top: 0;
-            width: 100%;
+            width: 100%
         }
 
         .info-row {
@@ -50,21 +49,7 @@
             justify-content: space-between;
             margin: 15px 0;
             border-bottom: 1px solid #222;
-            padding-bottom: 5px;
-        }
-
-        .info-label {
-            color: #aaa;
-        }
-
-        .info-val {
-            font-family: monospace;
-            font-size: 1.1rem;
-        }
-
-        .discount-val {
-            color: #00E701;
-            font-weight: bold;
+            padding-bottom: 5px
         }
 
         .pay-btn {
@@ -76,13 +61,7 @@
             border-radius: 30px;
             font-size: 1.2rem;
             margin: 30px 0;
-            transition: 0.3s;
-            display: inline-block;
-        }
-
-        .pay-btn:hover {
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
-            transform: scale(1.05);
+            display: inline-block
         }
 
         .key-box {
@@ -94,7 +73,7 @@
             margin: 20px 0;
             word-break: break-all;
             background: #000;
-            border-radius: 10px;
+            border-radius: 10px
         }
 
         .spinner {
@@ -104,16 +83,16 @@
             border-top: 4px solid #00E701;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 20px auto
         }
 
         @keyframes spin {
             0% {
-                transform: rotate(0deg);
+                transform: rotate(0deg)
             }
 
             100% {
-                transform: rotate(360deg);
+                transform: rotate(360deg)
             }
         }
 
@@ -125,7 +104,7 @@
             border: 1px solid #333;
             padding: 10px;
             border-radius: 8px;
-            background: #0a0a0a;
+            background: #0a0a0a
         }
     </style>
 </head>
@@ -133,156 +112,35 @@
 <body>
     <div class="split-container">
         <div class="left-col">
-            <h2>注文詳細</h2>
-            <div class="info-row"><span class="info-label">Order ID</span><span class="info-val"
-                    id="disp-oid">Loading...</span></div>
-            <div class="info-row"><span class="info-label">プラン</span><span class="info-val" id="disp-plan">-</span>
+            <h2 data-i18n="order_detail"></h2>
+            <div class="info-row"><span>Order ID</span><span id="disp-oid" style="font-family:monospace">...</span>
             </div>
-            <div class="info-row" id="row-original" style="display:none;"><span class="info-label">定価</span><span
-                    class="info-val" id="disp-original"></span></div>
-            <div class="info-row" id="row-discount" style="display:none;"><span class="info-label">割引</span><span
-                    class="info-val discount-val" id="disp-discount"></span></div>
-            <div class="info-row"><span class="info-label">支払金額</span><span class="info-val" id="disp-amount">-</span>
-            </div>
+            <div class="info-row"><span data-i18n="plan_label"></span><span id="disp-plan">-</span></div>
+            <div class="info-row"><span data-i18n="confirm_total"></span><span id="disp-amount">-</span></div>
         </div>
-
         <div class="right-col" id="pending-view">
-            <h2>お支払い</h2>
-            <div id="payment-active-area">
-                <p>以下のボタンから決済ページへ進んでください。</p>
-                <a id="pay-link" href="#" target="_blank" class="pay-btn">支払う</a>
-                <div style="margin-top:20px;">
-                    <div class="spinner"></div>
-                    <div id="status-text" style="color:#ffd700; font-weight:bold;">入金待ち...</div>
-                </div>
-                <div class="timer-display" id="countdown-timer">残り時間: --:--</div>
-            </div>
-            <div id="expired-area" style="display:none; color:#ff4444; margin-top:20px; text-align:center;">
-                <i class="fa-solid fa-circle-xmark" style="font-size:4rem; margin-bottom:15px;"></i>
-                <h3>期限切れ</h3>
-                <p style="margin-bottom:20px; font-weight:bold;">この注文はキャンセルになりました。</p>
-                <a href="/purchase" class="pay-btn"
-                    style="background:#333; color:#fff; border:1px solid #555; font-size:1rem; padding: 12px 25px;">新しい注文はこちら</a>
-            </div>
-            <div onclick="document.getElementById('trouble-area').style.display='block'"
-                style="color:#666; text-decoration:underline; cursor:pointer; font-size:0.9rem; margin-top:30px;">
-                支払いが完了したのに反映されませんか？</div>
-            <div id="trouble-area" style="display:none; margin-top:15px; border-top:1px solid #222; padding-top:15px;">
-                <button onclick="location.reload()"
-                    style="background:#333; color:#fff; border:1px solid #555; padding:10px 20px; border-radius:5px; cursor:pointer;">ページを再読み込み</button>
-            </div>
+            <h2 data-i18n="payment_title"></h2>
+            <p data-i18n="pay_info"></p><a id="pay-link" href="#" target="_blank" class="pay-btn"
+                data-i18n="pay_link_btn"></a>
+            <div class="spinner"></div>
+            <div id="status-text" style="color:#ffd700;font-weight:bold" data-i18n="waiting_pay"></div>
+            <div class="timer-display" id="timer">--:--</div>
         </div>
-
-        <div class="right-col" id="success-view" style="display:none;">
-            <i class="fa-solid fa-circle-check" style="font-size:5rem; color:#00E701; margin-bottom:20px;"></i>
-            <h2>支払い完了！</h2>
-            <p>ライセンスキーが発行されました。</p>
-            <div id="license-key" class="key-box"></div>
-            <p style="color:#aaa; font-size:0.9rem;">コピーして使用するか、ダッシュボードで有効化してください。</p>
-
-            <div class="hero-buttons" style="justify-content:center; margin-top:20px;">
-                <a href="/dashboard" class="hero-btn btn-primary">
-                    <i class="fa-solid fa-rocket"></i> 今すぐ使う
-                </a>
-                <a href="/usage" class="hero-btn btn-outline" style="border-color:#555; background:#111;">
-                    <i class="fa-regular fa-circle-question"></i> 使い方を確認
-                </a>
-            </div>
+        <div class="right-col" id="success-view" style="display:none"><i class="fa-solid fa-circle-check"
+                style="font-size:5rem;color:#00E701;margin-bottom:20px"></i>
+            <h2 data-i18n="success_title"></h2>
+            <p data-i18n="key_issued"></p>
+            <div id="license-key" class="key-box"></div><a href="/dashboard" class="pay-btn"
+                data-i18n="use_now_btn"></a>
         </div>
     </div>
-
     <script src="/setting.js"></script>
     <script>
-        const pathSegments = window.location.pathname.split('/');
-        let orderId = pathSegments.pop() || pathSegments.pop();
-        if (!orderId || orderId === 'checkout.html') {
-            const params = new URLSearchParams(window.location.search);
-            orderId = params.get('order_id');
-        }
-        document.getElementById('disp-oid').innerText = orderId || "Unknown";
-        let countdownInterval;
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            if(!window.supabaseApp) await new Promise(r => setTimeout(r, 1000));
-            const { data: { session } } = await window.supabaseApp.auth.getSession();
-            if(session) {
-                try {
-                    const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) });
-                    const orders = await res.json();
-                    const target = orders.find(o => o.order_id === orderId);
-                    if (target) {
-                        document.getElementById('disp-plan').innerText = target.plan_type.toUpperCase();
-                        const original = target.amount || target.final_amount;
-                        const discount = target.discount_amount || 0;
-                        const final = target.final_amount;
-                        if (discount > 0) {
-                            document.getElementById('row-original').style.display = 'flex';
-                            document.getElementById('row-discount').style.display = 'flex';
-                            document.getElementById('disp-original').innerText = "¥" + original;
-                            document.getElementById('disp-discount').innerText = "-¥" + discount;
-                        }
-                        document.getElementById('disp-amount').innerText = "¥" + final;
-                        if(target.status === 'paid') {
-                            showSuccess(target.license_key);
-                        } else if(target.status === 'expired') {
-                            showExpired();
-                        } else {
-                            document.getElementById('pay-link').href = target.pay_url;
-                            startPolling(session.user.id);
-                            startTimer(target.created_at);
-                        }
-                    }
-                } catch(e) { console.error(e); }
-            } else {
-                alert("ログインしてください");
-                window.location.href = "/";
-            }
-        });
-
-        function startPolling(uid) {
-            const interval = setInterval(async () => {
-                try {
-                    const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: orderId, user_id: uid }) });
-                    const data = await res.json();
-                    if(data.status === 'paid') {
-                        clearInterval(interval); clearInterval(countdownInterval);
-                        showSuccess(data.license_key);
-                    } else if (data.status === 'expired') {
-                        clearInterval(interval); clearInterval(countdownInterval);
-                        showExpired();
-                    }
-                } catch(e){}
-            }, 3000);
-        }
-
-        function startTimer(createdAtStr) {
-            const created = new Date(createdAtStr).getTime();
-            const expireTime = created + (60 * 60 * 1000); 
-            function update() {
-                const now = new Date().getTime();
-                const diff = expireTime - now;
-                if (diff <= 0) {
-                    clearInterval(countdownInterval);
-                    document.getElementById('countdown-timer').innerText = "残り時間: 00:00";
-                    showExpired(); return;
-                }
-                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((diff % (1000 * 60)) / 1000);
-                document.getElementById('countdown-timer').innerText = `残り時間: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            }
-            update(); 
-            countdownInterval = setInterval(update, 1000);
-        }
-
-        function showSuccess(key) {
-            document.getElementById('pending-view').style.display='none';
-            document.getElementById('success-view').style.display='flex';
-            document.getElementById('license-key').innerText = key;
-        }
-        function showExpired() {
-            document.getElementById('payment-active-area').style.display = 'none'; 
-            document.getElementById('expired-area').style.display = 'block'; 
-        }
+        const oid=location.pathname.split('/').pop(); document.getElementById('disp-oid').innerText=oid; let cInt;
+        window.addEventListener('DOMContentLoaded',async()=>{if(!window.supabaseApp)await new Promise(r=>setTimeout(r,1000));const {data:{session}}=await window.supabaseApp.auth.getSession();if(session){try{const res=await fetch('/api/history',{method:'POST',body:JSON.stringify({user_id:session.user.id})});const os=await res.json();const t=os.find(o=>o.order_id===oid);if(t){document.getElementById('disp-plan').innerText=t.plan_type.toUpperCase();document.getElementById('disp-amount').innerText="¥"+t.final_amount;if(t.status==='paid')showS(t.license_key);else{document.getElementById('pay-link').href=t.pay_url;startP(session.user.id);startT(t.created_at)}}}catch(e){}}});
+        function startP(uid){setInterval(async()=>{try{const res=await fetch('/api/check_order',{method:'POST',body:JSON.stringify({order_id:oid,user_id:uid})});const d=await res.json();if(d.status==='paid')showS(d.license_key)}catch(e){}},3000)}
+        function startT(cStr){const expire=new Date(cStr).getTime()+(60*60*1000);function up(){const diff=expire-new Date().getTime();if(diff<=0){clearInterval(cInt);location.reload();return}const m=Math.floor((diff%(1000*60*60))/(1000*60)),s=Math.floor((diff%(1000*60))/1000);document.getElementById('timer').innerText=`${t('timer_label')}: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`}up();cInt=setInterval(up,1000)}
+        function showS(k){document.getElementById('pending-view').style.display='none';document.getElementById('success-view').style.display='flex';document.getElementById('license-key').innerText=k}
     </script>
 </body>
 
