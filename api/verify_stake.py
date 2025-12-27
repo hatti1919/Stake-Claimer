@@ -74,11 +74,11 @@ class handler(BaseHTTPRequestHandler):
                     timeout_seconds=15
                 )
             except Exception as e:
-                raise Exception(f"Stake APIへの接続エラー: {str(e)}")
+                raise Exception(f"Network Erro {str(e)}")
 
             # レスポンスチェック
             if response.status_code == 403:
-                 raise Exception("Stake APIへのアクセスが拒否されました(403)。Cloudflareによるブロックです。")
+                 raise Exception("Block is Cloudflare")
 
             if response.status_code != 200:
                  raise Exception(f"Stake API Error (Status: {response.status_code})")
@@ -93,7 +93,7 @@ class handler(BaseHTTPRequestHandler):
                 raise Exception(f"API Error: {error_msg}")
 
             if not (data.get("data") and data["data"].get("user")):
-                raise Exception("無効なAPIキーです (User Not Found)")
+                raise Exception("User Not Found)")
 
             user_data = data["data"]["user"]
             stake_username = user_data["name"]

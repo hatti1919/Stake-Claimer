@@ -4,17 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title data-i18n="purchase_title">購入手続き</title>
+    <title data-i18n="purchase_title"></title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
     <style>
-        body {
-            background: #000;
-            color: #fff
-        }
-
         .container {
             width: 90%;
             max-width: 800px;
@@ -117,12 +112,6 @@
             gap: 10px
         }
 
-        .global-modal-box {
-            padding: 8px 15px !important;
-            max-width: 340px !important;
-            border: 1px solid #444 !important
-        }
-
         .price-row {
             display: flex;
             justify-content: space-between;
@@ -170,10 +159,11 @@
         </div>
         <div class="section-title" data-i18n="payment_select"></div>
         <div class="selection-grid" id="payment-grid">
-            <div class="select-card disabled" style="opacity:.4;pointer-events:none">PayPay<br><small>Soon</small></div>
+            <div class="select-card disabled" style="opacity:.4;pointer-events:none">PayPay / カード<br><small>Soon</small>
+            </div>
             <div class="select-card" onclick="selectPayment(this,'crypto')"><i class="fa-brands fa-bitcoin"
                     style="color:#f7931a;font-size:1.5rem"></i>
-                <div>Cryptocurrency</div>
+                <div>仮想通貨</div>
             </div>
         </div>
         <input type="text" id="coupon-code" class="coupon-input" data-i18n-placeholder="coupon_placeholder">
@@ -187,7 +177,7 @@
         function selectPayment(el,m){document.querySelectorAll('#payment-grid .select-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');sPay=m}
         async function verifyOrder(){
             if(!currentUser)return showModal(t('modal_err'),t('modal_login_req'));
-            if(!sPlan||!sPay)return showModal(t('modal_err'),"Please select plan and payment.");
+            if(!sPlan||!sPay)return alert("Please select plan and payment.");
             const btn=document.querySelector('.checkout-btn'),orig=btn.innerHTML,coupon=document.getElementById('coupon-code').value;
             btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>...';btn.disabled=true;
             try{

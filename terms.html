@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="terms_title">利用規約</title>
+    <title data-i18n="nav_terms"></title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
@@ -12,100 +12,66 @@
         .content {
             width: 90%;
             max-width: 800px;
-            margin-top: 40px;
-            margin-bottom: 60px;
+            margin: 40px auto;
             line-height: 1.8;
-            color: #ddd;
+            color: #ddd
         }
 
         h1 {
             color: #00E701;
             border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
-            font-size: 2rem;
+            padding-bottom: 15px
         }
 
         h2 {
             margin-top: 50px;
-            margin-bottom: 20px;
             border-left: 5px solid #00E701;
             padding-left: 15px;
-            color: #fff;
-            font-size: 1.4rem;
-        }
-
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-
-        ul {
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        li {
-            margin-bottom: 10px;
+            color: #fff
         }
 
         .highlight-risk {
-            background: rgba(255, 68, 68, 0.1);
+            background: rgba(255, 68, 68, .1);
             border: 1px solid #ff4444;
             padding: 15px;
             border-radius: 8px;
-            color: #ffcccc;
-            margin: 20px 0;
+            margin: 20px 0
         }
     </style>
 </head>
 
 <body>
     <div class="content">
-        <h1 data-i18n="terms_title">利用規約</h1>
+        <h1 data-i18n="terms_title"></h1>
         <p data-i18n="terms_main_text"></p>
-
-        <h2 data-i18n="terms_sec1_title">第1条（適用）</h2>
-        <p data-i18n="terms_sec1_text"></p>
-
-        <h2 data-i18n="terms_sec2_title">第2条（利用登録）</h2>
-        <p data-i18n="terms_sec2_text"></p>
-
-        <h2 data-i18n="terms_sec3_title">第3条（禁止事項）</h2>
-        <p data-i18n="terms_sec3_text"></p>
+        <h2 data-i18n="terms_sec1"></h2>
+        <p data-i18n="terms_sec1_t"></p>
+        <h2 data-i18n="terms_sec2"></h2>
+        <p data-i18n="terms_sec2_t"></p>
+        <h2 data-i18n="terms_sec3_title"></h2>
+        <p data-i18n="terms_sec3_intro"></p>
         <ul data-i18n="terms_sec3_list"></ul>
-
-        <h2 data-i18n="terms_sec4_title">第4条（本サービスの提供の停止等）</h2>
-        <p data-i18n="terms_sec4_text1"></p>
+        <h2 data-i18n="terms_sec4_title"></h2>
+        <p data-i18n="terms_sec4_t1"></p>
         <ul data-i18n="terms_sec4_list"></ul>
-        <p data-i18n="terms_sec4_text2"></p>
-
-        <h2 data-i18n="terms_sec5_title">第5条（利用制限および登録抹消）</h2>
-        <p data-i18n="terms_sec5_text1"></p>
+        <p data-i18n="terms_sec4_t2"></p>
+        <h2 data-i18n="terms_sec5_title"></h2>
+        <p data-i18n="terms_sec5_t1"></p>
         <ul data-i18n="terms_sec5_list"></ul>
-        <p data-i18n="terms_sec5_text2"></p>
-
-        <h2 data-i18n="terms_sec6_title">第6条（免責事項）</h2>
-        <div class="highlight-risk">
-            <strong data-i18n="terms_risk_title"></strong><br>
-            <span data-i18n="terms_risk_text"></span>
-        </div>
-        <p data-i18n="terms_sec6_text2"></p>
-
-        <h2 data-i18n="terms_sec7_title">第7条（サービス内容の変更等）</h2>
-        <p data-i18n="terms_sec7_text"></p>
-
-        <h2 data-i18n="terms_sec8_title">第8条（利用規約の変更）</h2>
-        <p data-i18n="terms_sec8_text"></p>
-
-        <h2 data-i18n="terms_sec9_title">第9条（返金ポリシー）</h2>
-        <p data-i18n="terms_sec9_text"></p>
-
-        <h2 data-i18n="terms_sec10_title">第10条（準拠法・裁判管轄）</h2>
-        <p data-i18n="terms_sec10_text"></p>
-
-        <div style="margin-top: 50px; text-align: center; color: #666; font-size: 0.9rem;"
-            data-i18n="terms_last_update"></div>
+        <p data-i18n="terms_sec5_t2"></p>
+        <h2 data-i18n="terms_sec6"></h2>
+        <div class="highlight-risk"><strong data-i18n="terms_risk_title"></strong><br><span
+                data-i18n="terms_risk_text"></span></div>
+        <p data-i18n="terms_sec6_t2"></p>
+        <h2 data-i18n="terms_sec7_title"></h2>
+        <p data-i18n="terms_sec7_t"></p>
+        <h2 data-i18n="terms_sec8_title"></h2>
+        <p data-i18n="terms_sec8_t"></p>
+        <h2 data-i18n="terms_sec9_title"></h2>
+        <p data-i18n="terms_sec9_t"></p>
+        <h2 data-i18n="terms_sec10_title"></h2>
+        <p data-i18n="terms_sec10_t"></p>
+        <div style="margin-top:50px;text-align:center;color:#666" data-i18n="terms_last_update"></div>
     </div>
     <script src="setting.js"></script>
 </body>

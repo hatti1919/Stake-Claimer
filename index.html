@@ -6,14 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stake Bonus Claimer</title>
     <link rel="icon" href="/image/logo.jpg">
-    <meta name="description" content="Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。">
-    <meta property="og:description" content="Stakeのボーナスコード取得を自動化。PC常時起動は不要、スマホだけで完結します。">
-    <meta property="og:title" content="Stake Bonus Claimer">
-    <meta property="og:image" content="https://stake-claimer.com/image/logo.jpg">
-    <meta property="og:url" content="https://stake-claimer.com">
-    <meta property="og:type" content="website">
-    <meta name="theme-color" content="#00E701">
-    <meta name="twitter:card" content="summary_large_image">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/common.css">
@@ -134,11 +126,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: .3s
-        }
-
-        .faq-question.active {
-            color: #00E701
+            font-weight: bold
         }
 
         .faq-icon {
@@ -153,19 +141,12 @@
             transition: max-height .3s ease-out;
             padding: 0 10px;
             color: #ccc;
-            line-height: 1.6;
-            font-size: .9rem
+            line-height: 1.6
         }
 
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity .8s ease-out, transform .8s ease-out
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0)
+        .discord-btn-wrapper {
+            text-align: center;
+            margin: 40px 0;
         }
 
         .discord-invite-btn {
@@ -186,21 +167,18 @@
 
         .discord-invite-btn:hover {
             background-color: #4752C4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(88, 101, 242, 0.6);
-            color: #fff
+            transform: translateY(-3px)
         }
 
-        .lang-selector-nav {
-            background: #111;
-            color: #00E701;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: .8rem;
-            cursor: pointer;
-            margin-right: 10px;
-            outline: none
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .8s ease-out, transform .8s ease-out
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0)
         }
     </style>
 </head>
@@ -211,74 +189,79 @@
         <div class="typing-container"><span class="text"></span><span class="cursor">|</span></div>
     </div>
     <div class="content-section fade-up">
-        <div class="section-title" data-i18n="philosophy_title">私たちの行動理念</div>
+        <div class="section-title" data-i18n="philosophy_title"></div>
         <div class="section-text" data-i18n="philosophy_text"></div>
     </div>
     <div class="content-section fade-up">
-        <div class="section-title" data-i18n="feature_title">機能概要</div>
+        <div class="section-title" data-i18n="feature_title"></div>
         <div class="section-text" data-i18n="feature_text"></div>
     </div>
-    <div class="content-section fade-up" style="background:transparent;border:none;box-shadow:none;padding:0"><a
-            href="https://discord.gg/ueVedsjved" target="_blank" class="discord-invite-btn"><i
-                class="fa-brands fa-discord"></i> <span data-i18n="join_server">サーバーに参加</span></a></div>
+
+    <div class="discord-btn-wrapper fade-up">
+        <a href="https://discord.gg/ueVedsjved" target="_blank" class="discord-invite-btn">
+            <i class="fa-brands fa-discord"></i> <span data-i18n="join_server"></span>
+        </a>
+    </div>
+
     <div style="width:100%;overflow-x:auto;padding-bottom:40px;margin-top:50px">
         <div class="plans-container">
             <div class="plan-card" style="border-color:#00ffff" onclick="goToPurchase('1day')">
                 <div><b>1 Day</b>
                     <div style="font-size:1.6rem;font-family:monospace">¥1,200</div>
-                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
+                </div><span class="buy-label" data-i18n="buy_label"></span>
             </div>
             <div class="plan-card" style="border-color:#00ff00" onclick="goToPurchase('1week')">
                 <div><b>1 Week</b>
                     <div style="font-size:1.6rem;font-family:monospace">¥3,000</div>
-                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
+                </div><span class="buy-label" data-i18n="buy_label"></span>
             </div>
             <div class="plan-card" style="border-color:#2979ff" onclick="goToPurchase('2weeks')">
                 <div><b>2 Weeks</b>
                     <div style="font-size:1.6rem;font-family:monospace">¥5,000</div>
-                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
+                </div><span class="buy-label" data-i18n="buy_label"></span>
             </div>
             <div class="plan-card" style="border-color:#ff0055" onclick="goToPurchase('1month')">
                 <div><b>1 Month</b>
                     <div style="font-size:1.6rem;font-family:monospace">¥6,800</div>
-                </div><span class="buy-label" data-i18n="buy_label">購入する</span>
+                </div><span class="buy-label" data-i18n="buy_label"></span>
             </div>
         </div>
     </div>
+
     <div class="faq-section fade-up">
-        <div class="faq-title" data-i18n="faq_title">よくある質問</div>
+        <div class="faq-title" data-i18n="faq_title"></div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q1">支払い方法は？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q1"></div>
             <div class="faq-answer">
                 <p data-i18n="a1"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q2">導入は難しい？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q2"></div>
             <div class="faq-answer">
                 <p data-i18n="a2"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q3">サポート時間は？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q3"></div>
             <div class="faq-answer">
                 <p data-i18n="a3"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q4">プラン延長は？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q4"></div>
             <div class="faq-answer">
                 <p data-i18n="a4"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q5">凍結リスクは？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q5"></div>
             <div class="faq-answer">
                 <p data-i18n="a5"></p>
             </div>
         </div>
         <div class="faq-item">
-            <div class="faq-question" data-i18n="q6">全て取れる？<i class="fa-solid fa-plus faq-icon"></i></div>
+            <div class="faq-question" data-i18n="q6"></div>
             <div class="faq-answer">
                 <p data-i18n="a6"></p>
             </div>
@@ -287,10 +270,9 @@
     <script src="/setting.js"></script>
     <script>
         function goToPurchase(plan){if(currentUser)location.href=`/purchase?plan=${plan}`;else showModal(t('modal_err'),t('modal_login_req'),[{text:t('login_btn'),class:"g-btn-primary",onClick:login}]);}
-        window.addEventListener('DOMContentLoaded',()=>{
-            const ts=[t('hero_desc1'),t('hero_desc2'),t('hero_desc3')];let c=0,i=0,del=false;
-            (function ty(){const cur=ts[c%ts.length];const l=del?cur.slice(0,--i):cur.slice(0,++i);const el=document.querySelector(".text");if(el)el.textContent=l;let s=del?50:100;if(!del&&l.length===cur.length){s=2000;del=true}else if(del&&l.length===0){del=false;c++;s=500}setTimeout(ty,s)})();
-            document.querySelectorAll('.faq-question').forEach(q=>{q.onclick=()=>{const a=q.nextElementSibling,ic=q.querySelector('.faq-icon');q.classList.toggle('active');if(q.classList.contains('active')){a.style.maxHeight=a.scrollHeight+"px";ic.className='fa-solid fa-minus faq-icon';ic.style.transform="rotate(135deg)"}else{a.style.maxHeight=null;ic.className='fa-solid fa-plus faq-icon';ic.style.transform="rotate(0deg)"}}});
+        window.addEventListener('DOMContentLoaded', () => {
+            const ts=[t('hero_desc1'),t('hero_desc2'),t('hero_desc3')];let c=0,i=0,del=false;(function ty(){const cur=ts[c%ts.length];const l=del?cur.slice(0,--i):cur.slice(0,++i);const el=document.querySelector(".text");if(el)el.textContent=l;let s=del?50:100;if(!del&&l.length===cur.length){s=2000;del=true}else if(del&&l.length===0){del=false;c++;s=500}setTimeout(ty,s)})();
+            document.querySelectorAll('.faq-question').forEach(q=>{q.onclick=()=>{const a=q.nextElementSibling, ic=q.querySelector('.faq-icon');q.classList.toggle('active');if(q.classList.contains('active')){a.style.maxHeight=a.scrollHeight+"px";ic.className='fa-solid fa-minus faq-icon';ic.style.transform="rotate(135deg)"}else{a.style.maxHeight=null;ic.className='fa-solid fa-plus faq-icon';ic.style.transform="rotate(0deg)"}}});
             const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.1});document.querySelectorAll('.fade-up').forEach(e=>obs.observe(e));
         });
     </script>

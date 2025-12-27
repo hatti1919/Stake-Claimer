@@ -4,27 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="nav_usage">使用方法 - Stake Claimer</title>
+    <title data-i18n="nav_usage"></title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="common.css">
     <style>
-        .content-wrapper {
+        .wrapper {
             width: 90%;
             max-width: 800px;
             margin: 0 auto;
-            padding-bottom: 60px;
+            padding-bottom: 60px
         }
 
         h1.page-title {
             color: #00E701;
             border-bottom: 1px solid #333;
             padding-bottom: 20px;
-            margin-top: 40px;
-            margin-bottom: 40px;
-            text-align: center;
-            font-size: 2rem;
-            letter-spacing: 2px;
+            margin: 40px 0;
+            text-align: center
         }
 
         .step-card {
@@ -32,16 +29,7 @@
             padding: 30px;
             border-radius: 16px;
             margin-bottom: 40px;
-            border: 1px solid #333;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .step-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 15px;
+            border: 1px solid #333
         }
 
         .step-badge {
@@ -50,112 +38,28 @@
             padding: 5px 15px;
             border-radius: 6px;
             font-weight: 900;
-            margin-right: 15px;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
+            margin-right: 15px
         }
 
         .step-title {
             font-size: 1.4rem;
             font-weight: bold;
-            color: #fff;
-            margin: 0;
-        }
-
-        .step-text {
-            color: #ccc;
-            line-height: 1.8;
-            margin-bottom: 20px;
-            font-size: 1rem;
-        }
-
-        .link-text {
-            color: #00E701;
-            text-decoration: underline;
-            transition: color 0.2s;
-            cursor: pointer;
-        }
-
-        .link-text:hover {
-            color: #fff;
+            color: #fff
         }
 
         .step-img {
             width: 100%;
-            height: auto;
             border-radius: 10px;
             border: 1px solid #333;
-            margin: 20px 0 30px 0;
-            display: block;
-            background-color: #000;
-        }
-
-        .btn-action {
-            display: inline-block;
-            background-color: #00E701;
-            color: #000;
-            padding: 12px 30px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 0 10px rgba(0, 231, 1, 0.2);
-            margin: 10px 0 20px 0;
-            text-align: center;
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(0, 231, 1, 0.5);
-            color: #000;
-        }
-
-        .btn-buy-now {
-            display: block;
-            width: fit-content;
-            margin: 30px auto;
-            background-color: #00E701;
-            color: #000;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
-        }
-
-        .btn-buy-now:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 25px rgba(0, 231, 1, 0.6);
-            color: #000;
+            margin: 20px 0
         }
 
         .alert-box-danger {
             border: 2px solid #ff4444;
-            background-color: rgba(255, 68, 68, 0.08);
+            background: rgba(255, 68, 68, .08);
             padding: 25px;
             border-radius: 12px;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-
-        .alert-title {
-            color: #ff4444;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .alert-content {
-            color: #ffcccc;
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin: 0;
+            margin: 30px 0
         }
 
         .info-box {
@@ -164,87 +68,79 @@
             padding: 15px 20px;
             border-radius: 4px;
             margin-top: 20px;
-            font-size: 0.95rem;
-            color: #ccc;
+            color: #ccc
         }
 
         .owner-request {
             text-align: center;
             margin-top: 60px;
             padding-top: 40px;
-            border-top: 1px solid #333;
+            border-top: 1px solid #333
+        }
+
+        .btn-buy-now {
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            background: #00E701;
+            color: #000;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold
         }
     </style>
 </head>
 
 <body>
-    <div class="content-wrapper">
-        <h1 class="page-title" data-i18n="usage_guide_title">使用方法ガイド</h1>
-
+    <div class="wrapper">
+        <h1 class="page-title" data-i18n="usage_guide_title"></h1>
         <div class="step-card">
-            <div class="step-header">
-                <span class="step-badge">STEP 1</span>
-                <h2 class="step-title" data-i18n="u_step1_title">ログイン</h2>
+            <div style="display:flex;align-items:center;margin-bottom:20px"><span class="step-badge">STEP 1</span>
+                <h2 class="step-title" data-i18n="u_step1_title"></h2>
             </div>
-            <p class="step-text" data-i18n="u_step1_text1"></p>
-            <p class="step-text" data-i18n="u_step1_text2"></p>
-            <img src="image/step1.png" alt="認証画面" class="step-img">
-            <div class="info-box">
-                <i class="fas fa-info-circle" style="color: #00E701; margin-right: 8px;"></i>
-                <span data-i18n="u_step1_info"></span>
-            </div>
+            <p data-i18n="u_step1_t1"></p>
+            <p data-i18n="u_step1_t2"></p><img src="image/step1.png" class="step-img">
+            <div class="info-box"><i class="fas fa-info-circle" style="color:#00E701;margin-right:8px"></i><span
+                    data-i18n="u_step1_info"></span></div>
         </div>
-
         <div class="step-card">
-            <div class="step-header">
-                <span class="step-badge">STEP 2</span>
-                <h2 class="step-title" data-i18n="u_step2_title">購入</h2>
+            <div style="display:flex;align-items:center;margin-bottom:20px"><span class="step-badge">STEP 2</span>
+                <h2 class="step-title" data-i18n="u_step2_title"></h2>
             </div>
-            <p class="step-text" data-i18n="u_step2_text1"></p>
-            <a href="purchase.html" class="btn-buy-now" data-i18n="u_step2_btn"></a>
-            <p class="step-text" data-i18n="u_step2_text2"></p>
-            <img src="image/step2_1.png" alt="クーポン入力" class="step-img">
-            <p class="step-text" data-i18n="u_step2_text3"></p>
-            <img src="image/step2_2.png" alt="注文へ進む" class="step-img">
-            <p class="step-text" data-i18n="u_step2_text4"></p>
-            <img src="image/step2_3.png" alt="支払い画面" class="step-img">
-            <p class="step-text" data-i18n="u_step2_text5"></p>
+            <p data-i18n="u_step2_t1"></p><a href="purchase.html" class="btn-buy-now" data-i18n="u_step2_btn"></a>
+            <p data-i18n="u_step2_t2"></p><img src="image/step2_1.png" class="step-img">
+            <p data-i18n="u_step2_t3"></p><img src="image/step2_2.png" class="step-img">
+            <p data-i18n="u_step2_t4"></p><img src="image/step2_3.png" class="step-img">
+            <p data-i18n="u_step2_t5"></p>
             <div class="alert-box-danger">
-                <div class="alert-title" data-i18n="u_step2_alert_title"></div>
-                <p class="alert-content" data-i18n="u_step2_alert_text"></p>
+                <div style="color:#ff4444;font-weight:bold;margin-bottom:15px" data-i18n="u_step2_alert_title"></div>
+                <p data-i18n="u_step2_alert_text"></p>
             </div>
             <div class="info-box" data-i18n="u_step2_info"></div>
         </div>
-
         <div class="step-card">
-            <div class="step-header">
-                <span class="step-badge">STEP 3</span>
-                <h2 class="step-title" data-i18n="u_step3_title">導入</h2>
+            <div style="display:flex;align-items:center;margin-bottom:20px"><span class="step-badge">STEP 3</span>
+                <h2 class="step-title" data-i18n="u_step3_title"></h2>
             </div>
-            <p class="step-text" data-i18n="u_step3_text1"></p>
-            <div style="text-align: center;">
-                <a href="contact.html" class="btn-action" data-i18n="u_step3_contact_btn"></a>
-            </div>
-            <p class="step-text" data-i18n="u_step3_text2"></p>
-            <img src="image/step3_1.png" alt="今すぐ利用ボタン" class="step-img">
-            <p class="step-text" data-i18n="u_step3_text3"></p>
-            <img src="image/step3_2.png" alt="ライセンスキー入力" class="step-img">
-            <p class="step-text" data-i18n="u_step3_text4"></p>
-            <img src="image/step3_3.png" alt="権限付与" class="step-img">
-            <p class="step-text" data-i18n="u_step3_text5"></p>
-            <div style="text-align: center;">
-                <a href="https://stake.com/settings/api" target="_blank" class="btn-action"
-                    data-i18n="u_step3_api_btn"></a>
-            </div>
-            <p class="step-text" data-i18n="u_step3_text6"></p>
-            <img src="image/step3_4.png" alt="APIキー取得" class="step-img">
-            <p class="step-text" data-i18n="u_step3_text7"></p>
+            <p data-i18n="u_step3_t1"></p>
+            <div style="text-align:center"><a href="contact.html" class="login-btn-nav"
+                    style="display:inline-block;padding:12px 30px;text-decoration:none"
+                    data-i18n="u_step3_contact_btn"></a></div>
+            <p data-i18n="u_step3_t2"></p><img src="image/step3_1.png" class="step-img">
+            <p data-i18n="u_step3_t3"></p><img src="image/step3_2.png" class="step-img">
+            <p data-i18n="u_step3_t4"></p><img src="image/step3_3.png" class="step-img">
+            <p data-i18n="u_step3_t5"></p>
+            <div style="text-align:center"><a href="https://stake.com/settings/api" target="_blank"
+                    class="login-btn-nav" style="display:inline-block;padding:12px 30px;text-decoration:none"
+                    data-i18n="u_step3_api_btn"></a></div>
+            <p data-i18n="u_step3_text6"></p><img src="image/step3_4.png" class="step-img">
+            <p data-i18n="u_step3_text7"></p>
         </div>
-
         <div class="owner-request">
-            <h3 style="color: #fff; margin-bottom: 20px;" data-i18n="u_owner_req_title"></h3>
-            <p class="step-text" data-i18n="u_owner_req_text"></p>
-            <a href="purchase.html" class="btn-buy-now" data-i18n="u_owner_buy_btn"></a>
+            <h3 style="color:#fff;margin-bottom:20px" data-i18n="u_owner_req_title"></h3>
+            <p data-i18n="u_owner_req_text"></p><a href="purchase.html" class="btn-buy-now"
+                data-i18n="u_owner_buy_btn"></a>
         </div>
     </div>
     <script src="setting.js"></script>

@@ -106,6 +106,30 @@
             border-radius: 8px;
             background: #0a0a0a
         }
+
+        .help-box {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid #333;
+            width: 100%;
+        }
+
+        .reload-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .reload-btn:hover {
+            background: #444;
+        }
     </style>
 </head>
 
@@ -120,11 +144,20 @@
         </div>
         <div class="right-col" id="pending-view">
             <h2 data-i18n="payment_title"></h2>
-            <p data-i18n="pay_info"></p><a id="pay-link" href="#" target="_blank" class="pay-btn"
-                data-i18n="pay_link_btn"></a>
+            <p data-i18n="pay_info"></p>
+            <a id="pay-link" href="#" target="_blank" class="pay-btn" data-i18n="pay_link_btn"></a>
             <div class="spinner"></div>
             <div id="status-text" style="color:#ffd700;font-weight:bold" data-i18n="waiting_pay"></div>
             <div class="timer-display" id="timer">--:--</div>
+            <div class="help-box">
+                <p data-i18n="pay_help_title" style="font-weight:bold; margin:0;"></p>
+                <button class="reload-btn" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> <span
+                        data-i18n="pay_help_reload"></span></button>
+                <p style="font-size:0.85rem; color:#888; margin-top:15px;">
+                    <span data-i18n="pay_help_msg"></span> <a href="/contact"
+                        style="color:#00E701; text-decoration:underline;" data-i18n="nav_contact"></a>
+                </p>
+            </div>
         </div>
         <div class="right-col" id="success-view" style="display:none"><i class="fa-solid fa-circle-check"
                 style="font-size:5rem;color:#00E701;margin-bottom:20px"></i>
@@ -136,11 +169,11 @@
     </div>
     <script src="/setting.js"></script>
     <script>
-        const oid=location.pathname.split('/').pop(); document.getElementById('disp-oid').innerText=oid; let cInt;
-        window.addEventListener('DOMContentLoaded',async()=>{if(!window.supabaseApp)await new Promise(r=>setTimeout(r,1000));const {data:{session}}=await window.supabaseApp.auth.getSession();if(session){try{const res=await fetch('/api/history',{method:'POST',body:JSON.stringify({user_id:session.user.id})});const os=await res.json();const t=os.find(o=>o.order_id===oid);if(t){document.getElementById('disp-plan').innerText=t.plan_type.toUpperCase();document.getElementById('disp-amount').innerText="¥"+t.final_amount;if(t.status==='paid')showS(t.license_key);else{document.getElementById('pay-link').href=t.pay_url;startP(session.user.id);startT(t.created_at)}}}catch(e){}}});
-        function startP(uid){setInterval(async()=>{try{const res=await fetch('/api/check_order',{method:'POST',body:JSON.stringify({order_id:oid,user_id:uid})});const d=await res.json();if(d.status==='paid')showS(d.license_key)}catch(e){}},3000)}
-        function startT(cStr){const expire=new Date(cStr).getTime()+(60*60*1000);function up(){const diff=expire-new Date().getTime();if(diff<=0){clearInterval(cInt);location.reload();return}const m=Math.floor((diff%(1000*60*60))/(1000*60)),s=Math.floor((diff%(1000*60))/1000);document.getElementById('timer').innerText=`${t('timer_label')}: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`}up();cInt=setInterval(up,1000)}
-        function showS(k){document.getElementById('pending-view').style.display='none';document.getElementById('success-view').style.display='flex';document.getElementById('license-key').innerText=k}
+        const oid = location.pathname.split('/').pop(); document.getElementById('disp-oid').innerText = oid; let cInt;
+        window.addEventListener('DOMContentLoaded', async () => { if (!window.supabaseApp) await new Promise(r => setTimeout(r, 1000)); const { data: { session } } = await window.supabaseApp.auth.getSession(); if (session) { try { const res = await fetch('/api/history', { method: 'POST', body: JSON.stringify({ user_id: session.user.id }) }); const os = await res.json(); const t = os.find(o => o.order_id === oid); if (t) { document.getElementById('disp-plan').innerText = t.plan_type.toUpperCase(); document.getElementById('disp-amount').innerText = "¥" + t.final_amount; if (t.status === 'paid') showS(t.license_key); else { document.getElementById('pay-link').href = t.pay_url; startP(session.user.id); startT(t.created_at) } } } catch (e) { } } });
+        function startP(uid) { setInterval(async () => { try { const res = await fetch('/api/check_order', { method: 'POST', body: JSON.stringify({ order_id: oid, user_id: uid }) }); const d = await res.json(); if (d.status === 'paid') showS(d.license_key) } catch (e) { } }, 3000) }
+        function startT(cStr) { const expire = new Date(cStr).getTime() + (60 * 60 * 1000); function up() { const diff = expire - new Date().getTime(); if (diff <= 0) { clearInterval(cInt); location.reload(); return } const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((diff % (1000 * 60)) / 1000); document.getElementById('timer').innerText = `${t('timer_label')}: ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` } up(); cInt = setInterval(up, 1000) }
+        function showS(k) { document.getElementById('pending-view').style.display = 'none'; document.getElementById('success-view').style.display = 'flex'; document.getElementById('license-key').innerText = k }
     </script>
 </body>
 
